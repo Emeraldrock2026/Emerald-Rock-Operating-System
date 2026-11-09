@@ -1888,6 +1888,7 @@ export type Database = {
         }
         Returns: number
       }
+      record_reference_code: { Args: { _module: string }; Returns: string }
       review_comparison_finding: {
         Args: { _amended?: string; _decision: string; _finding: string }
         Returns: string
