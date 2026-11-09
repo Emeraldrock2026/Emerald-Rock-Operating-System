@@ -4,7 +4,7 @@
 --   rebase=2, history_after=2, history_previous=2026-12-01, history_edit=refused IMMUTABLE, history_delete=refused IMMUTABLE,
 --   member_forecast=1, forecast_stamped=today, member_rebase=refused NOT_ALLOWED, member_add=refused, viewer_forecast=0,
 --   actual_future=refused ACTUAL_IN_FUTURE, stale_rebase=refused STALE_EDIT, outsider_sees=0, outsider_history=0,
---   off_member_sees=0, off_admin_sees=1, off_admin_edit=0, off_rebase=refused MODULE_OFF
+--   off_member_sees=0, off_admin_sees=1, off_admin_edit=0, off_rebase=refused MODULE_OFF, stamp_spoof=ignored
 begin;
 create temp table r(k text, v text) on commit drop;
 create temp table ids(k text, v uuid) on commit drop;
@@ -44,12 +44,13 @@ reset role;
 -- Even the database owner cannot rewrite history
 select pg_temp.try('history_edit', format('update milestone_baselines set baseline_date = %L where milestone_id = %L', '2026-01-01', (select v from ids where k='m')));
 select pg_temp.try('history_delete', format('delete from milestone_baselines where milestone_id = %L', (select v from ids where k='m')));
-update project_milestones set forecast_updated_on = '2026-01-01' where id = (select v from ids where k='m');
 
 -- Member updates the forecast; cannot re-baseline or add
 select pg_temp.as_user('mem'); set local role authenticated;
 with u as (update project_milestones set forecast_date = '2026-12-28' where id = (select v from ids where k='m') returning 1) insert into r select 'member_forecast', count(*)::text from u;
 insert into r select 'forecast_stamped', case when forecast_updated_on = (now() at time zone 'Europe/London')::date then 'today' else forecast_updated_on::text end from project_milestones where id = (select v from ids where k='m');
+update project_milestones set forecast_updated_on = '2020-01-01' where id = (select v from ids where k='m');
+insert into r select 'stamp_spoof', case when forecast_updated_on = (now() at time zone 'Europe/London')::date then 'ignored' else 'ACCEPTED' end from project_milestones where id = (select v from ids where k='m');
 select pg_temp.try('member_rebase', format('select set_milestone_baseline(%L, %L, %L, (select version from project_milestones where id = %L))', (select v from ids where k='m'), '2026-12-30', 'x', (select v from ids where k='m')));
 select pg_temp.try('member_add', format('insert into project_milestones (tenant_id, project_id, name) values (%L, %L, %L)', (select v from ids where k='t'), (select v from ids where k='p'), 'M2'));
 update r set v = 'refused' where k = 'member_add' and v like 'refused%';
