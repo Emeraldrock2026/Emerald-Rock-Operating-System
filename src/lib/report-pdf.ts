@@ -29,7 +29,7 @@ export async function buildReportPdf(s: ReportSnapshot, issue: { no: number; iss
     else page.drawText(pdfSafe(brand.businessName), { x: M, y: H - 44, size: 13, font: bold, color: colour });
     const right = pdfSafe(`${s.reference} · Issue ${issue.no}`).replace("·", "-");
     page.drawText(right, { x: W - M - font.widthOfTextAtSize(right, 9), y: H - 40, size: 9, font });
-    y = H - 80;
+    y = H - 100;
   };
   const ensure = (h: number) => { if (y - h < M + 30) header(); };
   const para = (text: string, f: PDFFont, size: number, c = rgb(0.1, 0.1, 0.1)) => {
