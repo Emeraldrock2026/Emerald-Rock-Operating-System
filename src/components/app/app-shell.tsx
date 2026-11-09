@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLayoutEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { toast } from "sonner";
-import { Building2, Check, ChevronsUpDown, LayoutDashboard, LogOut, Users, Briefcase, FolderKanban, Menu, Settings, CalendarDays, Sun, Moon, Monitor, Download } from "lucide-react";
+import { Building2, Check, ChevronsUpDown, LayoutDashboard, LogOut, Users, Briefcase, FolderKanban, Menu, CircleUser, Settings, CalendarDays, Sun, Moon, Monitor, Download } from "lucide-react";
 import { availableExports } from "@/lib/domain/exports";
 import { BrandMark } from "./brand-mark";
 import { signOut } from "./sign-out";
@@ -129,7 +129,7 @@ export function AppShell({ ctx, user, children }: { ctx: TenantContext; user: { 
           {tenant.isDemo ? (
             <span className="rounded border border-border px-1.5 py-0.5 text-xs text-muted-foreground">Demo business</span>
           ) : null}
-          <div className="ml-auto">
+          <div className="ml-auto min-w-0">
             <UserMenu ctx={ctx} email={user.email} userId={user.id} />
           </div>
         </header>
@@ -221,8 +221,9 @@ function UserMenu({ ctx, email, userId }: { ctx: TenantContext; email: string; u
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="max-w-[16rem] gap-2 px-2 text-sm">
-          <span className="truncate">{email}</span>
+        <Button variant="ghost" className="max-w-[16rem] gap-2 px-2 text-sm" aria-label={`Account menu for ${email}`}>
+          <CircleUser className="size-5 sm:hidden" aria-hidden />
+          <span className="hidden truncate sm:inline">{email}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60">
