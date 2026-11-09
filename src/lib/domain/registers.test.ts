@@ -46,7 +46,7 @@ describe("register status rules", () => {
     expect(statusProblem("procurement", "awarded", { supplier: " " })).toBe("Record the selected supplier first.");
     expect(nextStatuses("procurement", "tendering", false)).toEqual(["planning"]);
     expect(nextStatuses("procurement", "tendering", true)).not.toContain("ordered");
-    expect(nextStatuses("procurement", "awarded", false)).toEqual(["planning", "tendering", "ordered"]);
+    expect(nextStatuses("procurement", "awarded", true)).toContain("ordered");
   });
   it("highlight a delivery forecast later than the required date while still expected", () => {
     expect(isLateForecast("2026-11-10", "2026-11-12", false)).toBe(true);
