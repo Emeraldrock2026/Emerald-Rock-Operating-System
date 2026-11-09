@@ -39,3 +39,5 @@ use the editor.
 - Navigation items are derived from `can()` in `src/components/app/app-shell.tsx`; add an item only when its page exists, its module is enabled and the role permits it.
 - Every module page wraps its content in `RequireModule` (src/components/app/require-module.tsx) and is listed in navigation only when its module is on, so direct links to switched-off modules show a clear message while the database still refuses the data.
 - AI rebalancing suggestions are re-checked by validateProposals in src/lib/domain/rebalance.ts before display; never show or save raw model output, since it can break capacity rules.
+- Business branding is applied as CSS variables on <html> by AppShell (brandStyle in src/lib/branding.ts, .brand-scope in styles.css) and only overrides primary/ring/navigation tokens, so status colours never follow branding and portals match.
+- Light/dark: personal choice in user_preferences, business default on tenants; localStorage mirrors both for the no-flash head script in __root.tsx (src/lib/appearance.ts).
