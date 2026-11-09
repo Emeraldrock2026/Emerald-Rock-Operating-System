@@ -72,3 +72,43 @@ export function consolidatedActions(records: readonly DashboardRecord[], visible
     .map((r) => ({ ...r, state: dueState(r, today) }))
     .sort((a, b) => (a.due_date ?? "9999-12-31").localeCompare(b.due_date ?? "9999-12-31") || a.reference.localeCompare(b.reference));
 }
+
+/* ---------- Charts (dashboard stage 2) ---------- */
+export interface OpenClosed { module_id: string; open: number; closed: number }
+/** Current open and closed totals per visible module (not period-limited). */
+export function openClosedByModule(records: readonly DashboardRecord[], visibleModules: readonly string[]): OpenClosed[] {
+  return visibleModules.map((module_id) => {
+    const rs = records.filter((r) => r.module_id === module_id);
+    const closed = rs.filter((r) => r.is_closed).length;
+    return { module_id, open: rs.length - closed, closed };
+  });
+}
+
+export interface WeekBucket { week: DateOnly; raised: number; closed: number }
+/** Monday-start weeks overlapping the period; counts raised and closed records of visible modules by week. */
+export function weeklyTrend(records: readonly DashboardRecord[], visibleModules: readonly string[], period: Period): WeekBucket[] {
+  const visible = new Set(visibleModules);
+  const weeks: WeekBucket[] = [];
+  for (let w = startOfWeek(period.from); w <= period.to && weeks.length < 60; w = addDays(w, 7)) weeks.push({ week: w, raised: 0, closed: 0 });
+  const idx = (d: DateOnly) => weeks.findIndex((b) => b.week === startOfWeek(d));
+  for (const r of records) {
+    if (!visible.has(r.module_id)) continue;
+    if (inPeriod(r.created_on, period)) { const i = idx(r.created_on); if (i >= 0) weeks[i].raised++; }
+    if (r.is_closed && inPeriod(r.closed_on, period)) { const i = idx(r.closed_on!); if (i >= 0) weeks[i].closed++; }
+  }
+  return weeks;
+}
+
+export type Segment =
+  | { kind: "status"; module_id: string; closed: boolean }
+  | { kind: "week"; week: DateOnly; series: "raised" | "closed" };
+/** The exact records behind a chart segment, so click-through always matches the bar. */
+export function segmentRecords(records: readonly DashboardRecord[], visibleModules: readonly string[], period: Period, seg: Segment): DashboardRecord[] {
+  const visible = new Set(visibleModules);
+  return records.filter((r) => {
+    if (!visible.has(r.module_id)) return false;
+    if (seg.kind === "status") return r.module_id === seg.module_id && r.is_closed === seg.closed;
+    const d = seg.series === "raised" ? r.created_on : r.is_closed ? r.closed_on : null;
+    return !!d && inPeriod(d, period) && startOfWeek(d) === seg.week;
+  }).sort((a, b) => a.reference.localeCompare(b.reference));
+}
