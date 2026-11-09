@@ -24,6 +24,7 @@ import { Route as AuthenticatedTTenantIdPeopleIndexRouteImport } from './routes/
 import { Route as AuthenticatedTTenantIdPeopleEmployeeIdRouteImport } from './routes/_authenticated/t.$tenantId.people.$employeeId'
 import { Route as AuthenticatedTTenantIdProjectsIndexRouteImport } from './routes/_authenticated/t.$tenantId.projects.index'
 import { Route as AuthenticatedTTenantIdProjectsProjectIdRouteImport } from './routes/_authenticated/t.$tenantId.projects.$projectId'
+import { Route as AuthenticatedTTenantIdSettingsAppearanceRouteImport } from './routes/_authenticated/t.$tenantId.settings.appearance'
 import { Route as AuthenticatedTTenantIdSettingsUsersRouteImport } from './routes/_authenticated/t.$tenantId.settings.users'
 
 const IndexRoute = IndexRouteImport.update({
@@ -109,6 +110,12 @@ const AuthenticatedTTenantIdProjectsProjectIdRoute =
     path: '/projects/$projectId',
     getParentRoute: () => AuthenticatedTTenantIdRoute,
   } as any)
+const AuthenticatedTTenantIdSettingsAppearanceRoute =
+  AuthenticatedTTenantIdSettingsAppearanceRouteImport.update({
+    id: '/settings/appearance',
+    path: '/settings/appearance',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
 const AuthenticatedTTenantIdSettingsUsersRoute =
   AuthenticatedTTenantIdSettingsUsersRouteImport.update({
     id: '/settings/users',
@@ -128,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/t/$tenantId/': typeof AuthenticatedTTenantIdIndexRoute
   '/t/$tenantId/people/$employeeId': typeof AuthenticatedTTenantIdPeopleEmployeeIdRoute
   '/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
+  '/t/$tenantId/settings/appearance': typeof AuthenticatedTTenantIdSettingsAppearanceRoute
   '/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
   '/t/$tenantId/clients/': typeof AuthenticatedTTenantIdClientsIndexRoute
   '/t/$tenantId/people/': typeof AuthenticatedTTenantIdPeopleIndexRoute
@@ -144,6 +152,7 @@ export interface FileRoutesByTo {
   '/t/$tenantId': typeof AuthenticatedTTenantIdIndexRoute
   '/t/$tenantId/people/$employeeId': typeof AuthenticatedTTenantIdPeopleEmployeeIdRoute
   '/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
+  '/t/$tenantId/settings/appearance': typeof AuthenticatedTTenantIdSettingsAppearanceRoute
   '/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
   '/t/$tenantId/clients': typeof AuthenticatedTTenantIdClientsIndexRoute
   '/t/$tenantId/people': typeof AuthenticatedTTenantIdPeopleIndexRoute
@@ -163,6 +172,7 @@ export interface FileRoutesById {
   '/_authenticated/t/$tenantId/': typeof AuthenticatedTTenantIdIndexRoute
   '/_authenticated/t/$tenantId/people/$employeeId': typeof AuthenticatedTTenantIdPeopleEmployeeIdRoute
   '/_authenticated/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
+  '/_authenticated/t/$tenantId/settings/appearance': typeof AuthenticatedTTenantIdSettingsAppearanceRoute
   '/_authenticated/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
   '/_authenticated/t/$tenantId/clients/': typeof AuthenticatedTTenantIdClientsIndexRoute
   '/_authenticated/t/$tenantId/people/': typeof AuthenticatedTTenantIdPeopleIndexRoute
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/'
     | '/t/$tenantId/people/$employeeId'
     | '/t/$tenantId/projects/$projectId'
+    | '/t/$tenantId/settings/appearance'
     | '/t/$tenantId/settings/users'
     | '/t/$tenantId/clients/'
     | '/t/$tenantId/people/'
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId'
     | '/t/$tenantId/people/$employeeId'
     | '/t/$tenantId/projects/$projectId'
+    | '/t/$tenantId/settings/appearance'
     | '/t/$tenantId/settings/users'
     | '/t/$tenantId/clients'
     | '/t/$tenantId/people'
@@ -216,6 +228,7 @@ export interface FileRouteTypes {
     | '/_authenticated/t/$tenantId/'
     | '/_authenticated/t/$tenantId/people/$employeeId'
     | '/_authenticated/t/$tenantId/projects/$projectId'
+    | '/_authenticated/t/$tenantId/settings/appearance'
     | '/_authenticated/t/$tenantId/settings/users'
     | '/_authenticated/t/$tenantId/clients/'
     | '/_authenticated/t/$tenantId/people/'
@@ -336,6 +349,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdProjectsProjectIdRouteImport
       parentRoute: typeof AuthenticatedTTenantIdRoute
     }
+    '/_authenticated/t/$tenantId/settings/appearance': {
+      id: '/_authenticated/t/$tenantId/settings/appearance'
+      path: '/settings/appearance'
+      fullPath: '/t/$tenantId/settings/appearance'
+      preLoaderRoute: typeof AuthenticatedTTenantIdSettingsAppearanceRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
     '/_authenticated/t/$tenantId/settings/users': {
       id: '/_authenticated/t/$tenantId/settings/users'
       path: '/settings/users'
@@ -351,6 +371,7 @@ interface AuthenticatedTTenantIdRouteChildren {
   AuthenticatedTTenantIdIndexRoute: typeof AuthenticatedTTenantIdIndexRoute
   AuthenticatedTTenantIdPeopleEmployeeIdRoute: typeof AuthenticatedTTenantIdPeopleEmployeeIdRoute
   AuthenticatedTTenantIdProjectsProjectIdRoute: typeof AuthenticatedTTenantIdProjectsProjectIdRoute
+  AuthenticatedTTenantIdSettingsAppearanceRoute: typeof AuthenticatedTTenantIdSettingsAppearanceRoute
   AuthenticatedTTenantIdSettingsUsersRoute: typeof AuthenticatedTTenantIdSettingsUsersRoute
   AuthenticatedTTenantIdClientsIndexRoute: typeof AuthenticatedTTenantIdClientsIndexRoute
   AuthenticatedTTenantIdPeopleIndexRoute: typeof AuthenticatedTTenantIdPeopleIndexRoute
@@ -365,6 +386,8 @@ const AuthenticatedTTenantIdRouteChildren: AuthenticatedTTenantIdRouteChildren =
       AuthenticatedTTenantIdPeopleEmployeeIdRoute,
     AuthenticatedTTenantIdProjectsProjectIdRoute:
       AuthenticatedTTenantIdProjectsProjectIdRoute,
+    AuthenticatedTTenantIdSettingsAppearanceRoute:
+      AuthenticatedTTenantIdSettingsAppearanceRoute,
     AuthenticatedTTenantIdSettingsUsersRoute:
       AuthenticatedTTenantIdSettingsUsersRoute,
     AuthenticatedTTenantIdClientsIndexRoute:
