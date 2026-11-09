@@ -3,7 +3,7 @@
 -- Expected: admin_close=closed, closed_flag=true, ew_first=open, ew_member_close=refused ADMIN_ONLY_STATUS, member_reopen=refused ADMIN_ONLY_STATUS,
 --   member_rfi=ok, member_respond_blank=refused RESPONSE_REQUIRED, member_responded=responded, other_business_sees=0, prog_current=current,
 --   prog_member_current=refused ADMIN_ONLY_STATUS, prog_no_file=refused PROGRAMME_FILE_REQUIRED, prog_old=superseded, rfi_off_member=0,
---   rfi_off_admin=1, rfi_off_edit=refused, viewer_rfi=refused, viewer_comment=refused, member_comment=ok, bad_status=refused BAD_STATUS
+--   rfi_off_admin=1, rfi_off_edit=refused, prog_ref=<project>-PRG-000n, viewer_rfi=refused, viewer_comment=refused, member_comment=ok, bad_status=refused BAD_STATUS
 begin;
 create temp table r(k text, v text) on commit drop;
 create temp table ids(k text, v uuid) on commit drop;
@@ -65,6 +65,7 @@ update project_records set status = 'current' where title = 'Prog A';
 insert into project_records (tenant_id, project_id, module_id, title, status, fields) values ((select v from ids where k='t'), (select v from ids where k='p'), 'programmes', 'Prog B', 'current', json_build_object('file_id', (select v from ids where k='f'))::jsonb);
 insert into r select 'prog_old', status from project_records where title = 'Prog A';
 insert into r select 'prog_current', status from project_records where title = 'Prog B';
+insert into r select 'prog_ref', reference from project_records where title = 'Prog B';
 reset role;
 
 -- Member can't reopen a closed RFI
