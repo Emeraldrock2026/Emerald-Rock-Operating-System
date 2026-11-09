@@ -105,3 +105,6 @@ Platform admins switch modules per business on the business page. The UI uses `s
 
 ## Clients & Projects (stage 6)
 `/t/<id>/clients`, `/t/<id>/projects`, `/t/<id>/projects/<projectId>`, each wrapped in `RequireModule("clients_projects")`. `guard_project_client` refuses inactive clients on new or re-pointed projects (`CLIENT_INACTIVE`). Employees cannot read `clients`; `my_project_client_names(tenant)` returns client names only for projects the caller may see. Status changes offered in the UI come from `allowedStatusTransitions()`; closing still needs future allocations resolved (`guard_project_status`).
+
+## Commercial
+Fee and budget hours live in project_commercials (one row per project), readable/writable only via has_commercial_access (module on + Owner/Admin or Resource Manager with grant). History is read from audit_log category commercial.

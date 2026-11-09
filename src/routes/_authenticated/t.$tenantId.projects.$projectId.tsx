@@ -15,6 +15,7 @@ import { formatDateGB } from "@/lib/domain/dates";
 import { friendlyError, StaleRecordError } from "@/lib/db-errors";
 import { clientsQuery, projectsQuery } from "@/lib/projects-data";
 import { employeesQuery } from "@/lib/people";
+import { ProjectCommercials } from "@/components/commercial/project-commercials";
 
 export const Route = createFileRoute("/_authenticated/t/$tenantId/projects/$projectId")({
   head: () => ({
@@ -125,7 +126,7 @@ function ProjectPage() {
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         {ctx.access && can(ctx.access, "commercial.view") ? (
-          <Placeholder title="Fee and budget hours" text="Agreed fee and budget hours arrive in the next stage." />
+          <ProjectCommercials tenantId={tenantId} projectId={projectId} canEdit={can(ctx.access, "commercial.edit")} />
         ) : null}
         {ctx.access && can(ctx.access, "allocations.view_all") ? (
           <Placeholder title="Planned work" text="Allocations for this project will show here once Resource Planning is built." />
