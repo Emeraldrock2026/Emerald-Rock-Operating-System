@@ -111,3 +111,6 @@ Fee and budget hours live in project_commercials (one row per project), readable
 
 ## Resource planner
 Weekly grid at /t/:tenantId/planner (RequireModule resource_planning). Capacity per day comes from the effective-dated working pattern for that date (capacityOn); over-allocation, out-of-dates and On Hold bookings need confirmation in the UI; the database refuses inactive people and Draft/Completed/Archived projects. Employees see only their own row, read-only.
+
+## Rebalancing suggestions
+suggestRebalance (src/lib/rebalance.functions.ts) runs as the signed-in user (RLS), requires is_tenant_manager + resource_planning, sends only this business's week (ids, names, job titles, hours; no emails or commercial data) to the AI Gateway, then filters every proposal through validateProposals (src/lib/domain/rebalance.ts). Changes are saved only after the user confirms, version-checked.
