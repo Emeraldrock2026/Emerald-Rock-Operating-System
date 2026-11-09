@@ -162,7 +162,7 @@ function ProjectPage() {
       )}
 
       <Tabs defaultValue="dashboard" className="mt-6">
-        <TabsList>
+        <TabsList className="h-auto flex-wrap">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           {fileTabs.map((t) => <TabsTrigger key={t.id} value={t.id}>{t.label}</TabsTrigger>)}
           {drawingsAccess.visible ? <TabsTrigger value="drawings">Drawings</TabsTrigger> : null}

@@ -168,9 +168,9 @@ function ReportDialog(p: Props & { rec: Rec; onClose: () => void }) {
 
   const openIssue = async (i: Issue) => {
     const { data: v } = await supabase.from("project_file_versions").select("storage_path").eq("file_id", i.file_id).eq("version_no", i.file_version).maybeSingle();
-    if (!v) return toast.error("That copy isn't available to you.");
+    if (!v) { toast.error("That copy isn't available to you."); return; }
     const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(v.storage_path, 300);
-    if (error || !data) return toast.error(friendlyError(error));
+    if (error || !data) { toast.error(friendlyError(error)); return; }
     window.open(data.signedUrl, "_blank", "noopener");
   };
   const togglePhoto = (f: { id: string; current_version: number; caption: string; title: string }, on: boolean) =>
