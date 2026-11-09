@@ -36,6 +36,13 @@
       "when": 1794252804162,
       "tag": "0004_membership_invitations",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794254249087,
+      "tag": "0005_platform_tenant_overview",
+      "breakpoints": true
     }
   ]
 }
