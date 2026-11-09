@@ -216,11 +216,11 @@ function AddPattern({ tenantId, employeeId, existing, today, current }: {
   });
   const submit = (ev: FormEvent) => {
     ev.preventDefault();
-    if (!isDateOnly(from)) return toast.error("Choose a start date.");
+    if (!isDateOnly(from)) { toast.error("Choose a start date."); return; }
     const nums = hours.map((h) => Number(h));
     const problem = checkNewPattern(existing.map((p) => ({ effectiveFrom: p.effectiveFrom, hours: [0, 0, 0, 0, 0, 0, 0] })), from, nums);
-    if (problem === "invalid_hours") return toast.error("Each day must be between 0 and 24 hours.");
-    if (problem === "date_taken") return toast.error("There is already a pattern starting on that date.");
+    if (problem === "invalid_hours") { toast.error("Each day must be between 0 and 24 hours."); return; }
+    if (problem === "date_taken") { toast.error("There is already a pattern starting on that date."); return; }
     if (from < today && !window.confirm(`${formatDateGB(from)} is in the past. This is only allowed if no work has been booked for this person since then. Continue?`)) return;
     add.mutate(nums);
   };
