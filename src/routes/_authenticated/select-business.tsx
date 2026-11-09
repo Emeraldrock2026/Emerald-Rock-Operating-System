@@ -10,8 +10,8 @@ import { ROLE_LABEL } from "@/lib/labels";
 import { isPlatformAdminQuery, isUsable, lastTenantKey, myMembershipsQuery } from "@/lib/session";
 
 export const Route = createFileRoute("/_authenticated/select-business")({
-  validateSearch: (search: Record<string, unknown>): { choose?: string } => ({
-    choose: search.choose === "1" || search.choose === 1 ? "1" : undefined,
+  validateSearch: (search: Record<string, unknown>): { choose?: string | undefined } => ({
+    choose: search["choose"] === "1" || search["choose"] === 1 ? "1" : undefined,
   }),
   loader: ({ context }) =>
     Promise.all([

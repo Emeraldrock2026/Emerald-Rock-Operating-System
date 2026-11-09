@@ -16,6 +16,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedSelectBusinessRouteImport } from './routes/_authenticated/select-business'
 import { Route as AuthenticatedTTenantIdRouteImport } from './routes/_authenticated/t.$tenantId'
 import { Route as AuthenticatedTTenantIdIndexRouteImport } from './routes/_authenticated/t.$tenantId.index'
+import { Route as AuthenticatedTTenantIdSettingsUsersRouteImport } from './routes/_authenticated/t.$tenantId.settings.users'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -53,6 +54,12 @@ const AuthenticatedTTenantIdIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedTTenantIdRoute,
   } as any)
+const AuthenticatedTTenantIdSettingsUsersRoute =
+  AuthenticatedTTenantIdSettingsUsersRouteImport.update({
+    id: '/settings/users',
+    path: '/settings/users',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +68,7 @@ export interface FileRoutesByFullPath {
   '/select-business': typeof AuthenticatedSelectBusinessRoute
   '/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
   '/t/$tenantId/': typeof AuthenticatedTTenantIdIndexRoute
+  '/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -68,6 +76,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/select-business': typeof AuthenticatedSelectBusinessRoute
   '/t/$tenantId': typeof AuthenticatedTTenantIdIndexRoute
+  '/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,6 +87,7 @@ export interface FileRoutesById {
   '/_authenticated/select-business': typeof AuthenticatedSelectBusinessRoute
   '/_authenticated/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
   '/_authenticated/t/$tenantId/': typeof AuthenticatedTTenantIdIndexRoute
+  '/_authenticated/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -88,8 +98,15 @@ export interface FileRouteTypes {
     | '/select-business'
     | '/t/$tenantId'
     | '/t/$tenantId/'
+    | '/t/$tenantId/settings/users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/reset-password' | '/select-business' | '/t/$tenantId'
+  to:
+    | '/'
+    | '/auth'
+    | '/reset-password'
+    | '/select-business'
+    | '/t/$tenantId'
+    | '/t/$tenantId/settings/users'
   id:
     | '__root__'
     | '/'
@@ -99,6 +116,7 @@ export interface FileRouteTypes {
     | '/_authenticated/select-business'
     | '/_authenticated/t/$tenantId'
     | '/_authenticated/t/$tenantId/'
+    | '/_authenticated/t/$tenantId/settings/users'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -159,16 +177,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdIndexRouteImport
       parentRoute: typeof AuthenticatedTTenantIdRoute
     }
+    '/_authenticated/t/$tenantId/settings/users': {
+      id: '/_authenticated/t/$tenantId/settings/users'
+      path: '/settings/users'
+      fullPath: '/t/$tenantId/settings/users'
+      preLoaderRoute: typeof AuthenticatedTTenantIdSettingsUsersRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
   }
 }
 
 interface AuthenticatedTTenantIdRouteChildren {
   AuthenticatedTTenantIdIndexRoute: typeof AuthenticatedTTenantIdIndexRoute
+  AuthenticatedTTenantIdSettingsUsersRoute: typeof AuthenticatedTTenantIdSettingsUsersRoute
 }
 
 const AuthenticatedTTenantIdRouteChildren: AuthenticatedTTenantIdRouteChildren =
   {
     AuthenticatedTTenantIdIndexRoute: AuthenticatedTTenantIdIndexRoute,
+    AuthenticatedTTenantIdSettingsUsersRoute:
+      AuthenticatedTTenantIdSettingsUsersRoute,
   }
 
 const AuthenticatedTTenantIdRouteWithChildren =
