@@ -16,6 +16,8 @@ const FRIENDLY: Record<string, string> = {
   CLIENT_INACTIVE: "That client is inactive. Reactivate them or choose another client.",
   IMMUTABLE: "Project references never change.",
   CROSS_TENANT_REFERENCE: "That record belongs to another business.",
+  EMPLOYEE_INACTIVE: "That person is inactive and can't be given new work.",
+  PROJECT_NOT_ALLOCATABLE: "Only Active or On Hold projects can have work booked.",
   STALE_RECORD: "Someone else changed this record. Refresh the page and try again.",
 };
 
