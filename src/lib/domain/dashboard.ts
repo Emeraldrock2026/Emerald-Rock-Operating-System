@@ -93,8 +93,8 @@ export function weeklyTrend(records: readonly DashboardRecord[], visibleModules:
   const idx = (d: DateOnly) => weeks.findIndex((b) => b.week === startOfWeek(d));
   for (const r of records) {
     if (!visible.has(r.module_id)) continue;
-    if (inPeriod(r.created_on, period)) { const i = idx(r.created_on); if (i >= 0) weeks[i].raised++; }
-    if (r.is_closed && inPeriod(r.closed_on, period)) { const i = idx(r.closed_on!); if (i >= 0) weeks[i].closed++; }
+    if (inPeriod(r.created_on, period)) { const i = idx(r.created_on); const b = weeks[i]; if (b) b.raised++; }
+    if (r.is_closed && inPeriod(r.closed_on, period)) { const i = idx(r.closed_on!); const b = weeks[i]; if (b) b.closed++; }
   }
   return weeks;
 }
