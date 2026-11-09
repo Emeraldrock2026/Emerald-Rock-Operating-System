@@ -31,6 +31,10 @@ const FRIENDLY: Record<string, string> = {
   NOT_A_DRAWING: "That entry isn't a drawing.",
   REVISION_OUT_OF_SEQUENCE: "That revision doesn't follow this project's revision sequence.",
   REVISION_NOT_LATER: "A new revision must come after the latest one received.",
+  BAD_DECISION: "Choose accept, amend or reject.",
+  AMENDMENT_REQUIRED: "Write the amended wording before saving.",
+  CHANGE_NOT_DRAFT: "That change is no longer a draft, so its findings can't be changed.",
+  CHANGE_MODULE_OFF: "Change control must be switched on for this project before findings can be accepted.",
   NOT_ALLOWED: "You don't have permission to do that.",
   STALE_RECORD: "Someone else changed this record. Refresh the page and try again.",
 };

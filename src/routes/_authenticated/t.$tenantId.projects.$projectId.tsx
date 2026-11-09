@@ -18,6 +18,7 @@ import { employeesQuery } from "@/lib/people";
 import { ProjectCommercials } from "@/components/commercial/project-commercials";
 import { KeyDatesCard, OrganisationsCard, ProjectDashboard, ProjectDetailsCard, ProjectModulesCard, TeamCard } from "@/components/project-setup/project-workspace";
 import { projectDetailQuery, projectModulesQuery } from "@/lib/project-setup-data";
+import { ChangeRegister } from "@/components/drawings/change-register";
 import { DrawingRegister } from "@/components/drawings/drawing-register";
 import { ProjectFilesPanel } from "@/components/project-files/project-files-panel";
 import { fileModuleAccess, type FileModuleId } from "@/lib/domain/project-files";
@@ -69,6 +70,10 @@ function ProjectPage() {
       canView: true, canContribute, canManage: canManageProject,
     }),
   })).filter((t) => t.access.visible);
+  const changeAccess = fileModuleAccess({
+    businessOn: ctx.access?.enabledModules.has("change_control") ?? false, projectOn: projectMods.data?.has("change_control") ?? false,
+    canView: true, canContribute: canManageProject, canManage: canManageProject,
+  });
   const drawingsAccess = fileModuleAccess({
     businessOn: ctx.access?.enabledModules.has("drawings") ?? false, projectOn: projectMods.data?.has("drawings") ?? false,
     canView: true, canContribute, canManage: canManageProject,
@@ -150,6 +155,7 @@ function ProjectPage() {
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           {fileTabs.map((t) => <TabsTrigger key={t.id} value={t.id}>{t.label}</TabsTrigger>)}
           {drawingsAccess.visible ? <TabsTrigger value="drawings">Drawings</TabsTrigger> : null}
+          {changeAccess.visible ? <TabsTrigger value="changes">Change register</TabsTrigger> : null}
           <TabsTrigger value="setup">Team and setup</TabsTrigger>
         </TabsList>
         {(() => {
@@ -167,7 +173,12 @@ function ProjectPage() {
               ))}
               {drawingsAccess.visible ? (
                 <TabsContent value="drawings" className="mt-4">
-                  <DrawingRegister tenantId={tenantId} projectId={projectId} timezone={ctx.tenant!.timezone} canContribute={drawingsAccess.canUpload} canManage={canManageProject} historicOnly={drawingsAccess.historicOnly} />
+                  <DrawingRegister tenantId={tenantId} projectId={projectId} timezone={ctx.tenant!.timezone} canContribute={drawingsAccess.canUpload} canManage={canManageProject} historicOnly={drawingsAccess.historicOnly} changeModuleOn={changeAccess.visible && !changeAccess.historicOnly} />
+                </TabsContent>
+              ) : null}
+              {changeAccess.visible ? (
+                <TabsContent value="changes" className="mt-4">
+                  <ChangeRegister tenantId={tenantId} projectId={projectId} timezone={ctx.tenant!.timezone} canEdit={canManageProject} historicOnly={changeAccess.historicOnly} />
                 </TabsContent>
               ) : null}
               <TabsContent value="setup" className="mt-4 grid gap-4 lg:grid-cols-2">
