@@ -19,6 +19,7 @@ import { friendlyError, StaleRecordError } from "@/lib/db-errors";
 import { employeesQuery, patternsQuery, DAY_LABELS } from "@/lib/people";
 import { projectsQuery } from "@/lib/projects-data";
 import { cn } from "@/lib/utils";
+import { RebalanceDialog } from "@/components/planner/rebalance-dialog";
 
 export const Route = createFileRoute("/_authenticated/t/$tenantId/planner")({
   head: () => ({
@@ -95,6 +96,7 @@ function Planner() {
         </div>
         {manage ? (
           <>
+            <RebalanceDialog tenantId={tenantId} monday={monday} allocations={all} people={people.data ?? []} projectById={projectById} onChanged={invalidate} />
             <div className="grid gap-1"><Label htmlFor="ps" className="text-xs">Person</Label><Input id="ps" className="h-9 w-44" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name" /></div>
             <div className="grid gap-1"><Label htmlFor="pf" className="text-xs">Project</Label>
               <select id="pf" className="h-9 rounded-md border bg-background px-2 text-sm" value={projectFilter} onChange={(e) => setProjectFilter(e.target.value)}>

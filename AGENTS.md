@@ -38,3 +38,4 @@ use the editor.
 - Business-scoped pages live under `src/routes/_authenticated/t.$tenantId.*` and their query keys start with `["tenant", tenantId, …]`, so switching business can drop other tenants' cache and direct links always name the business.
 - Navigation items are derived from `can()` in `src/components/app/app-shell.tsx`; add an item only when its page exists, its module is enabled and the role permits it.
 - Every module page wraps its content in `RequireModule` (src/components/app/require-module.tsx) and is listed in navigation only when its module is on, so direct links to switched-off modules show a clear message while the database still refuses the data.
+- AI rebalancing suggestions are re-checked by validateProposals in src/lib/domain/rebalance.ts before display; never show or save raw model output, since it can break capacity rules.
