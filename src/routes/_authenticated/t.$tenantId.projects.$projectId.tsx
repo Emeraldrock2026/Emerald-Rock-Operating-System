@@ -20,6 +20,8 @@ import { KeyDatesCard, OrganisationsCard, ProjectDashboard, ProjectDetailsCard, 
 import { projectDetailQuery, projectModulesQuery } from "@/lib/project-setup-data";
 import { ReportsPanel } from "@/components/reports/reports-panel";
 import type { ReportModule } from "@/lib/domain/reports";
+import { RegisterPanel } from "@/components/registers/register-panel";
+import { REGISTERS, type RegisterModule } from "@/lib/domain/registers";
 import { ChangeRegister } from "@/components/drawings/change-register";
 import { DrawingRegister } from "@/components/drawings/drawing-register";
 import { ProjectFilesPanel } from "@/components/project-files/project-files-panel";
@@ -83,6 +85,13 @@ function ProjectPage() {
 
   const reportTabs = (["progress_reports", "delay_reports"] as ReportModule[]).map((id) => ({
     id, label: id === "progress_reports" ? "Progress reports" : "Delay reports",
+    access: fileModuleAccess({
+      businessOn: ctx.access?.enabledModules.has(id) ?? false, projectOn: projectMods.data?.has(id) ?? false,
+      canView: true, canContribute, canManage: canManageProject,
+    }),
+  })).filter((t) => t.access.visible);
+  const registerTabs = (["rfis", "early_warnings", "programmes"] as RegisterModule[]).map((id) => ({
+    id, label: REGISTERS[id].label,
     access: fileModuleAccess({
       businessOn: ctx.access?.enabledModules.has(id) ?? false, projectOn: projectMods.data?.has(id) ?? false,
       canView: true, canContribute, canManage: canManageProject,
@@ -167,6 +176,7 @@ function ProjectPage() {
           {fileTabs.map((t) => <TabsTrigger key={t.id} value={t.id}>{t.label}</TabsTrigger>)}
           {drawingsAccess.visible ? <TabsTrigger value="drawings">Drawings</TabsTrigger> : null}
           {reportTabs.map((t) => <TabsTrigger key={t.id} value={t.id}>{t.label}</TabsTrigger>)}
+          {registerTabs.map((t) => <TabsTrigger key={t.id} value={t.id}>{t.label}</TabsTrigger>)}
           {changeAccess.visible ? <TabsTrigger value="changes">Change register</TabsTrigger> : null}
           <TabsTrigger value="setup">Team and setup</TabsTrigger>
         </TabsList>
@@ -194,6 +204,11 @@ function ProjectPage() {
                     project={{ reference: p.reference, name: p.name }}
                     brand={{ businessName: ctx.tenant!.displayName, colour: ctx.tenant!.brandColour, logoPath: ctx.tenant!.logoPath }}
                     canContribute={t.access.canUpload} canIssue={canManageProject} historicOnly={t.access.historicOnly} photosAvailable={photosOn} />
+                </TabsContent>
+              ))}
+              {registerTabs.map((t) => (
+                <TabsContent key={t.id} value={t.id} className="mt-4">
+                  <RegisterPanel tenantId={tenantId} projectId={projectId} module={t.id} timezone={ctx.tenant!.timezone} canContribute={t.access.canUpload} canManage={canManageProject} historicOnly={t.access.historicOnly} />
                 </TabsContent>
               ))}
               {changeAccess.visible ? (
