@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { ArrowLeft, CheckCircle2, Circle } from "lucide-react";
 import { AdminFrame } from "@/components/admin/admin-frame";
 import { NotPlatformAdmin } from "@/components/admin/not-platform-admin";
+import { ModulesSection } from "@/components/admin/modules-section";
 import { SetupBadge } from "@/components/admin/setup-badge";
 import { CenteredPanel } from "@/components/app/centered-panel";
 import { PageHeader } from "@/components/app/page-header";
@@ -123,11 +124,12 @@ function BusinessDetail({ email }: { email: string }) {
           <p className="mt-1 text-sm text-muted-foreground">
             {tenant.modulesEnabled.length
               ? tenant.modulesEnabled.map((m) => (isModuleId(m) ? MODULES[m].name : m)).join(", ")
-              : "None yet. Switching modules on and off arrives in the next stage."}
+              : "None yet."}
           </p>
           <p className="mt-3 text-sm text-muted-foreground">{tenant.membersActive} people have active access.</p>
         </section>
         <OwnersSection tenantId={tenant.id} owners={owners} />
+        <ModulesSection tenantId={tenant.id} businessName={tenant.displayName} enabledIds={tenant.modulesEnabled} />
       </div>
       <AlertDialog open={confirming} onOpenChange={setConfirming}>
         <AlertDialogContent>
