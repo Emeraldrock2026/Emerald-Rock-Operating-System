@@ -99,3 +99,6 @@ Equipment · Property · Advanced Reporting & Integrations.
 
 ## Module switches (stage 4)
 Platform admins switch modules per business on the business page. The UI uses `switchBlockedReason()`; the database trigger `guard_tenant_module` enforces dependencies and every module table's policies call `module_enabled()`. Changes are audited (category `module`). Module pages use `RequireModule`; open sessions refresh business context every minute.
+
+## People and working hours (stage 5)
+`/t/<id>/people` lists employees (Employees see only their own linked record as "My hours"); `/t/<id>/people/<employeeId>` edits details, active status, the linked login (Owner/Admin) and working patterns. A new pattern applies from its date until the next one; earlier weeks keep their old hours. `guard_working_pattern` refuses past-dated changes once work is booked after that date; only upcoming patterns can be removed. Period and validation rules: `src/lib/domain/working-patterns.ts`.
