@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedSelectBusinessRouteImport } from './routes/_authenticated/select-business'
+import { Route as AuthenticatedTTenantIdRouteImport } from './routes/_authenticated/t.$tenantId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,18 +41,25 @@ const AuthenticatedSelectBusinessRoute =
     path: '/select-business',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTTenantIdRoute = AuthenticatedTTenantIdRouteImport.update({
+  id: '/t/$tenantId',
+  path: '/t/$tenantId',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/select-business': typeof AuthenticatedSelectBusinessRoute
+  '/t/$tenantId': typeof AuthenticatedTTenantIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/select-business': typeof AuthenticatedSelectBusinessRoute
+  '/t/$tenantId': typeof AuthenticatedTTenantIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -60,12 +68,14 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/select-business': typeof AuthenticatedSelectBusinessRoute
+  '/_authenticated/t/$tenantId': typeof AuthenticatedTTenantIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/reset-password' | '/select-business'
+  fullPaths:
+    '/' | '/auth' | '/reset-password' | '/select-business' | '/t/$tenantId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/reset-password' | '/select-business'
+  to: '/' | '/auth' | '/reset-password' | '/select-business' | '/t/$tenantId'
   id:
     | '__root__'
     | '/'
@@ -73,6 +83,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/_authenticated/select-business'
+    | '/_authenticated/t/$tenantId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,15 +130,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSelectBusinessRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/t/$tenantId': {
+      id: '/_authenticated/t/$tenantId'
+      path: '/t/$tenantId'
+      fullPath: '/t/$tenantId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSelectBusinessRoute: typeof AuthenticatedSelectBusinessRoute
+  AuthenticatedTTenantIdRoute: typeof AuthenticatedTTenantIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSelectBusinessRoute: AuthenticatedSelectBusinessRoute,
+  AuthenticatedTTenantIdRoute: AuthenticatedTTenantIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
