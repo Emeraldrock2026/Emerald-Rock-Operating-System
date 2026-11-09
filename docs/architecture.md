@@ -158,3 +158,8 @@ Which cards and exports a person gets is decided by `overviewCards` / `available
 - A procurement package can only become ordered from awarded (`guard_procurement_order()`, `ORDER_NEEDS_AWARD`), so the admin-only award step cannot be skipped.
 - Reference codes: `record_reference_code()` (e.g. PRO progress reports, PRG programmes, DEL delay reports, DLV deliveries, PCM procurement).
 - Checks: tests/db/registers_acceptance.sql.
+
+## Milestones (dashboard stage 3)
+- `project_milestones` (baseline, forecast, actual, database-stamped forecast_updated_on) follows the Programmes project module: viewers read while it is on, project admins also read historic; project admins add, contributors update forecast/actual.
+- Baselines change only via `set_milestone_baseline()` (project admin, module on, version check, reason for any re-baseline). Every baseline is written to append-only `milestone_baselines`; direct baseline updates are refused (BASELINE_LOCKED).
+- Checked by `tests/db/milestones_acceptance.sql`.
