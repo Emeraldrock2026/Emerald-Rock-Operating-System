@@ -54,3 +54,30 @@ describe("charts", () => {
     expect(segmentRecords(recs, ["rfis"], p, { kind: "status", module_id: "qa", closed: false })).toEqual([]);
   });
 });
+
+import { ageBucket, ageingCounts, qaResultCounts, recordSegment, weeklyEventCounts } from "./dashboard";
+describe("ageing, events, QA", () => {
+  it("age buckets have inclusive edges", () => {
+    expect(ageBucket("2026-11-02", "2026-11-09")).toBe("0_7");
+    expect(ageBucket("2026-11-01", "2026-11-09")).toBe("8_30");
+    expect(ageBucket("2026-10-10", "2026-11-09")).toBe("8_30");
+    expect(ageBucket("2026-09-10", "2026-11-09")).toBe("31_60");
+    expect(ageBucket("2026-09-09", "2026-11-09")).toBe("61_plus");
+  });
+  it("ageing counts only open records of visible modules", () => {
+    const rs = [rec({ created_on: "2026-11-01" }), rec({ created_on: "2026-11-01", is_closed: true, closed_on: "2026-11-02" }), rec({ module_id: "qa", created_on: "2026-11-01" })];
+    expect(ageingCounts(rs, ["rfis"], "2026-11-09")).toEqual({ "0_7": 0, "8_30": 1, "31_60": 0, "61_plus": 0 });
+    expect(recordSegment(rs, ["rfis"], periodRange("this_week", "2026-11-09")!, "2026-11-09", { kind: "age", bucket: "8_30" })).toHaveLength(1);
+  });
+  it("events are counted by Monday week inside the period", () => {
+    const p = periodRange("this_month", "2026-11-09")!;
+    const ev = (on: string) => ({ id: on, on, module_id: "photos", target_id: "x", label: "" });
+    const w = weeklyEventCounts([ev("2026-11-09"), ev("2026-11-15"), ev("2026-10-31")], p);
+    expect(w.find((x) => x.week === "2026-11-09")?.count).toBe(2);
+    expect(w.find((x) => x.week === "2026-10-26")?.count).toBe(0);
+  });
+  it("QA counts by status and keeps closed separate", () => {
+    const rs = [rec({ module_id: "qa", status: "passed" }), rec({ module_id: "qa", status: "failed" }), rec({ module_id: "qa", status: "failed" }), rec({ module_id: "qa", status: "closed", is_closed: true })];
+    expect(qaResultCounts(rs)).toEqual({ open: 0, passed: 1, failed: 2, closed: 1 });
+  });
+});
