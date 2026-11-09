@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
 import { friendlyError } from "@/lib/db-errors";
-import { MODULES, MODULE_IDS, isModuleId, switchBlockedReason, type ModuleId } from "@/lib/domain/modules";
+import { MODULES, BUSINESS_MODULE_IDS, PROJECT_MODULE_IDS, isModuleId, switchBlockedReason, type ModuleId } from "@/lib/domain/modules";
 import { setModuleEnabled } from "@/lib/platform";
 
 export function ModulesSection({ tenantId, businessName, enabledIds }: { tenantId: string; businessName: string; enabledIds: string[] }) {
@@ -33,12 +33,10 @@ export function ModulesSection({ tenantId, businessName, enabledIds }: { tenantI
     }
   }
 
-  return (
-    <section className="rounded-md border border-border bg-card p-5 md:col-span-2" aria-labelledby="modules-heading">
-      <h2 id="modules-heading" className="font-medium text-foreground">Modules</h2>
-      <p className="mt-1 text-sm text-muted-foreground">Switching a module off hides it from everyone in this business. Its data is kept.</p>
-      <ul className="mt-4 divide-y divide-border">
-        {MODULE_IDS.map((id) => {
+  function renderList(ids: readonly ModuleId[]) {
+    return (
+      <ul className="mt-2 divide-y divide-border">
+        {ids.map((id) => {
           const on = enabled.has(id);
           const reason = switchBlockedReason(id, enabled);
           const deps = MODULES[id].dependsOn as readonly ModuleId[];
@@ -49,6 +47,7 @@ export function ModulesSection({ tenantId, businessName, enabledIds }: { tenantI
                 <label htmlFor={switchId} className="text-sm font-medium text-foreground">{MODULES[id].name}</label>
                 <p className="text-xs text-muted-foreground">
                   {deps.length ? `Needs ${deps.map((d) => MODULES[d].name).join(", ")}.` : "No dependencies."}
+                  {!MODULES[id].built ? <span className="block">Pages not built yet. Switching on lets projects choose it ready for when they are.</span> : null}
                   {reason ? <span className="block text-foreground">{reason}</span> : null}
                 </p>
               </div>
@@ -60,7 +59,19 @@ export function ModulesSection({ tenantId, businessName, enabledIds }: { tenantI
           );
         })}
       </ul>
-      <p className="mt-3 text-xs text-muted-foreground">Future modules appear here once they're built.</p>
+    );
+  }
+
+  return (
+    <section className="rounded-md border border-border bg-card p-5 md:col-span-2" aria-labelledby="modules-heading">
+      <h2 id="modules-heading" className="font-medium text-foreground">Modules</h2>
+      <p className="mt-1 text-sm text-muted-foreground">Switching a module off hides it from everyone in this business. Its data is kept.</p>
+      <h3 className="mt-4 text-sm font-semibold text-foreground">Business modules</h3>
+      {renderList(BUSINESS_MODULE_IDS)}
+      <h3 className="mt-6 text-sm font-semibold text-foreground">Project modules</h3>
+      <p className="text-xs text-muted-foreground">Project admins choose from the ones switched on here for each of their projects.</p>
+      {renderList(PROJECT_MODULE_IDS)}
+
 
       <AlertDialog open={pending !== null} onOpenChange={(o) => !o && setPending(null)}>
         <AlertDialogContent>
