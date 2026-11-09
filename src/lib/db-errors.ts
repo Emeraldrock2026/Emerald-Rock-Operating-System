@@ -36,6 +36,8 @@ const FRIENDLY: Record<string, string> = {
   CHANGE_NOT_DRAFT: "That change is no longer a draft, so its findings can't be changed.",
   CHANGE_MODULE_OFF: "Change control must be switched on for this project before findings can be accepted.",
   NOT_ALLOWED: "You don't have permission to do that.",
+  STALE_EDIT: "Someone else changed this report. Refresh the page and try again.",
+  DUPLICATE_ISSUE: "Nothing has changed since the last issue, so it wasn't issued again.",
   STALE_RECORD: "Someone else changed this record. Refresh the page and try again.",
 };
 

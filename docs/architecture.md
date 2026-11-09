@@ -145,3 +145,8 @@ Which cards and exports a person gets is decided by `overviewCards` / `available
 - `comparison_findings` are unique per (from revision, to revision, fingerprint), so reruns update "last seen" and never duplicate; reviewer decisions survive reruns.
 - `review_comparison_finding()` (project admins, Drawings on): reject, accept or amend. Accept/amend needs Change control on and creates or appends to one draft `project_records` change (module change_control) per revision pair, linked to the drawing. Findings in a non-draft change are locked. No approval, entitlement or valuation fields exist.
 - Checks: `tests/db/comparison_acceptance.sql` (run via the SQL tool).
+
+## Progress and delay reports (P5)
+- Drafts are `project_records` (modules progress_reports / delay_reports) with content in `fields`; contributors draft, project admins issue.
+- Issuing builds a branded PDF from a snapshot, stores it in project-files under the report module, and calls `issue_project_report()`. `report_issues` (select-only) keeps issue number, snapshot, content hash and exact file version. Identical re-issues are refused (DUPLICATE_ISSUE); edits after loading are refused (STALE_EDIT).
+- Module off: no new drafts or issues; project admins still see history. Checks: tests/db/reports_acceptance.sql.

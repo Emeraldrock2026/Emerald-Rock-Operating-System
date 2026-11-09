@@ -18,6 +18,8 @@ import { employeesQuery } from "@/lib/people";
 import { ProjectCommercials } from "@/components/commercial/project-commercials";
 import { KeyDatesCard, OrganisationsCard, ProjectDashboard, ProjectDetailsCard, ProjectModulesCard, TeamCard } from "@/components/project-setup/project-workspace";
 import { projectDetailQuery, projectModulesQuery } from "@/lib/project-setup-data";
+import { ReportsPanel } from "@/components/reports/reports-panel";
+import type { ReportModule } from "@/lib/domain/reports";
 import { ChangeRegister } from "@/components/drawings/change-register";
 import { DrawingRegister } from "@/components/drawings/drawing-register";
 import { ProjectFilesPanel } from "@/components/project-files/project-files-panel";
@@ -78,6 +80,15 @@ function ProjectPage() {
     businessOn: ctx.access?.enabledModules.has("drawings") ?? false, projectOn: projectMods.data?.has("drawings") ?? false,
     canView: true, canContribute, canManage: canManageProject,
   });
+
+  const reportTabs = (["progress_reports", "delay_reports"] as ReportModule[]).map((id) => ({
+    id, label: id === "progress_reports" ? "Progress reports" : "Delay reports",
+    access: fileModuleAccess({
+      businessOn: ctx.access?.enabledModules.has(id) ?? false, projectOn: projectMods.data?.has(id) ?? false,
+      canView: true, canContribute, canManage: canManageProject,
+    }),
+  })).filter((t) => t.access.visible);
+  const photosOn = (ctx.access?.enabledModules.has("photos") ?? false) && (projectMods.data?.has("photos") ?? false);
 
   const save = useMutation({
     mutationFn: async (patch: Partial<ProjectFormValues> & { status?: ProjectStatus }) => {
@@ -151,10 +162,11 @@ function ProjectPage() {
       )}
 
       <Tabs defaultValue="dashboard" className="mt-6">
-        <TabsList>
+        <TabsList className="h-auto flex-wrap">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           {fileTabs.map((t) => <TabsTrigger key={t.id} value={t.id}>{t.label}</TabsTrigger>)}
           {drawingsAccess.visible ? <TabsTrigger value="drawings">Drawings</TabsTrigger> : null}
+          {reportTabs.map((t) => <TabsTrigger key={t.id} value={t.id}>{t.label}</TabsTrigger>)}
           {changeAccess.visible ? <TabsTrigger value="changes">Change register</TabsTrigger> : null}
           <TabsTrigger value="setup">Team and setup</TabsTrigger>
         </TabsList>
@@ -176,6 +188,14 @@ function ProjectPage() {
                   <DrawingRegister tenantId={tenantId} projectId={projectId} timezone={ctx.tenant!.timezone} canContribute={drawingsAccess.canUpload} canManage={canManageProject} historicOnly={drawingsAccess.historicOnly} changeModuleOn={changeAccess.visible && !changeAccess.historicOnly} />
                 </TabsContent>
               ) : null}
+              {reportTabs.map((t) => (
+                <TabsContent key={t.id} value={t.id} className="mt-4">
+                  <ReportsPanel tenantId={tenantId} projectId={projectId} module={t.id} timezone={ctx.tenant!.timezone}
+                    project={{ reference: p.reference, name: p.name }}
+                    brand={{ businessName: ctx.tenant!.displayName, colour: ctx.tenant!.brandColour, logoPath: ctx.tenant!.logoPath }}
+                    canContribute={t.access.canUpload} canIssue={canManageProject} historicOnly={t.access.historicOnly} photosAvailable={photosOn} />
+                </TabsContent>
+              ))}
               {changeAccess.visible ? (
                 <TabsContent value="changes" className="mt-4">
                   <ChangeRegister tenantId={tenantId} projectId={projectId} timezone={ctx.tenant!.timezone} canEdit={canManageProject} historicOnly={changeAccess.historicOnly} />

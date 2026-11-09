@@ -46,3 +46,4 @@ use the editor.
 - Project files are stored once in the private project-files bucket and registered only via record_project_file_version(); storage policies parse the path, so access follows project roles and module switches without copying files.
 - Database permission helpers must return true/false, never null (wrap in coalesce), because plpgsql 'if not helper()' silently passes on null.
 - AI comparison findings are saved only by the server via save_drawing_comparison() (service role) after can_compare_drawing() passes as the user, so users cannot insert fabricated findings directly.
+- Issued reports are built in the browser (src/lib/report-pdf.ts) only from a frozen snapshot, stored as a project file version and registered via issue_project_report(), which checks project admin, module, stale version and duplicate content hash; report_issues has no write policies, so issued copies never change.
