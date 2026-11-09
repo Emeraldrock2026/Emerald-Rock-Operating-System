@@ -51,4 +51,5 @@ set local role authenticated;
 insert into r select 'qa_off_viewer', count(*)::text from project_records where project_id = (select v from ids where k='p') and module_id='qa';
 reset role;
 select set_config('request.jwt.claims', '', true);
-select k, v, (select string_agg(k||'='||n, ' ') from base) as baseline from r order by k;
+select string_agg(k||'='||v, ' ; ' order by k) || ' | baseline ' || (select string_agg(k||'='||n, ' ') from base) res from r;
+rollback;
