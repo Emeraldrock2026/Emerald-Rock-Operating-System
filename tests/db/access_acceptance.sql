@@ -275,6 +275,19 @@ begin
   select count(*) into n from allocations;
   if n = 0 then passes := passes + 1; else fails := fails || 'suspended member still reads'; end if;
 
+  -- Platform overview: setup counts for platform admins only
+  perform set_config('request.jwt.claims', json_build_object('sub', uPlat, 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  select owners_active into n from platform_tenant_overview() where tenant_id = tB;
+  if n = 1 then passes := passes + 1; else fails := fails || ('overview owners ' || n); end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', uAdmA, 'role', 'authenticated')::text, true);
+  begin
+    perform * from platform_tenant_overview();
+    fails := fails || 'tenant admin read platform overview';
+  exception when others then
+    if sqlerrm like 'NOT_AUTHORISED%' then passes := passes + 1; else fails := fails || ('overview: ' || sqlerrm); end if;
+  end;
+
   execute 'reset role';
   raise exception 'RESULT passes=% fails=%', passes, fails;
 end $$;
