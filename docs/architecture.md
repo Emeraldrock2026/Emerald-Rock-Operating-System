@@ -29,6 +29,8 @@
   them choose; single-business users go straight in.
 
 ## Platform administration
+
+- Area at `/admin` (businesses list) and `/admin/businesses/<id>` (setup, Owner/Admins, suspend/reactivate). Setup counts come from `platform_tenant_overview()` (platform admins only; counts and module ids, no operational rows); setup stages are defined in `src/lib/domain/tenant-setup.ts`.
 - `platform_admins` table, seeded only by a migration/SQL run by the owner. No public form or flag.
 - Platform admins manage tenants, tenant status, initial owner invitations and module availability.
 - Platform admin status grants **no** read access to tenant operational data (employees,
