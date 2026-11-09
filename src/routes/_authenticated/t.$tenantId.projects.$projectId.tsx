@@ -21,7 +21,7 @@ import { projectDetailQuery, projectModulesQuery } from "@/lib/project-setup-dat
 import { ReportsPanel } from "@/components/reports/reports-panel";
 import type { ReportModule } from "@/lib/domain/reports";
 import { RegisterPanel } from "@/components/registers/register-panel";
-import { REGISTERS, type RegisterModule } from "@/lib/domain/registers";
+import { REGISTER_MODULES, REGISTERS } from "@/lib/domain/registers";
 import { ChangeRegister } from "@/components/drawings/change-register";
 import { DrawingRegister } from "@/components/drawings/drawing-register";
 import { ProjectFilesPanel } from "@/components/project-files/project-files-panel";
@@ -90,7 +90,7 @@ function ProjectPage() {
       canView: true, canContribute, canManage: canManageProject,
     }),
   })).filter((t) => t.access.visible);
-  const registerTabs = (["rfis", "early_warnings", "programmes"] as RegisterModule[]).map((id) => ({
+  const registerTabs = REGISTER_MODULES.map((id) => ({
     id, label: REGISTERS[id].label,
     access: fileModuleAccess({
       businessOn: ctx.access?.enabledModules.has(id) ?? false, projectOn: projectMods.data?.has(id) ?? false,
