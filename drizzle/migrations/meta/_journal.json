@@ -120,6 +120,13 @@
       "when": 1794265340590,
       "tag": "0016_0016_distinct_record_reference_codes",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794265914949,
+      "tag": "0017_0017_registers_qa_handover_rams_deliveries_procurement_assets",
+      "breakpoints": true
     }
   ]
 }
