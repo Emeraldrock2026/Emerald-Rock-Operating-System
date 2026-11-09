@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { toast } from "sonner";
-import { AlertTriangle, CalendarClock, CheckCircle2, ListChecks } from "lucide-react";
+import { AlertTriangle, CalendarClock, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import { friendlyError, StaleRecordError } from "@/lib/db-errors";
 import { addDays, formatDateGB, formatTimestamp, todayIn } from "@/lib/domain/dates";
 import { MODULES, PROJECT_MODULE_IDS, type ModuleId } from "@/lib/domain/modules";
 import {
-  ORG_ROLE_LABEL, outstandingActions, PROJECT_ROLE_LABEL, projectModuleState, templatePreview, upcomingDates,
+  ORG_ROLE_LABEL, PROJECT_ROLE_LABEL, projectModuleState, templatePreview, upcomingDates,
   type OrgRole, type ProjectRole,
 } from "@/lib/domain/project-setup";
 import { employeesQuery } from "@/lib/people";
@@ -47,23 +47,9 @@ export function ProjectDashboard({ tenantId, projectId, timezone }: Props) {
   const records = useQuery(projectRecordsQuery(tenantId, projectId));
   const dates = useQuery(projectKeyDatesQuery(tenantId, projectId));
   const activity = useQuery(projectActivityQuery(tenantId, projectId));
-  const actions = outstandingActions(records.data ?? [], today);
   const upcoming = upcomingDates(dates.data ?? [], records.data ?? [], today, addDays(today, 28));
   return (
-    <div className="grid gap-4 lg:grid-cols-3">
-      <Card title="Outstanding actions">
-        {records.error ? <p className="text-sm text-destructive">{friendlyError(records.error)}</p> : null}
-        {actions.length === 0 ? <p className="text-sm text-muted-foreground">Nothing outstanding. Actions from registers and reports will appear here as those modules are built.</p> : (
-          <ul className="space-y-2 text-sm">
-            {actions.slice(0, 8).map((a) => (
-              <li key={a.id} className="flex items-start gap-2">
-                {a.overdue ? <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-label="Overdue" /> : <ListChecks className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />}
-                <span><span className="font-mono text-xs">{a.reference}</span> {a.title}{a.due_date ? <span className="text-muted-foreground"> · due {formatDateGB(a.due_date)}{a.overdue ? " (overdue)" : ""}</span> : null}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
+    <div className="grid gap-4 lg:grid-cols-2">
       <Card title="Upcoming dates (next 4 weeks)">
         {upcoming.length === 0 ? <p className="text-sm text-muted-foreground">No dates in the next four weeks.</p> : (
           <ul className="space-y-2 text-sm">

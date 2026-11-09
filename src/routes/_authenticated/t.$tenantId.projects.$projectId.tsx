@@ -26,6 +26,7 @@ import { ChangeRegister } from "@/components/drawings/change-register";
 import { DrawingRegister } from "@/components/drawings/drawing-register";
 import { ProjectFilesPanel } from "@/components/project-files/project-files-panel";
 import { fileModuleAccess, type FileModuleId } from "@/lib/domain/project-files";
+import { LiveDashboard } from "@/components/dashboard/live-dashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/t/$tenantId/projects/$projectId")({
@@ -106,6 +107,11 @@ function ProjectPage() {
     ...registerTabs.map((t) => ({ value: t.id as string, label: t.label })),
     ...(changeAccess.visible ? [{ value: "changes", label: "Change register" }] : []),
     { value: "setup", label: "Team and setup" },
+  ];
+  const dashModules = [
+    ...reportTabs.filter((t) => !t.access.historicOnly).map((t) => ({ id: t.id as string, label: t.label })),
+    ...registerTabs.filter((t) => !t.access.historicOnly).map((t) => ({ id: t.id as string, label: t.label })),
+    ...(changeAccess.visible && !changeAccess.historicOnly ? [{ id: "change_control", label: "Change register" }] : []),
   ];
   const photosOn = (ctx.access?.enabledModules.has("photos") ?? false) && (projectMods.data?.has("photos") ?? false);
 
@@ -201,6 +207,8 @@ function ProjectPage() {
           return (
             <>
               <TabsContent value="dashboard" className="mt-4 space-y-4">
+                <LiveDashboard tenantId={tenantId} projectId={projectId} timezone={props.timezone} modules={dashModules}
+                  onOpenModule={(id) => setTab(id === "change_control" ? "changes" : id)} />
                 <ProjectDashboard {...props} />
                 <ProjectDetailsCard {...props} />
               </TabsContent>
