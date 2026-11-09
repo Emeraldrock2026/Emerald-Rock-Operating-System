@@ -32,3 +32,25 @@ describe("moduleKpis", () => {
     expect([ragFor(1, 0), ragFor(0, 2), ragFor(0, 0)]).toEqual(["red", "amber", "green"]);
   });
 });
+
+import { openClosedByModule, segmentRecords, weeklyTrend } from "./dashboard";
+describe("charts", () => {
+  const p = periodRange("this_month", "2026-11-09")!;
+  const recs = [
+    rec({ reference: "A", created_on: "2026-11-03" }),
+    rec({ reference: "B", created_on: "2026-11-10", is_closed: true, closed_on: "2026-11-11" }),
+    rec({ reference: "C", module_id: "qa", created_on: "2026-11-03" }),
+    rec({ reference: "D", created_on: "2026-10-20", is_closed: true, closed_on: "2026-11-02" }),
+  ];
+  it("open vs closed per visible module", () => expect(openClosedByModule(recs, ["rfis"])).toEqual([{ module_id: "rfis", open: 1, closed: 2 }]));
+  it("weekly trend uses Monday weeks covering the period", () => {
+    const t = weeklyTrend(recs, ["rfis"], p);
+    expect(t[0]).toEqual({ week: "2026-10-26", raised: 0, closed: 0 });
+    expect(t.find((w) => w.week === "2026-11-02")).toEqual({ week: "2026-11-02", raised: 1, closed: 1 });
+    expect(t.find((w) => w.week === "2026-11-09")).toEqual({ week: "2026-11-09", raised: 1, closed: 1 });
+  });
+  it("segment records match the bar and skip hidden modules", () => {
+    expect(segmentRecords(recs, ["rfis"], p, { kind: "week", week: "2026-11-02", series: "raised" }).map((r) => r.reference)).toEqual(["A"]);
+    expect(segmentRecords(recs, ["rfis"], p, { kind: "status", module_id: "qa", closed: false })).toEqual([]);
+  });
+});

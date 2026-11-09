@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { friendlyError } from "@/lib/db-errors";
 import { formatDateGB, formatTimestamp, todayIn } from "@/lib/domain/dates";
+import { DashboardCharts } from "./dashboard-charts";
 import {
   consolidatedActions, moduleKpis, PERIOD_LABEL, periodRange, type DashboardRecord, type PeriodKind, type Rag,
 } from "@/lib/domain/dashboard";
@@ -99,6 +100,7 @@ export function LiveDashboard({ tenantId, projectId, timezone, modules, onOpenMo
       )}
 
       {modules.length ? <p className="text-xs text-muted-foreground">* Raised and closed within the chosen period. Open, overdue and due-in-7-days counts are as of today. Cards only count registers switched on for this project that you can open.</p> : null}
+      {period && q.data ? <DashboardCharts records={q.data} modules={modules} period={period} onOpenModule={onOpenModule} /> : null}
       <section className="rounded-lg border bg-card p-5" aria-label="Outstanding actions">
         <h2 className="mb-3 text-sm font-semibold">Outstanding actions <span className="font-normal text-muted-foreground">({actions.length})</span></h2>
         {q.isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : actions.length === 0 ? (
