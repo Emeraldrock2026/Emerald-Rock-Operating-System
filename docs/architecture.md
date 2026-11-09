@@ -120,3 +120,10 @@ Tenants carry brand_colour (primary), accent_colour (navigation), logo_path, log
 
 ## Overview cards and CSV exports (stage 9)
 Which cards and exports a person gets is decided by `overviewCards` / `availableExports` in `src/lib/domain/exports.ts`, derived from `can()`. Exports are built in the browser from ordinary reads, so row-level policies (tenant, module switches, role, commercial grant) decide every row; the fees export only exists for people with commercial access while Commercial is on. Cells that start with = + - @ are prefixed with ' to stop spreadsheet formula injection.
+
+## Project groundwork (project stage 1)
+- Project modules (15) sit in `modules` with kind='project'. Platform admin switches them per business; project admins (Owner/Admin, Resource Manager, or a project team member with role Project admin) choose from those per project (`project_modules`). Switching off hides records and blocks new ones; Project admins can still read historic records.
+- `project_team` (project_admin / member / viewer), `project_organisations`, `project_key_dates`, `project_folders`, project fields for description, address and contract.
+- `project_templates` (Owner/Admin): modules + folder paths; `apply_project_template()` skips modules not on for the business.
+- Shared records: `project_records`, `record_links` (target shown via `linked_record_summary()`, which explains restrictions rather than breaking), `record_comments`; all audited under category project_detail. `project_activity()` feeds the project dashboard.
+- Checks: tests/db/project_foundation_acceptance.sql and the project section of access_acceptance.sql.

@@ -279,7 +279,7 @@ begin
   perform set_config('request.jwt.claims', json_build_object('sub', uPlat, 'role', 'authenticated')::text, true);
   execute 'set local role authenticated';
   select owners_active into n from platform_tenant_overview() where tenant_id = tB;
-  if n = 1 then passes := passes + 1; else fails := fails || ('overview owners ' || n); end if;
+  if n = 2 then passes := passes + 1; else fails := fails || ('overview owners ' || n); end if; -- adminB and multi
   perform set_config('request.jwt.claims', json_build_object('sub', uAdmA, 'role', 'authenticated')::text, true);
   begin
     perform * from platform_tenant_overview();
