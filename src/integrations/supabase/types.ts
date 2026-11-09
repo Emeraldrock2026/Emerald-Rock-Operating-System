@@ -180,6 +180,141 @@ export type Database = {
           },
         ]
       }
+      drawing_register_settings: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          digits: number
+          project_id: string
+          series: string[]
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          digits?: number
+          project_id: string
+          series?: string[]
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          digits?: number
+          project_id?: string
+          series?: string[]
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drawing_register_settings_tenant_id_project_id_fkey"
+            columns: ["tenant_id", "project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      drawing_revisions: {
+        Row: {
+          authorised: boolean
+          authorised_at: string | null
+          authorised_by: string | null
+          created_at: string
+          created_by: string | null
+          file_id: string
+          file_version: number
+          id: string
+          note: string
+          project_id: string
+          purpose: string
+          rank: number
+          received_on: string
+          record_id: string
+          revision: string
+          revision_date: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          authorised?: boolean
+          authorised_at?: string | null
+          authorised_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          file_id: string
+          file_version: number
+          id?: string
+          note?: string
+          project_id: string
+          purpose?: string
+          rank: number
+          received_on: string
+          record_id: string
+          revision: string
+          revision_date: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          authorised?: boolean
+          authorised_at?: string | null
+          authorised_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          file_id?: string
+          file_version?: number
+          id?: string
+          note?: string
+          project_id?: string
+          purpose?: string
+          rank?: number
+          received_on?: string
+          record_id?: string
+          revision?: string
+          revision_date?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drawing_revisions_tenant_id_file_id_fkey"
+            columns: ["tenant_id", "file_id"]
+            isOneToOne: false
+            referencedRelation: "project_files"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "drawing_revisions_tenant_id_project_id_fkey"
+            columns: ["tenant_id", "project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "drawing_revisions_tenant_id_record_id_fkey"
+            columns: ["tenant_id", "record_id"]
+            isOneToOne: false
+            referencedRelation: "project_records"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           active: boolean
@@ -1340,6 +1475,18 @@ export type Database = {
     }
     Functions: {
       activate_my_memberships: { Args: never; Returns: number }
+      add_drawing_revision: {
+        Args: {
+          _file: string
+          _file_version: number
+          _note?: string
+          _purpose?: string
+          _record: string
+          _revision: string
+          _revision_date: string
+        }
+        Returns: string
+      }
       add_member_invitation: {
         Args: {
           _email: string
@@ -1376,6 +1523,10 @@ export type Database = {
       }
       claim_platform_admin: { Args: never; Returns: boolean }
       current_employee_id: { Args: { _tenant: string }; Returns: string }
+      drawing_revision_rank: {
+        Args: { _code: string; _digits: number; _series: string[] }
+        Returns: number
+      }
       employee_allocated_to: {
         Args: { _project: string; _tenant: string }
         Returns: boolean
@@ -1476,6 +1627,10 @@ export type Database = {
           _title?: string
         }
         Returns: number
+      }
+      set_drawing_authorised: {
+        Args: { _authorised: boolean; _revision: string }
+        Returns: undefined
       }
       tenant_today: { Args: { _tenant: string }; Returns: string }
     }
