@@ -4,7 +4,7 @@
 - [x] Architecture, tenant model and permission matrix documented (docs/architecture.md)
 - [ ] Connect owner's own Supabase project (blocked: owner connects it in Settings)
 - [ ] Connect GitHub (blocked: owner connects it in Settings)
-- [ ] First platform administrator email (blocked: awaiting owner)
+- [x] First platform administrator email received
 - [ ] 1. Schema, tenant isolation policies, audit log (migrations)
 - [ ] 2. Invitation sign-in, memberships, tenant switching
 - [ ] 3. Platform administration and tenant setup
