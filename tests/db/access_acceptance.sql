@@ -1,6 +1,6 @@
 -- Database acceptance checks for tenant isolation, roles, modules and business rules.
 -- Runs entirely inside one transaction and always ends by raising, so nothing is kept.
--- The final error message reports: RESULT passes=<n> fails={...}. Expect fails={}.
+-- The final error message reports: RESULT passes=<n> fails={...}. Expect fails={}. Run: psql "$SUPABASE_DB_URL" -f tests/db/access_acceptance.sql
 do $$
 declare
   tA uuid := '00000000-0000-0000-0000-00000000000a';
@@ -183,6 +183,14 @@ begin
   exception when others then passes := passes + 1; end;
 
   -- ---------- Multi-tenant user: employee in A, admin in B ----------
+  -- Invitations: only Owner/Admins may invite (Employee here); unknown emails need an account first
+  begin
+    perform add_member_invitation(tA, 'someone@test.invalid', 'employee');
+    fails := fails || 'employee could invite';
+  exception when others then
+    if sqlerrm like 'NOT_AUTHORISED%' then passes := passes + 1; else fails := fails || ('emp invite: ' || sqlerrm); end if;
+  end;
+
   perform set_config('request.jwt.claims', json_build_object('sub', uMulti, 'role', 'authenticated')::text, true);
   select count(*) into n from projects where tenant_id = tA;
   if n = 0 then passes := passes + 1; else fails := fails || ('multi sees A projects ' || n); end if;
@@ -210,6 +218,18 @@ begin
   if n = 0 then passes := passes + 1; else fails := fails || 'platform admin sees employees'; end if;
   select count(*) into n from project_commercials;
   if n = 0 then passes := passes + 1; else fails := fails || 'platform admin sees fees'; end if;
+  begin
+    perform add_member_invitation(tA, 'someone@test.invalid', 'employee');
+    fails := fails || 'platform admin invited an employee';
+  exception when others then
+    if sqlerrm like 'NOT_AUTHORISED%' then passes := passes + 1; else fails := fails || ('plat invite: ' || sqlerrm); end if;
+  end;
+  begin
+    perform add_member_invitation(tA, 'nobody-here@test.invalid', 'owner_admin');
+    fails := fails || 'invitation without account accepted';
+  exception when others then
+    if sqlerrm like 'NO_ACCOUNT%' then passes := passes + 1; else fails := fails || ('no account: ' || sqlerrm); end if;
+  end;
   begin
     update tenant_modules set enabled = false where tenant_id = tA and module_id = 'clients_projects';
     fails := fails || 'disabled module with dependants';
