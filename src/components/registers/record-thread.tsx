@@ -8,6 +8,12 @@ import { Input } from "@/components/ui/input";
 import { friendlyError } from "@/lib/db-errors";
 import { formatTimestamp } from "@/lib/domain/dates";
 
+const RESTRICTION: Record<string, string> = {
+  no_project_access: "You don't have access to this project",
+  module_off_for_business: "This module is switched off for the business",
+  module_off_for_project: "This module is switched off for this project",
+};
+
 /** Shared comments and links for any project record. Links to records you can't open stay listed with the reason. */
 export function RecordThread({ tenantId, projectId, recordId, timezone, canWrite }: { tenantId: string; projectId: string; recordId: string; timezone: string; canWrite: boolean }) {
   const qc = useQueryClient();
@@ -25,9 +31,15 @@ export function RecordThread({ tenantId, projectId, recordId, timezone, canWrite
   const links = useQuery({
     queryKey: [...base, "links"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("linked_record_summary", { _record: recordId });
+      const { data: rows, error } = await supabase.from("record_links").select("from_record_id, to_record_id").or(`from_record_id.eq.${recordId},to_record_id.eq.${recordId}`);
       if (error) throw error;
-      return data ?? [];
+      const others = [...new Set((rows ?? []).map((l) => (l.from_record_id === recordId ? l.to_record_id : l.from_record_id)))];
+      const out = [];
+      for (const id of others) {
+        const { data } = await supabase.rpc("linked_record_summary", { _record: id });
+        if (data?.[0]) out.push(data[0]);
+      }
+      return out;
     },
   });
   const addComment = useMutation({
@@ -56,7 +68,7 @@ export function RecordThread({ tenantId, projectId, recordId, timezone, canWrite
       <h3 className="text-sm font-semibold">Linked records</h3>
       {!links.data?.length ? <p className="text-xs text-muted-foreground">No links.</p> : (
         <ul className="space-y-1 text-sm">{links.data.map((l) => (
-          <li key={l.record_id}><span className="font-mono text-xs">{l.reference}</span> {l.accessible ? l.title : <span className="text-muted-foreground">— {l.restriction}</span>}</li>
+          <li key={l.record_id}><span className="font-mono text-xs">{l.reference}</span> {l.accessible ? l.title : <span className="text-muted-foreground">— {RESTRICTION[l.restriction ?? ""] ?? "Not available to you"}</span>}</li>
         ))}</ul>
       )}
       {canWrite ? (
