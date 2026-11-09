@@ -17,3 +17,15 @@
 - [ ] 9b. Audit history views (not yet requested)
 - [ ] 10. Demo tenants (Emerald Rock, Harbour Planning Demo) and acceptance testing
 - [ ] Before live use: separate production project, backup and recovery demonstrated
+
+## Project modules (brief: Configurable Project Module, 09/11/2026)
+Platform admin switches project modules per business; project admins pick from those per project. Email issue deferred.
+- [ ] P1 Foundation: project details (description, address, organisations, team, key dates, contract), project module catalogue + per-project selection, project templates, shared record structure (refs, status, history, comments, links), project dashboard
+- [ ] P2 Photos (mobile capture, multi-upload, folders, captions, previews) and Documents (folders, versions, permissions, default folder structure)
+- [ ] P3 Drawings register, revision matrix, upload-new-revision, latest vs authorised status
+- [ ] P4 AI drawing comparison + change control register (no duplicates, reviewer accepts findings)
+- [ ] P5 Shared PDF service; progress reports; delay reports (issue history, no email yet)
+- [ ] P6 Registers: RFIs, early warnings, programmes
+- [ ] P7 QA, handover, RAMS, deliveries, procurement, assets & plant
+- [ ] P8 Email issue (needs sending domain) — blocked: user chose later
+- [ ] Stage 10 demo businesses + acceptance testing — after project modules
