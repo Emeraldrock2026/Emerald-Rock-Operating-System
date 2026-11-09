@@ -19,6 +19,7 @@ import { addDays, formatDateGB, todayIn } from "@/lib/domain/dates";
 import { friendlyError } from "@/lib/db-errors";
 import { clientsQuery, projectsQuery } from "@/lib/projects-data";
 import { employeesQuery } from "@/lib/people";
+import { projectTemplatesQuery } from "@/lib/project-setup-data";
 
 export const Route = createFileRoute("/_authenticated/t/$tenantId/projects/")({
   head: () => ({
@@ -39,6 +40,7 @@ export const Route = createFileRoute("/_authenticated/t/$tenantId/projects/")({
 });
 
 const ALL = "__all__";
+const NONE = "__none__";
 
 function ProjectsPage() {
   const { ctx, tenantId } = useTenant();
@@ -119,16 +121,24 @@ function NewProject({ open, onOpenChange }: { open: boolean; onOpenChange: (o: b
   const navigate = useNavigate();
   const clients = useQuery(clientsQuery(tenantId));
   const people = useQuery(employeesQuery(tenantId));
+  const templates = useQuery(projectTemplatesQuery(tenantId));
+  const [templateId, setTemplateId] = useState<string>(NONE);
   const today = todayIn(ctx.tenant!.timezone);
   const create = useMutation({
     mutationFn: async (v: ProjectFormValues) => {
       // reference is filled in by the database
       const { data, error } = await supabase.from("projects").insert({ tenant_id: tenantId, reference: "", ...v }).select("id, reference").single();
       if (error) throw error;
-      return data;
+      let templateError: string | null = null;
+      if (templateId !== NONE) {
+        const r = await supabase.rpc("apply_project_template", { _project: data.id, _template: templateId });
+        if (r.error) templateError = friendlyError(r.error);
+      }
+      return { ...data, templateError };
     },
     onSuccess: (d) => {
-      toast.success(`Project ${d.reference} created as Draft.`);
+      if (d.templateError) toast.error(`Project ${d.reference} was created, but the template couldn't be applied: ${d.templateError} You can apply it from the project's setup tab.`);
+      else toast.success(`Project ${d.reference} created as Draft.`);
       onOpenChange(false);
       void qc.invalidateQueries({ queryKey: ["tenant", tenantId, "projects"] });
       void navigate({ to: "/t/$tenantId/projects/$projectId", params: { tenantId, projectId: d.id } });
@@ -146,6 +156,18 @@ function NewProject({ open, onOpenChange }: { open: boolean; onOpenChange: (o: b
           managers={people.data ?? []}
           onSubmit={(v) => create.mutate(v)}
         />
+        {(templates.data ?? []).some((t) => t.active) ? (
+          <div>
+            <label className="text-sm font-medium" htmlFor="np-template">Template</label>
+            <Select value={templateId} onValueChange={setTemplateId}>
+              <SelectTrigger id="np-template" aria-label="Template"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NONE}>No template</SelectItem>
+                {templates.data!.filter((t) => t.active).map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
         <DialogFooter><SubmitButton form="new-project" pending={create.isPending} label="Create project" /></DialogFooter>
       </DialogContent>
     </Dialog>

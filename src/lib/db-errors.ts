@@ -18,6 +18,11 @@ const FRIENDLY: Record<string, string> = {
   CROSS_TENANT_REFERENCE: "That record belongs to another business.",
   EMPLOYEE_INACTIVE: "That person is inactive and can't be given new work.",
   PROJECT_NOT_ALLOCATABLE: "Only Active or On Hold projects can have work booked.",
+  MODULE_NOT_AVAILABLE: "That module isn't switched on for this business. Ask your platform administrator.",
+  NOT_PROJECT_MODULE: "That isn't a project module.",
+  TEMPLATE_NOT_FOUND: "That template no longer exists or has been switched off.",
+  BAD_FOLDER_PATH: "Folder paths need a name at every level, separated by /, up to 6 levels.",
+  NOT_ALLOWED: "You don't have permission to do that.",
   STALE_RECORD: "Someone else changed this record. Refresh the page and try again.",
 };
 
@@ -30,6 +35,8 @@ export function friendlyError(error: unknown): string {
         : String(error);
   const code = /^([A-Z_]+):\s*(.*)$/s.exec(message);
   if (code) return FRIENDLY[code[1]!] ?? code[2]!;
+  if (/project_templates_name_idx/.test(message)) return "A template with that name already exists.";
+  if (/project_team_project_id_employee_id_key/.test(message)) return "That person is already on the project team.";
   if (/clients_tenant_name_idx/.test(message)) return "A client with that name already exists.";
   if (/projects_planned_finish_date_check|planned_finish_date >= start_date/.test(message)) return "The planned finish date can't be before the start date.";
   if (/violates foreign key constraint/.test(message)) return "That choice isn't available in this business.";

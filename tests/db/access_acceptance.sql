@@ -310,6 +310,24 @@ begin
   select count(*) into n from my_project_client_names(tA);
   if n = 0 then passes := passes + 1; else fails := fails || 'other business reads client names'; end if;
 
+  -- Project stage 1: team members see their project; viewers can't add records; other businesses can't see the team
+  execute 'reset role';
+  perform set_config('request.jwt.claims', '', true);
+  update tenant_modules set enabled = true where tenant_id = tA and module_id = 'rfis';
+  insert into project_modules (tenant_id, project_id, module_id) values (tA, pA2, 'rfis');
+  insert into project_team (tenant_id, project_id, employee_id, project_role) values (tA, pA2, eAm, 'viewer');
+  perform set_config('request.jwt.claims', json_build_object('sub', uMulti, 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  select count(*) into n from projects where tenant_id = tA;
+  if n = 1 then passes := passes + 1; else fails := fails || ('team viewer projects ' || n); end if;
+  begin
+    insert into project_records (tenant_id, project_id, module_id, title) values (tA, pA2, 'rfis', 'Q');
+    fails := fails || 'viewer added record';
+  exception when others then passes := passes + 1; end;
+  perform set_config('request.jwt.claims', json_build_object('sub', uAdmB, 'role', 'authenticated')::text, true);
+  select count(*) into n from project_team;
+  if n = 0 then passes := passes + 1; else fails := fails || 'other business sees team'; end if;
+
   execute 'reset role';
   raise exception 'RESULT passes=% fails=%', passes, fails;
 end $$;

@@ -235,23 +235,29 @@ export type Database = {
       }
       modules: {
         Row: {
+          built: boolean
           depends_on: string[]
           description: string
           id: string
+          kind: string
           name: string
           sort_order: number
         }
         Insert: {
+          built?: boolean
           depends_on?: string[]
           description: string
           id: string
+          kind?: string
           name: string
           sort_order: number
         }
         Update: {
+          built?: boolean
           depends_on?: string[]
           description?: string
           id?: string
+          kind?: string
           name?: string
           sort_order?: number
         }
@@ -334,6 +340,317 @@ export type Database = {
           },
         ]
       }
+      project_folders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          parent_id: string | null
+          project_id: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          parent_id?: string | null
+          project_id: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          parent_id?: string | null
+          project_id?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_folders_tenant_id_parent_id_fkey"
+            columns: ["tenant_id", "parent_id"]
+            isOneToOne: false
+            referencedRelation: "project_folders"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "project_folders_tenant_id_project_id_fkey"
+            columns: ["tenant_id", "project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      project_key_dates: {
+        Row: {
+          achieved_on: string | null
+          created_at: string
+          created_by: string | null
+          due_on: string
+          id: string
+          label: string
+          project_id: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          achieved_on?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_on: string
+          id?: string
+          label: string
+          project_id: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          achieved_on?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_on?: string
+          id?: string
+          label?: string
+          project_id?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_key_dates_tenant_id_project_id_fkey"
+            columns: ["tenant_id", "project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      project_modules: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          enabled: boolean
+          module_id: string
+          project_id: string
+          tenant_id: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          enabled?: boolean
+          module_id: string
+          project_id: string
+          tenant_id: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          enabled?: boolean
+          module_id?: string
+          project_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_modules_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_modules_tenant_id_project_id_fkey"
+            columns: ["tenant_id", "project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      project_organisations: {
+        Row: {
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          org_role: string
+          project_id: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          org_role?: string
+          project_id: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          org_role?: string
+          project_id?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_organisations_tenant_id_project_id_fkey"
+            columns: ["tenant_id", "project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      project_record_counters: {
+        Row: {
+          last_value: number
+          module_id: string
+          project_id: string
+        }
+        Insert: {
+          last_value?: number
+          module_id: string
+          project_id: string
+        }
+        Update: {
+          last_value?: number
+          module_id?: string
+          project_id?: string
+        }
+        Relationships: []
+      }
+      project_records: {
+        Row: {
+          completed_on: string | null
+          created_at: string
+          created_by: string | null
+          description: string
+          due_date: string | null
+          event_date: string | null
+          fields: Json
+          id: string
+          is_closed: boolean
+          location: string
+          module_id: string
+          project_id: string
+          reference: string
+          responsible_employee_id: string | null
+          status: string
+          tenant_id: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          completed_on?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          due_date?: string | null
+          event_date?: string | null
+          fields?: Json
+          id?: string
+          is_closed?: boolean
+          location?: string
+          module_id: string
+          project_id: string
+          reference?: string
+          responsible_employee_id?: string | null
+          status?: string
+          tenant_id: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          completed_on?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          due_date?: string | null
+          event_date?: string | null
+          fields?: Json
+          id?: string
+          is_closed?: boolean
+          location?: string
+          module_id?: string
+          project_id?: string
+          reference?: string
+          responsible_employee_id?: string | null
+          status?: string
+          tenant_id?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_records_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_records_tenant_id_project_id_fkey"
+            columns: ["tenant_id", "project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "project_records_tenant_id_responsible_employee_id_fkey"
+            columns: ["tenant_id", "responsible_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       project_reference_counters: {
         Row: {
           last_value: number
@@ -357,19 +674,135 @@ export type Database = {
           },
         ]
       }
+      project_team: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          employee_id: string
+          id: string
+          project_id: string
+          project_role: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          employee_id: string
+          id?: string
+          project_id: string
+          project_role?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          employee_id?: string
+          id?: string
+          project_id?: string
+          project_role?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_team_tenant_id_employee_id_fkey"
+            columns: ["tenant_id", "employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "project_team_tenant_id_project_id_fkey"
+            columns: ["tenant_id", "project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      project_templates: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          description: string
+          folder_paths: string[]
+          id: string
+          module_ids: string[]
+          name: string
+          settings: Json
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          folder_paths?: string[]
+          id?: string
+          module_ids?: string[]
+          name: string
+          settings?: Json
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          folder_paths?: string[]
+          id?: string
+          module_ids?: string[]
+          name?: string
+          settings?: Json
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_templates_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           client_id: string | null
+          contract_form: string
+          contract_notes: string
+          contract_reference: string
           created_at: string
           created_by: string | null
+          description: string
           id: string
           name: string
           planned_finish_date: string
           project_manager_id: string | null
           reference: string
           scope: string
+          site_address: string
           start_date: string
           status: Database["public"]["Enums"]["project_status"]
+          template_id: string | null
           tenant_id: string
           updated_at: string
           updated_by: string | null
@@ -377,16 +810,22 @@ export type Database = {
         }
         Insert: {
           client_id?: string | null
+          contract_form?: string
+          contract_notes?: string
+          contract_reference?: string
           created_at?: string
           created_by?: string | null
+          description?: string
           id?: string
           name: string
           planned_finish_date: string
           project_manager_id?: string | null
           reference: string
           scope?: string
+          site_address?: string
           start_date: string
           status?: Database["public"]["Enums"]["project_status"]
+          template_id?: string | null
           tenant_id: string
           updated_at?: string
           updated_by?: string | null
@@ -394,16 +833,22 @@ export type Database = {
         }
         Update: {
           client_id?: string | null
+          contract_form?: string
+          contract_notes?: string
+          contract_reference?: string
           created_at?: string
           created_by?: string | null
+          description?: string
           id?: string
           name?: string
           planned_finish_date?: string
           project_manager_id?: string | null
           reference?: string
           scope?: string
+          site_address?: string
           start_date?: string
           status?: Database["public"]["Enums"]["project_status"]
+          template_id?: string | null
           tenant_id?: string
           updated_at?: string
           updated_by?: string | null
@@ -429,6 +874,83 @@ export type Database = {
             columns: ["tenant_id", "project_manager_id"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      record_comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          record_id: string
+          tenant_id: string
+        }
+        Insert: {
+          author_id?: string
+          body: string
+          created_at?: string
+          id?: string
+          record_id: string
+          tenant_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          record_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "record_comments_tenant_id_record_id_fkey"
+            columns: ["tenant_id", "record_id"]
+            isOneToOne: false
+            referencedRelation: "project_records"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      record_links: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          from_record_id: string
+          id: string
+          tenant_id: string
+          to_record_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          from_record_id: string
+          id?: string
+          tenant_id: string
+          to_record_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          from_record_id?: string
+          id?: string
+          tenant_id?: string
+          to_record_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "record_links_tenant_id_from_record_id_fkey"
+            columns: ["tenant_id", "from_record_id"]
+            isOneToOne: false
+            referencedRelation: "project_records"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "record_links_tenant_id_to_record_id_fkey"
+            columns: ["tenant_id", "to_record_id"]
+            isOneToOne: false
+            referencedRelation: "project_records"
             referencedColumns: ["tenant_id", "id"]
           },
         ]
@@ -703,8 +1225,24 @@ export type Database = {
         }
         Returns: string
       }
+      apply_project_template: {
+        Args: { _project: string; _template: string }
+        Returns: string[]
+      }
       auth_user_id_by_email: { Args: { _email: string }; Returns: string }
       branding_folder_tenant: { Args: { _name: string }; Returns: string }
+      can_contribute_project: {
+        Args: { _project: string; _tenant: string }
+        Returns: boolean
+      }
+      can_manage_project: {
+        Args: { _project: string; _tenant: string }
+        Returns: boolean
+      }
+      can_view_project: {
+        Args: { _project: string; _tenant: string }
+        Returns: boolean
+      }
       claim_platform_admin: { Args: never; Returns: boolean }
       current_employee_id: { Args: { _tenant: string }; Returns: string }
       employee_allocated_to: {
@@ -724,6 +1262,17 @@ export type Database = {
       is_platform_admin: { Args: never; Returns: boolean }
       is_tenant_admin: { Args: { _tenant: string }; Returns: boolean }
       is_tenant_manager: { Args: { _tenant: string }; Returns: boolean }
+      linked_record_summary: {
+        Args: { _record: string }
+        Returns: {
+          accessible: boolean
+          module_id: string
+          record_id: string
+          reference: string
+          restriction: string
+          title: string
+        }[]
+      }
       module_enabled: {
         Args: { _module: string; _tenant: string }
         Returns: boolean
@@ -751,6 +1300,25 @@ export type Database = {
           tenant_id: string
           version: number
         }[]
+      }
+      project_activity: {
+        Args: { _limit?: number; _project: string }
+        Returns: {
+          action: string
+          actor_email: string
+          category: string
+          occurred_at: string
+          record_table: string
+          summary: string
+        }[]
+      }
+      project_module_active: {
+        Args: { _module: string; _project: string; _tenant: string }
+        Returns: boolean
+      }
+      project_role_of: {
+        Args: { _project: string; _tenant: string }
+        Returns: string
       }
       tenant_today: { Args: { _tenant: string }; Returns: string }
     }
