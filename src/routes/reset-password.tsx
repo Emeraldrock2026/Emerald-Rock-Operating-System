@@ -11,8 +11,8 @@ import { friendlyError } from "@/lib/db-errors";
 const MIN_PASSWORD = 10;
 
 export const Route = createFileRoute("/reset-password")({
-  validateSearch: (search: Record<string, unknown>): { welcome?: string } => ({
-    welcome: search.welcome === "1" || search.welcome === 1 ? "1" : undefined,
+  validateSearch: (search: Record<string, unknown>): { welcome?: string | undefined } => ({
+    welcome: search["welcome"] === "1" || search["welcome"] === 1 ? "1" : undefined,
   }),
   head: () => ({
     meta: [
