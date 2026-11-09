@@ -3,8 +3,9 @@
 ## Platform
 - One shared app and one shared database. Every tenant-owned row carries `tenant_id`.
 - Database: Lovable Cloud. Schema changes are versioned migrations.
-- Environments: the connected project is development/test. Production will be a second, separate
-  project before live business use. The app shows the current environment in its header.
+- Environments: today one Lovable Cloud database serves both the preview and any published app.
+  A separate production environment must be set up before live business use. The app shows the
+  current environment in its header.
 - Privileged keys stay server-side; the browser only holds the publishable key.
 
 ## Tenancy
@@ -54,6 +55,25 @@
 Commercial values live in a separate `project_commercials` table so the restriction is enforced by
 its own policies. The rules are mirrored in `src/lib/domain/permissions.ts` for the UI; the
 database policies are the source of truth.
+
+## Database objects (migrations in `drizzle/migrations/`)
+- Core: `tenants`, `modules`, `tenant_modules`, `tenant_memberships`, `platform_admins`,
+  `platform_admin_bootstrap` (service-only), `audit_log` (append-only).
+- Operational: `employees`, `working_patterns`, `clients`, `projects`, `project_reference_counters`
+  (service-only), `project_commercials`, `allocations`.
+- Every editable table has `created_at/by`, `updated_at/by` and `version` (bumped on each update) so
+  the app can detect stale edits by updating `where version = <seen>`.
+- Allocations carry an optional `client_request_id` (unique per tenant) to make retries safe.
+- Guards raise errors with stable prefixes the UI can translate, e.g. `EMPLOYEE_INACTIVE`,
+  `PROJECT_NOT_ALLOCATABLE`, `PROJECT_HAS_FUTURE_ALLOCATIONS`, `PATTERN_REWRITES_HISTORY`,
+  `MODULE_DEPENDENCY_DISABLED`, `MODULE_HAS_DEPENDANTS`, `SELF_CHANGE`, `LAST_OWNER`,
+  `PLATFORM_ONLY`, `CURRENCY_LOCKED`, `CROSS_TENANT_REFERENCE`.
+- Working patterns: a change may not alter capacity on past dates that already have allocations;
+  add a new pattern from today instead.
+- First platform admin: an approved email in `platform_admin_bootstrap` calls
+  `claim_platform_admin()` after signing in with a confirmed email; the entry is then consumed.
+- `tests/db/access_acceptance.sql` exercises isolation, roles, modules and guards inside one
+  transaction that always rolls back. Expected result: `RESULT passes=50 fails={}`.
 
 ## Planning rules (see `src/lib/domain/`)
 - Allocation dates are date-only values. Capacity comes from effective-dated working patterns.

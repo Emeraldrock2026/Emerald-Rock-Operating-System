@@ -34,3 +34,4 @@ use the editor.
 - Allocation and capacity dates are date-only `YYYY-MM-DD` strings, never Date objects, so timezone conversion cannot shift work to another day.
 - Tenant isolation is enforced in the database (tenant_id on every tenant row, composite tenant foreign keys, membership- and module-checked policies); `src/lib/domain/permissions.ts` only mirrors it for the UI.
 - Architecture and the permission matrix are documented in `docs/architecture.md`; keep it in step with schema changes.
+- Database access rules are verified by `tests/db/access_acceptance.sql` (one rolled-back transaction); extend and re-run it whenever policies, guards or tables change.

@@ -5,7 +5,7 @@
 - [x] Backend connected (Lovable Cloud)
 - [ ] Connect GitHub (blocked: owner connects it in Settings)
 - [x] First platform administrator email received
-- [ ] 1. Schema, tenant isolation policies, audit log (migrations)
+- [x] 1. Schema, tenant isolation policies, audit log (migrations) — 50 database checks pass
 - [ ] 2. Invitation sign-in, memberships, tenant switching
 - [ ] 3. Platform administration and tenant setup
 - [ ] 4. Module configuration and enforcement
