@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import { fileStoragePath } from "@/lib/domain/project-files";
 import { uploadWithProgress } from "@/components/project-files/project-files-panel";
 import { RecordThread } from "./record-thread";
 
-interface Props { tenantId: string; projectId: string; module: RegisterModule; timezone: string; canContribute: boolean; canManage: boolean; historicOnly: boolean }
+interface Props { tenantId: string; projectId: string; module: RegisterModule; timezone: string; canContribute: boolean; canManage: boolean; historicOnly: boolean; focus?: { id: string; n: number } | null }
 type Rec = { id: string; reference: string; title: string; description: string; status: string; is_closed: boolean; due_date: string | null; completed_on: string | null; fields: Record<string, unknown>; version: number };
 
 export function RegisterPanel(p: Props) {
@@ -45,6 +45,9 @@ export function RegisterPanel(p: Props) {
     onSuccess: (id) => { void qc.invalidateQueries({ queryKey: key }); setOpenId(id); },
     onError: (e) => toast.error(friendlyError(e)),
   });
+  useEffect(() => {
+    if (p.focus && q.data?.some((r) => r.id === p.focus!.id)) { setShow("all"); setOpenId(p.focus.id); }
+  }, [p.focus, q.data]);
   const rows = (q.data ?? []).filter((r) => show === "all" || !r.is_closed);
   const open = q.data?.find((r) => r.id === openId) ?? null;
   return (

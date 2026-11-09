@@ -112,3 +112,61 @@ export function segmentRecords(records: readonly DashboardRecord[], visibleModul
     return !!d && inPeriod(d, period) && startOfWeek(d) === seg.week;
   }).sort((a, b) => a.reference.localeCompare(b.reference));
 }
+
+/* ---------- Ageing, events and QA (dashboard stage 2, part 2) ---------- */
+export const AGE_BUCKETS = [
+  { id: "0_7", label: "0–7 days", min: 0, max: 7 },
+  { id: "8_30", label: "8–30 days", min: 8, max: 30 },
+  { id: "31_60", label: "31–60 days", min: 31, max: 60 },
+  { id: "61_plus", label: "Over 60 days", min: 61, max: Infinity },
+] as const;
+export type AgeBucketId = (typeof AGE_BUCKETS)[number]["id"];
+export function daysBetween(from: DateOnly, to: DateOnly): number {
+  return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000);
+}
+/** Age of an open record in whole days since it was raised (never negative). */
+export function ageBucket(created: DateOnly, today: DateOnly): AgeBucketId {
+  const d = Math.max(0, daysBetween(created, today));
+  return AGE_BUCKETS.find((b) => d >= b.min && d <= b.max)!.id;
+}
+/** Open records of visible modules counted by age, as of today. */
+export function ageingCounts(records: readonly DashboardRecord[], visibleModules: readonly string[], today: DateOnly): Record<AgeBucketId, number> {
+  const out = { "0_7": 0, "8_30": 0, "31_60": 0, "61_plus": 0 } as Record<AgeBucketId, number>;
+  const visible = new Set(visibleModules);
+  for (const r of records) if (!r.is_closed && visible.has(r.module_id)) out[ageBucket(r.created_on, today)]++;
+  return out;
+}
+
+/** A dated event (photo uploaded, report issued) that links to one item. */
+export interface DashEvent { id: string; on: DateOnly; module_id: string; target_id: string; label: string }
+export function weeklyEventCounts(events: readonly DashEvent[], period: Period): { week: DateOnly; count: number }[] {
+  const weeks: { week: DateOnly; count: number }[] = [];
+  for (let w = startOfWeek(period.from); w <= period.to && weeks.length < 60; w = addDays(w, 7)) weeks.push({ week: w, count: 0 });
+  for (const e of events) {
+    if (!inPeriod(e.on, period)) continue;
+    const b = weeks.find((x) => x.week === startOfWeek(e.on));
+    if (b) b.count++;
+  }
+  return weeks;
+}
+
+export const QA_RESULTS = ["open", "passed", "failed", "closed"] as const;
+export type QaResult = (typeof QA_RESULTS)[number];
+/** QA inspections by current status. Closed is kept separate: closing does not itself say pass or fail. */
+export function qaResultCounts(records: readonly DashboardRecord[]): Record<QaResult, number> {
+  const out = { open: 0, passed: 0, failed: 0, closed: 0 };
+  for (const r of records) if (r.module_id === "qa" && (QA_RESULTS as readonly string[]).includes(r.status)) out[r.status as QaResult]++;
+  return out;
+}
+
+export type RecordSegment =
+  | Segment
+  | { kind: "age"; bucket: AgeBucketId }
+  | { kind: "qa"; status: QaResult };
+export function recordSegment(records: readonly DashboardRecord[], visibleModules: readonly string[], period: Period, today: DateOnly, seg: RecordSegment): DashboardRecord[] {
+  if (seg.kind === "status" || seg.kind === "week") return segmentRecords(records, visibleModules, period, seg);
+  const visible = new Set(visibleModules);
+  return records.filter((r) => visible.has(r.module_id) && (seg.kind === "age"
+    ? !r.is_closed && ageBucket(r.created_on, today) === seg.bucket
+    : r.module_id === "qa" && r.status === seg.status)).sort((a, b) => a.reference.localeCompare(b.reference));
+}

@@ -1,5 +1,5 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { Camera, FileText, Folder, FolderPlus, History, RotateCcw, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,7 +21,7 @@ import { projectFoldersQuery } from "@/lib/project-setup-data";
 const BUCKET = "project-files";
 const ROOT = "__root__";
 
-interface Props { tenantId: string; projectId: string; module: FileModuleId; canUpload: boolean; historicOnly: boolean; timezone: string }
+interface Props { tenantId: string; projectId: string; module: FileModuleId; canUpload: boolean; historicOnly: boolean; timezone: string; focus?: { id: string; n: number } | null }
 
 const filesQuery = (tenantId: string, projectId: string, module: FileModuleId) => queryOptions({
   queryKey: ["tenant", tenantId, "project", projectId, "files", module],
@@ -67,7 +67,7 @@ export async function uploadWithProgress(path: string, file: File, onProgress: (
 
 interface QueueItem { key: string; file: File; status: "waiting" | "uploading" | "saving" | "done" | "failed"; pct: number; error?: string | undefined; fileId: string; existingFileId?: string | undefined }
 
-export function ProjectFilesPanel({ tenantId, projectId, module, canUpload, historicOnly, timezone }: Props) {
+export function ProjectFilesPanel({ tenantId, projectId, module, canUpload, historicOnly, timezone, focus }: Props) {
   const qc = useQueryClient();
   const files = useQuery(filesQuery(tenantId, projectId, module));
   const folders = useQuery(projectFoldersQuery(tenantId, projectId));
@@ -77,6 +77,10 @@ export function ProjectFilesPanel({ tenantId, projectId, module, canUpload, hist
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [filter, setFilter] = useState("");
   const [open, setOpen] = useState<FileRow | null>(null);
+  useEffect(() => {
+    const row = focus ? files.data?.find((r) => r.id === focus.id) : undefined;
+    if (row) { setFolder(ROOT); setFilter(""); setOpen(row); }
+  }, [focus, files.data]);
   const pickRef = useRef<HTMLInputElement>(null);
   const camRef = useRef<HTMLInputElement>(null);
   const label = module === "photos" ? "photo" : "document";
