@@ -85,6 +85,13 @@
       "when": 1794263067448,
       "tag": "0011_drawing_register",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794263259179,
+      "tag": "0012_project_access_helpers_never_null",
+      "breakpoints": true
     }
   ]
 }
