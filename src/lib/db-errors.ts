@@ -38,6 +38,10 @@ const FRIENDLY: Record<string, string> = {
   NOT_ALLOWED: "You don't have permission to do that.",
   STALE_EDIT: "Someone else changed this report. Refresh the page and try again.",
   DUPLICATE_ISSUE: "Nothing has changed since the last issue, so it wasn't issued again.",
+  BAD_STATUS: "That status isn't available for this register.",
+  RESPONSE_REQUIRED: "Record the response before marking the RFI responded or closed.",
+  PROGRAMME_FILE_REQUIRED: "Upload the programme file before making it current.",
+  ADMIN_ONLY_STATUS: "Only a project admin can close, reopen, accept or supersede this.",
   STALE_RECORD: "Someone else changed this record. Refresh the page and try again.",
 };
 
