@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { cleanFindings, comparableMime, FINDING_CATEGORIES } from "@/lib/domain/comparison";
+import { cleanFindings, comparableMime, FINDING_CATEGORIES, reuseKnownFingerprints } from "@/lib/domain/comparison";
 
 const UUID = /^[0-9a-f-]{36}$/i;
 const MAX_COMPARE_BYTES = 20 * 1024 * 1024;
@@ -44,6 +44,14 @@ export const compareDrawingRevisions = createServerFn({ method: "POST" })
         : { type: "input_file", file_data: `data:application/pdf;base64,${b64}`, filename: v.file_name });
     }
 
+    // Earlier findings for this pair: the model is asked to reuse their wording, and reworded repeats are matched back.
+    const { data: earlier } = await sb.from("comparison_findings").select("category, location, summary, fingerprint")
+      .eq("record_id", data.recordId).eq("from_revision_id", data.fromRevisionId).eq("to_revision_id", data.toRevisionId);
+    const known = earlier ?? [];
+    const earlierText = known.length
+      ? `Differences already recorded for these two revisions (if you see the same difference again, repeat its category, location and summary exactly): ${JSON.stringify(known.map(({ category, location, summary }) => ({ category, location, summary })))}`
+      : "";
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const save = async (status: "completed" | "failed", err: string | null, findings: unknown[]) => {
       const { data: row, error: e } = await supabaseAdmin.rpc("save_drawing_comparison", {
@@ -61,7 +69,7 @@ export const compareDrawingRevisions = createServerFn({ method: "POST" })
         model: MODEL,
         instructions:
           "You compare two revisions of the same construction drawing. List only differences you can actually see between the EARLIER and LATER revision: added, removed or moved elements, changed dimensions, annotations or specification notes. Give a short location (grid, room, level, detail or title block area) and one plain British English sentence per difference. Do not guess, do not assess cost, time, entitlement or responsibility, and do not describe anything that is the same. If you cannot read the drawings or see no differences, return an empty list.",
-        input: [{ role: "user", content: [...parts, { type: "input_text", text: "Return the differences as JSON." }] as never }],
+        input: [{ role: "user", content: [...parts, ...(earlierText ? [{ type: "input_text", text: earlierText }] : []), { type: "input_text", text: "Return the differences as JSON." }] as never }],
         text: { format: { type: "json_schema", name: "drawing_differences", strict: true, schema: {
           type: "object", additionalProperties: false, required: ["findings"],
           properties: { findings: { type: "array", items: { type: "object", additionalProperties: false, required: ["category", "location", "summary"],
@@ -81,7 +89,9 @@ export const compareDrawingRevisions = createServerFn({ method: "POST" })
       await save("failed", "The AI response could not be read.", []);
       throw new Error("AI_FAILED: the AI response could not be read. No findings were recorded; you can try again.");
     }
-    const { findings, dropped } = cleanFindings(parsed);
+    const cleaned = cleanFindings(parsed);
+    const findings = reuseKnownFingerprints(cleaned.findings, known);
+    const dropped = cleaned.dropped + cleaned.findings.length - findings.length;
     const row = await save("completed", null, findings);
     return { comparisonId: row.comparison_id, found: row.finding_count, added: row.new_count, dropped };
   });

@@ -72,13 +72,10 @@ export const SAME_FINDING_SIMILARITY = 0.5;
  * its fingerprint so a rerun never adds a reworded duplicate. Each earlier finding is matched at most once.
  */
 export function reuseKnownFingerprints<T extends CleanFinding>(found: T[], earlier: { category: string; location: string; summary: string; fingerprint: string }[]): T[] {
-  const used = new Set<string>();
-  const out = found.map((f) => {
-    if (earlier.some((e) => e.fingerprint === f.fingerprint)) { used.add(f.fingerprint); return f; }
-    return f;
-  });
-  return out.map((f) => {
-    if (used.has(f.fingerprint) && earlier.some((e) => e.fingerprint === f.fingerprint)) return f;
+  const known = new Set(earlier.map((e) => e.fingerprint));
+  const used = new Set(found.filter((f) => known.has(f.fingerprint)).map((f) => f.fingerprint));
+  return found.map((f) => {
+    if (known.has(f.fingerprint)) return f;
     let best: { fp: string; score: number } | null = null;
     for (const e of earlier) {
       if (used.has(e.fingerprint) || norm(e.category) !== norm(f.category) || norm(e.location) !== norm(f.location)) continue;
