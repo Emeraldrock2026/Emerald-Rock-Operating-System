@@ -29,3 +29,12 @@ Platform admin switches project modules per business; project admins pick from t
 - [x] P7 QA, handover, RAMS, deliveries, procurement, assets & plant
 - [ ] P8 Email issue (needs sending domain) — blocked: user chose later
 - [x] Stage 10 demo businesses + acceptance testing — after project modules
+
+## Live project performance dashboard (brief: 09/11/2026)
+Replace placeholder dashboard content with live metrics, charts, key-date comparisons, commercial forecasts and an explainable health score. Semantic status colours (green/amber/red/neutral), never colour alone; branding for ordinary series. "Not available" rather than zero for unimplemented metrics; missing budgets/forecasts shown as missing, never zero.
+- [ ] D1 Live KPI cards + layout: compact header, reporting-period controls (this week / this month / last month / custom), last-refreshed, metric definitions in src/lib/domain/dashboard.ts with tests, clickable cards opening filtered registers, consolidated outstanding actions from enabled modules
+- [ ] D2 Register and activity charts: RFI/EWN open-vs-closed + weekly raised-vs-closed + ageing, photo upload trend, reports issued by period, QA completions and pass/fail; chart segments open underlying records
+- [ ] D3 Milestones planned vs forecast: baseline/forecast/actual dates, variance in days (calendar vs working labelled), source programme revision, stale/missing forecast flags, upcoming 4 weeks; baselines never silently replaced
+- [ ] D4 Commercial forecast: budget basis per project (expenditure/revenue/cost), original budget + adjustments + forecast final account + variance, pending change exposure separate, "Forecast not entered" where absent, commercial permission enforced
+- [ ] D5 Explainable health score: documented rule-based 0–100 score with configurable weights, coverage/freshness, critical overrides, three priority actions, AI narrative via AI Gateway (cites records, separates fact from interpretation, unavailable → metrics still shown)
+- [ ] D6 Dashboard settings: business-level widget/arrangement/status-mapping/weight/freshness configuration, project-level settings for project admins
