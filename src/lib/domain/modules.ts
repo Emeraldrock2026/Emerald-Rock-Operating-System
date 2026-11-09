@@ -21,7 +21,7 @@ export const MODULES = {
   rfis: { name: "RFIs", dependsOn: CP, kind: "project", built: false },
   procurement: { name: "Procurement", dependsOn: CP, kind: "project", built: false },
   assets_plant: { name: "Assets and plant", dependsOn: CP, kind: "project", built: false },
-  drawings: { name: "Drawings", dependsOn: CP, kind: "project", built: false },
+  drawings: { name: "Drawings", dependsOn: CP, kind: "project", built: true },
   change_control: { name: "Change control", dependsOn: CP, kind: "project", built: false },
 } as const satisfies Record<string, { name: string; dependsOn: readonly string[]; kind: "business" | "project"; built: boolean }>;
 
