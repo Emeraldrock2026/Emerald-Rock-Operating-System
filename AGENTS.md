@@ -35,3 +35,5 @@ use the editor.
 - Tenant isolation is enforced in the database (tenant_id on every tenant row, composite tenant foreign keys, membership- and module-checked policies); `src/lib/domain/permissions.ts` only mirrors it for the UI.
 - Architecture and the permission matrix are documented in `docs/architecture.md`; keep it in step with schema changes.
 - Database access rules are verified by `tests/db/access_acceptance.sql` (one rolled-back transaction); extend and re-run it whenever policies, guards or tables change.
+- Business-scoped pages live under `src/routes/_authenticated/t.$tenantId.*` and their query keys start with `["tenant", tenantId, …]`, so switching business can drop other tenants' cache and direct links always name the business.
+- Navigation items are derived from `can()` in `src/components/app/app-shell.tsx`; add an item only when its page exists, its module is enabled and the role permits it.

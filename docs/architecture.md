@@ -19,6 +19,15 @@
 - Switching tenant clears all cached data before the next tenant loads.
 - Files (logos): private bucket, access by membership lookup, not by folder name.
 
+## Sign-in and navigation
+- Email and password only; public sign-up is switched off. New people arrive through an invitation
+  email and choose a password on `/reset-password?welcome=1`; existing logins are added directly and
+  their invitation activates on next sign-in (`activate_my_memberships()`).
+- Every business page lives under `/t/<tenantId>/…`, so direct links name the business and all
+  cached data is keyed by tenant; switching business drops other tenants' cached data.
+- `/select-business` returns people to their last business (stored per user in the browser) or lets
+  them choose; single-business users go straight in.
+
 ## Platform administration
 - `platform_admins` table, seeded only by a migration/SQL run by the owner. No public form or flag.
 - Platform admins manage tenants, tenant status, initial owner invitations and module availability.

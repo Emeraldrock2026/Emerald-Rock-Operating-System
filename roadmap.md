@@ -6,7 +6,7 @@
 - [ ] Connect GitHub (blocked: owner connects it in Settings)
 - [x] First platform administrator email received
 - [x] 1. Schema, tenant isolation policies, audit log (migrations) — 50 database checks pass
-- [ ] 2. Invitation sign-in, memberships, tenant switching
+- [x] 2. Invitation sign-in, memberships, tenant switching, app layout, Users settings
 - [ ] 3. Platform administration and tenant setup
 - [ ] 4. Module configuration and enforcement
 - [ ] 5. Employee directory and effective-dated capacity
