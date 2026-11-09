@@ -50,6 +50,13 @@
       "when": 1794258169192,
       "tag": "0006_projects_client_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794259602634,
+      "tag": "0007_branding_and_appearance",
+      "breakpoints": true
     }
   ]
 }

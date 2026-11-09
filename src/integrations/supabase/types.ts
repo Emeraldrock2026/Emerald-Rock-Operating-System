@@ -536,16 +536,19 @@ export type Database = {
       }
       tenants: {
         Row: {
+          accent_colour: string
           base_currency: string
           brand_colour: string
           business_name: string
           created_at: string
           created_by: string | null
           date_format: string
+          default_appearance: string
           default_weekly_hours: number[]
           display_name: string
           id: string
           is_demo: boolean
+          logo_dark_path: string | null
           logo_path: string | null
           project_prefix: string
           status: Database["public"]["Enums"]["tenant_status"]
@@ -556,16 +559,19 @@ export type Database = {
           week_starts_on: string
         }
         Insert: {
+          accent_colour?: string
           base_currency?: string
           brand_colour?: string
           business_name: string
           created_at?: string
           created_by?: string | null
           date_format?: string
+          default_appearance?: string
           default_weekly_hours?: number[]
           display_name: string
           id?: string
           is_demo?: boolean
+          logo_dark_path?: string | null
           logo_path?: string | null
           project_prefix?: string
           status?: Database["public"]["Enums"]["tenant_status"]
@@ -576,16 +582,19 @@ export type Database = {
           week_starts_on?: string
         }
         Update: {
+          accent_colour?: string
           base_currency?: string
           brand_colour?: string
           business_name?: string
           created_at?: string
           created_by?: string | null
           date_format?: string
+          default_appearance?: string
           default_weekly_hours?: number[]
           display_name?: string
           id?: string
           is_demo?: boolean
+          logo_dark_path?: string | null
           logo_path?: string | null
           project_prefix?: string
           status?: Database["public"]["Enums"]["tenant_status"]
@@ -594,6 +603,24 @@ export type Database = {
           updated_by?: string | null
           version?: number
           week_starts_on?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          appearance: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appearance: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appearance?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -677,6 +704,7 @@ export type Database = {
         Returns: string
       }
       auth_user_id_by_email: { Args: { _email: string }; Returns: string }
+      branding_folder_tenant: { Args: { _name: string }; Returns: string }
       claim_platform_admin: { Args: never; Returns: boolean }
       current_employee_id: { Args: { _tenant: string }; Returns: string }
       employee_allocated_to: {
