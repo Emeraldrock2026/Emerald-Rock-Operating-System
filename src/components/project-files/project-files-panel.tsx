@@ -50,12 +50,12 @@ async function uploadWithProgress(path: string, file: File, onProgress: (pct: nu
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
   if (!token) throw new Error("Your session has expired. Please sign in again.");
-  const url = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/${BUCKET}/${path.split("/").map(encodeURIComponent).join("/")}`;
+  const url = `${import.meta.env["VITE_SUPABASE_URL"]}/storage/v1/object/${BUCKET}/${path.split("/").map(encodeURIComponent).join("/")}`;
   await new Promise<void>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", url);
     xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-    xhr.setRequestHeader("apikey", import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY);
+    xhr.setRequestHeader("apikey", import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"]);
     xhr.setRequestHeader("x-upsert", "false");
     xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
     xhr.upload.onprogress = (e) => { if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100)); };
@@ -65,7 +65,7 @@ async function uploadWithProgress(path: string, file: File, onProgress: (pct: nu
   });
 }
 
-interface QueueItem { key: string; file: File; status: "waiting" | "uploading" | "saving" | "done" | "failed"; pct: number; error?: string; fileId: string; existingFileId?: string }
+interface QueueItem { key: string; file: File; status: "waiting" | "uploading" | "saving" | "done" | "failed"; pct: number; error?: string | undefined; fileId: string; existingFileId?: string | undefined }
 
 export function ProjectFilesPanel({ tenantId, projectId, module, canUpload, historicOnly, timezone }: Props) {
   const qc = useQueryClient();
@@ -286,7 +286,7 @@ function FileDialog({ row, folders, canEdit, module, timezone, onClose, onSaved,
   });
   async function download(path: string) {
     const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 300);
-    if (error || !data) return toast.error(friendlyError(error));
+    if (error || !data) { toast.error(friendlyError(error)); return; }
     window.open(data.signedUrl, "_blank", "noopener");
   }
   return (
