@@ -18,7 +18,7 @@ export function ChangeRegister({ tenantId, projectId, timezone, canEdit, histori
     queryKey: ["tenant", tenantId, "project", projectId, "changes"],
     queryFn: async () => {
       const { data, error } = await supabase.from("project_records")
-        .select("id, reference, title, description, status, updated_at, version, comparison_findings!comparison_findings_change_record_id_fkey(id, category, location, summary, amended_summary, decision)")
+        .select("id, reference, title, description, status, updated_at, version, comparison_findings!comparison_findings_tenant_id_change_record_id_fkey(id, category, location, summary, amended_summary, decision)")
         .eq("project_id", projectId).eq("module_id", "change_control").order("reference", { ascending: false });
       if (error) throw error;
       return data ?? [];

@@ -29,7 +29,7 @@ export function ComparisonPanel({ tenantId, projectId, timezone, recordId, revis
     queryKey: key, enabled: !!from && !!to && from !== to,
     queryFn: async () => {
       const [f, c] = await Promise.all([
-        supabase.from("comparison_findings").select("id, category, location, summary, decision, amended_summary, change_record_id, reviewed_at, project_records!comparison_findings_change_record_id_fkey(reference)")
+        supabase.from("comparison_findings").select("id, category, location, summary, decision, amended_summary, change_record_id, reviewed_at, project_records!comparison_findings_tenant_id_change_record_id_fkey(reference)")
           .eq("from_revision_id", from).eq("to_revision_id", to).order("created_at"),
         supabase.from("drawing_comparisons").select("id, status, finding_count, new_count, error, ran_at").eq("from_revision_id", from).eq("to_revision_id", to).order("ran_at", { ascending: false }).limit(5),
       ]);
