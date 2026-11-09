@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cleanFindings, comparableMime, fingerprintFinding } from "./comparison";
+import { cleanFindings, comparableMime, fingerprintFinding, reuseKnownFingerprints } from "./comparison";
 
 describe("finding fingerprints", () => {
   it("treat case and punctuation changes on a rerun as the same finding", () => {
@@ -34,5 +34,25 @@ describe("comparableMime", () => {
     expect(comparableMime("image/png")).toBe("image");
     expect(comparableMime("application/pdf")).toBe("pdf");
     expect(comparableMime("application/acad")).toBeNull();
+  });
+});
+
+describe("reworded findings on a rerun", () => {
+  const earlier = [
+    { category: "added", location: "Bottom-right corner of meeting room", summary: "Two partitions have been added to form an enclosure labelled 'NEW STORE'.", fingerprint: "fp-store" },
+    { category: "annotation", location: "Bottom-right revision label", summary: "The revision label has changed from 'REV P01' to 'REV P02'.", fingerprint: "fp-rev" },
+  ];
+  const mk = (category: "added" | "annotation", location: string, summary: string) => ({ category, location, summary, fingerprint: fingerprintFinding({ category, location, summary }) });
+  it("reuse the earlier finding when only the wording changed", () => {
+    const r = reuseKnownFingerprints([mk("added", "Bottom-right corner of meeting room", "Two new partition walls form an enclosure labelled 'NEW STORE'.")], earlier);
+    expect(r.map((f) => f.fingerprint)).toEqual(["fp-store"]);
+  });
+  it("keep a genuinely different finding at the same location", () => {
+    const r = reuseKnownFingerprints([mk("added", "Bottom-right corner of meeting room", "A door has been inserted in the east wall.")], earlier);
+    expect(r[0]!.fingerprint).not.toBe("fp-store");
+  });
+  it("never merge across categories or locations", () => {
+    const r = reuseKnownFingerprints([mk("added", "Level 2", "Two partitions have been added to form an enclosure labelled 'NEW STORE'.")], earlier);
+    expect(r[0]!.fingerprint).not.toBe("fp-store");
   });
 });

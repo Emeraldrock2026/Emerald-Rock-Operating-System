@@ -51,3 +51,42 @@ export function decisionNeedsText(d: FindingDecision): boolean { return d === "a
 export const DECISION_LABEL: Record<FindingDecision, string> = {
   proposed: "Awaiting review", accepted: "Accepted", amended: "Accepted as amended", rejected: "Rejected",
 };
+
+const STOP = new Set("a an the to of has have had been is are was were be and or with in on at by for from into which that this it its now".split(" "));
+function words(s: string): Set<string> {
+  return new Set(norm(s).split(" ").filter((w) => w && !STOP.has(w)).map((w) => (w.length > 3 && w.endsWith("s") ? w.slice(0, -1) : w)));
+}
+/** Share of meaningful words two summaries have in common (0–1). */
+export function summarySimilarity(a: string, b: string): number {
+  const x = words(a), y = words(b);
+  if (!x.size || !y.size) return 0;
+  let both = 0;
+  for (const w of x) if (y.has(w)) both++;
+  return both / (x.size + y.size - both);
+}
+export const SAME_FINDING_SIMILARITY = 0.5;
+
+/**
+ * AI wording varies between runs. A new finding with the same category and location as an earlier
+ * finding for the same revision pair, and mostly the same words, is that earlier finding: it takes
+ * its fingerprint so a rerun never adds a reworded duplicate. Each earlier finding is matched at most once.
+ */
+export function reuseKnownFingerprints<T extends CleanFinding>(found: T[], earlier: { category: string; location: string; summary: string; fingerprint: string }[]): T[] {
+  const used = new Set<string>();
+  const out = found.map((f) => {
+    if (earlier.some((e) => e.fingerprint === f.fingerprint)) { used.add(f.fingerprint); return f; }
+    return f;
+  });
+  return out.map((f) => {
+    if (used.has(f.fingerprint) && earlier.some((e) => e.fingerprint === f.fingerprint)) return f;
+    let best: { fp: string; score: number } | null = null;
+    for (const e of earlier) {
+      if (used.has(e.fingerprint) || norm(e.category) !== norm(f.category) || norm(e.location) !== norm(f.location)) continue;
+      const score = summarySimilarity(e.summary, f.summary);
+      if (score >= SAME_FINDING_SIMILARITY && (!best || score > best.score)) best = { fp: e.fingerprint, score };
+    }
+    if (!best) return f;
+    used.add(best.fp);
+    return { ...f, fingerprint: best.fp };
+  }).filter((f, i, all) => all.findIndex((g) => g.fingerprint === f.fingerprint) === i);
+}
