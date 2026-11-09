@@ -18,6 +18,7 @@ import { employeesQuery } from "@/lib/people";
 import { ProjectCommercials } from "@/components/commercial/project-commercials";
 import { KeyDatesCard, OrganisationsCard, ProjectDashboard, ProjectDetailsCard, ProjectModulesCard, TeamCard } from "@/components/project-setup/project-workspace";
 import { projectDetailQuery, projectModulesQuery } from "@/lib/project-setup-data";
+import { DrawingRegister } from "@/components/drawings/drawing-register";
 import { ProjectFilesPanel } from "@/components/project-files/project-files-panel";
 import { fileModuleAccess, type FileModuleId } from "@/lib/domain/project-files";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -68,6 +69,10 @@ function ProjectPage() {
       canView: true, canContribute, canManage: canManageProject,
     }),
   })).filter((t) => t.access.visible);
+  const drawingsAccess = fileModuleAccess({
+    businessOn: ctx.access?.enabledModules.has("drawings") ?? false, projectOn: projectMods.data?.has("drawings") ?? false,
+    canView: true, canContribute, canManage: canManageProject,
+  });
 
   const save = useMutation({
     mutationFn: async (patch: Partial<ProjectFormValues> & { status?: ProjectStatus }) => {
@@ -144,6 +149,7 @@ function ProjectPage() {
         <TabsList>
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           {fileTabs.map((t) => <TabsTrigger key={t.id} value={t.id}>{t.label}</TabsTrigger>)}
+          {drawingsAccess.visible ? <TabsTrigger value="drawings">Drawings</TabsTrigger> : null}
           <TabsTrigger value="setup">Team and setup</TabsTrigger>
         </TabsList>
         {(() => {
@@ -159,6 +165,11 @@ function ProjectPage() {
                   <ProjectFilesPanel tenantId={tenantId} projectId={projectId} module={t.id} canUpload={t.access.canUpload} historicOnly={t.access.historicOnly} timezone={ctx.tenant!.timezone} />
                 </TabsContent>
               ))}
+              {drawingsAccess.visible ? (
+                <TabsContent value="drawings" className="mt-4">
+                  <DrawingRegister tenantId={tenantId} projectId={projectId} timezone={ctx.tenant!.timezone} canContribute={drawingsAccess.canUpload} canManage={canManageProject} historicOnly={drawingsAccess.historicOnly} />
+                </TabsContent>
+              ) : null}
               <TabsContent value="setup" className="mt-4 grid gap-4 lg:grid-cols-2">
                 <TeamCard {...props} />
                 <OrganisationsCard {...props} />

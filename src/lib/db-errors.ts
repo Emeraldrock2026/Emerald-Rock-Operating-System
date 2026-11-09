@@ -28,6 +28,10 @@ const FRIENDLY: Record<string, string> = {
   FOLDER_NOT_IN_PROJECT: "That folder belongs to a different project.",
   FILE_VERSION_DIRECT: "Versions can only be added by uploading a file.",
   FILE_IMMUTABLE_FIELDS: "A file can't be moved to another project or module.",
+  project_records_drawing_number_idx: "That drawing number is already in the register.",
+  NOT_A_DRAWING: "That entry isn't a drawing.",
+  REVISION_OUT_OF_SEQUENCE: "That revision doesn't follow this project's revision sequence.",
+  REVISION_NOT_LATER: "A new revision must come after the latest one received.",
   NOT_ALLOWED: "You don't have permission to do that.",
   STALE_RECORD: "Someone else changed this record. Refresh the page and try again.",
 };
