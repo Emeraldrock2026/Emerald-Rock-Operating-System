@@ -542,6 +542,50 @@ export type Database = {
           },
         ]
       }
+      milestone_baselines: {
+        Row: {
+          baseline_date: string
+          baseline_no: number
+          id: string
+          milestone_id: string
+          previous_date: string | null
+          reason: string
+          set_at: string
+          set_by: string | null
+          tenant_id: string
+        }
+        Insert: {
+          baseline_date: string
+          baseline_no: number
+          id?: string
+          milestone_id: string
+          previous_date?: string | null
+          reason: string
+          set_at?: string
+          set_by?: string | null
+          tenant_id: string
+        }
+        Update: {
+          baseline_date?: string
+          baseline_no?: number
+          id?: string
+          milestone_id?: string
+          previous_date?: string | null
+          reason?: string
+          set_at?: string
+          set_by?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestone_baselines_tenant_id_milestone_id_fkey"
+            columns: ["tenant_id", "milestone_id"]
+            isOneToOne: false
+            referencedRelation: "project_milestones"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       modules: {
         Row: {
           built: boolean
@@ -869,6 +913,68 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "project_key_dates_tenant_id_project_id_fkey"
+            columns: ["tenant_id", "project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      project_milestones: {
+        Row: {
+          actual_date: string | null
+          baseline_date: string | null
+          created_at: string
+          created_by: string | null
+          forecast_date: string | null
+          forecast_updated_on: string | null
+          id: string
+          name: string
+          notes: string
+          project_id: string
+          sort_order: number
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          actual_date?: string | null
+          baseline_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          forecast_date?: string | null
+          forecast_updated_on?: string | null
+          id?: string
+          name: string
+          notes?: string
+          project_id: string
+          sort_order?: number
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          actual_date?: string | null
+          baseline_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          forecast_date?: string | null
+          forecast_updated_on?: string | null
+          id?: string
+          name?: string
+          notes?: string
+          project_id?: string
+          sort_order?: number
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_milestones_tenant_id_project_id_fkey"
             columns: ["tenant_id", "project_id"]
             isOneToOne: false
             referencedRelation: "projects"
@@ -1913,6 +2019,15 @@ export type Database = {
       set_drawing_authorised: {
         Args: { _authorised: boolean; _revision: string }
         Returns: undefined
+      }
+      set_milestone_baseline: {
+        Args: {
+          _date: string
+          _expected_version: number
+          _milestone: string
+          _reason: string
+        }
+        Returns: number
       }
       tenant_today: { Args: { _tenant: string }; Returns: string }
     }

@@ -26,6 +26,7 @@ import { ChangeRegister } from "@/components/drawings/change-register";
 import { DrawingRegister } from "@/components/drawings/drawing-register";
 import { ProjectFilesPanel } from "@/components/project-files/project-files-panel";
 import { fileModuleAccess, type FileModuleId } from "@/lib/domain/project-files";
+import { MilestonesPanel } from "@/components/dashboard/milestones-panel";
 import { LiveDashboard } from "@/components/dashboard/live-dashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -213,6 +214,9 @@ function ProjectPage() {
                 <LiveDashboard tenantId={tenantId} projectId={projectId} timezone={props.timezone} modules={dashModules}
                   photosActive={photosOn} onOpenRecord={openRecord}
                   onOpenModule={(id) => setTab(id === "change_control" ? "changes" : id)} />
+                {(() => { const prog = registerTabs.find((t) => t.id === "programmes"); return prog ? (
+                  <MilestonesPanel tenantId={tenantId} projectId={projectId} timezone={props.timezone} canContribute={prog.access.canUpload} canManage={canManageProject} historicOnly={prog.access.historicOnly} />
+                ) : null; })()}
                 <ProjectDashboard {...props} />
                 <ProjectDetailsCard {...props} />
               </TabsContent>
