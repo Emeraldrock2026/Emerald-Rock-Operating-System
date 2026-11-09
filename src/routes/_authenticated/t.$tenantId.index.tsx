@@ -103,7 +103,7 @@ function Overview() {
             <Link to="/t/$tenantId/settings/users" params={{ tenantId }} className="font-medium text-primary underline-offset-4 hover:underline">
               Settings → Users
             </Link>
-            . Commercial values and the resource planner are being added in the next stages.
+            . The resource planner is being added in the next stage.
           </p>
         ) : (
           <p className="mt-2 text-sm text-muted-foreground">
