@@ -17,8 +17,9 @@ import {
 } from "@/lib/domain/drawings";
 import { fileStoragePath, photoRejection } from "@/lib/domain/project-files";
 import { uploadWithProgress } from "@/components/project-files/project-files-panel";
+import { ComparisonPanel } from "@/components/drawings/comparison-panel";
 
-interface Props { tenantId: string; projectId: string; timezone: string; canContribute: boolean; canManage: boolean; historicOnly: boolean }
+interface Props { tenantId: string; projectId: string; timezone: string; canContribute: boolean; canManage: boolean; historicOnly: boolean; changeModuleOn: boolean }
 
 const key = (t: string, p: string) => ["tenant", t, "project", p, "drawings"] as const;
 
@@ -224,7 +225,7 @@ function UploadRevisionDialog({ tenantId, projectId, timezone, drawings, scheme,
   );
 }
 
-function DrawingDialog({ tenantId, projectId, canContribute, canManage, historicOnly, drawing, onClose, onUpload }: Props & { drawing: Drawing; onClose: () => void; onUpload: () => void }) {
+function DrawingDialog({ tenantId, projectId, timezone, canContribute, canManage, historicOnly, changeModuleOn, drawing, onClose, onUpload }: Props & { drawing: Drawing; onClose: () => void; onUpload: () => void }) {
   const inv = useInvalidate(tenantId, projectId);
   const auth = useMutation({
     mutationFn: async (v: { id: string; on: boolean }) => {
@@ -263,6 +264,9 @@ function DrawingDialog({ tenantId, projectId, canContribute, canManage, historic
           ))}
           {drawing.revisions.length === 0 ? <li className="p-2 text-muted-foreground">No revisions received yet.</li> : null}
         </ul>
+        <ComparisonPanel tenantId={tenantId} projectId={projectId} timezone={timezone} recordId={drawing.id}
+          revisions={drawing.revisions.map((r) => ({ id: r.id, revision: r.revision }))}
+          canRun={canContribute} canReview={canManage && !historicOnly} changeModuleOn={changeModuleOn} />
       </DialogContent>
     </Dialog>
   );

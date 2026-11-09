@@ -92,6 +92,13 @@
       "when": 1794263259179,
       "tag": "0012_project_access_helpers_never_null",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794263457214,
+      "tag": "0013_drawing_comparison_change_register",
+      "breakpoints": true
     }
   ]
 }

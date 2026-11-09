@@ -180,6 +180,180 @@ export type Database = {
           },
         ]
       }
+      comparison_findings: {
+        Row: {
+          amended_summary: string | null
+          category: string
+          change_record_id: string | null
+          created_at: string
+          created_by: string | null
+          decision: string
+          fingerprint: string
+          first_comparison_id: string
+          from_revision_id: string
+          id: string
+          last_seen_comparison_id: string
+          location: string
+          project_id: string
+          record_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          summary: string
+          tenant_id: string
+          to_revision_id: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          amended_summary?: string | null
+          category: string
+          change_record_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          decision?: string
+          fingerprint: string
+          first_comparison_id: string
+          from_revision_id: string
+          id?: string
+          last_seen_comparison_id: string
+          location?: string
+          project_id: string
+          record_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          summary: string
+          tenant_id: string
+          to_revision_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          amended_summary?: string | null
+          category?: string
+          change_record_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          decision?: string
+          fingerprint?: string
+          first_comparison_id?: string
+          from_revision_id?: string
+          id?: string
+          last_seen_comparison_id?: string
+          location?: string
+          project_id?: string
+          record_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          summary?: string
+          tenant_id?: string
+          to_revision_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comparison_findings_tenant_id_change_record_id_fkey"
+            columns: ["tenant_id", "change_record_id"]
+            isOneToOne: false
+            referencedRelation: "project_records"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "comparison_findings_tenant_id_first_comparison_id_fkey"
+            columns: ["tenant_id", "first_comparison_id"]
+            isOneToOne: false
+            referencedRelation: "drawing_comparisons"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "comparison_findings_tenant_id_last_seen_comparison_id_fkey"
+            columns: ["tenant_id", "last_seen_comparison_id"]
+            isOneToOne: false
+            referencedRelation: "drawing_comparisons"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "comparison_findings_tenant_id_record_id_fkey"
+            columns: ["tenant_id", "record_id"]
+            isOneToOne: false
+            referencedRelation: "project_records"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      drawing_comparisons: {
+        Row: {
+          error: string | null
+          finding_count: number
+          from_revision_id: string
+          id: string
+          model: string
+          new_count: number
+          project_id: string
+          ran_at: string
+          ran_by: string | null
+          record_id: string
+          status: string
+          tenant_id: string
+          to_revision_id: string
+        }
+        Insert: {
+          error?: string | null
+          finding_count?: number
+          from_revision_id: string
+          id?: string
+          model?: string
+          new_count?: number
+          project_id: string
+          ran_at?: string
+          ran_by?: string | null
+          record_id: string
+          status: string
+          tenant_id: string
+          to_revision_id: string
+        }
+        Update: {
+          error?: string | null
+          finding_count?: number
+          from_revision_id?: string
+          id?: string
+          model?: string
+          new_count?: number
+          project_id?: string
+          ran_at?: string
+          ran_by?: string | null
+          record_id?: string
+          status?: string
+          tenant_id?: string
+          to_revision_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drawing_comparisons_tenant_id_from_revision_id_fkey"
+            columns: ["tenant_id", "from_revision_id"]
+            isOneToOne: false
+            referencedRelation: "drawing_revisions"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "drawing_comparisons_tenant_id_record_id_fkey"
+            columns: ["tenant_id", "record_id"]
+            isOneToOne: false
+            referencedRelation: "project_records"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "drawing_comparisons_tenant_id_to_revision_id_fkey"
+            columns: ["tenant_id", "to_revision_id"]
+            isOneToOne: false
+            referencedRelation: "drawing_revisions"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       drawing_register_settings: {
         Row: {
           created_at: string
@@ -1501,6 +1675,10 @@ export type Database = {
       }
       auth_user_id_by_email: { Args: { _email: string }; Returns: string }
       branding_folder_tenant: { Args: { _name: string }; Returns: string }
+      can_compare_drawing: {
+        Args: { _from: string; _record: string; _to: string }
+        Returns: boolean
+      }
       can_contribute_project: {
         Args: { _project: string; _tenant: string }
         Returns: boolean
@@ -1627,6 +1805,27 @@ export type Database = {
           _title?: string
         }
         Returns: number
+      }
+      review_comparison_finding: {
+        Args: { _amended?: string; _decision: string; _finding: string }
+        Returns: string
+      }
+      save_drawing_comparison: {
+        Args: {
+          _actor: string
+          _error: string
+          _findings: Json
+          _from: string
+          _model: string
+          _record: string
+          _status: string
+          _to: string
+        }
+        Returns: {
+          comparison_id: string
+          finding_count: number
+          new_count: number
+        }[]
       }
       set_drawing_authorised: {
         Args: { _authorised: boolean; _revision: string }

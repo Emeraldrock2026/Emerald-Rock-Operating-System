@@ -139,3 +139,9 @@ Which cards and exports a person gets is decided by `overviewCards` / `available
 - `drawing_revisions`: revision code, rank (series order then number), revision date, received date, file version, and a separate `authorised` flag (at most one per drawing). Inserted only by `add_drawing_revision()`, which enforces the project's sequence (`drawing_register_settings`: series such as P,C or A-Z, digit count) and that each revision is later than the latest. Uploading never authorises; `set_drawing_authorised()` is project-admin only and refused when the module is off.
 - `drawing_revision_rank()` mirrors `parseRevision` in src/lib/domain/drawings.ts. Checks: `tests/db/drawings_acceptance.sql`.
 - Project access helpers (`can_view/contribute/manage_project`, `project_module_active`) always return true/false (migration 0012); before that a null result let `if not ...` checks in functions pass.
+
+## AI drawing comparison and change register (stage P4)
+- `compareDrawingRevisions` (src/lib/compare.functions.ts, signed-in) checks `can_compare_drawing()` as the user, reads both revision files through the user's own access, sends them to the AI Gateway, cleans the output with `cleanFindings` (src/lib/domain/comparison.ts), then stores the run with `save_drawing_comparison()` (server-only, service role). Failed or unreadable runs are recorded as failed with no findings.
+- `comparison_findings` are unique per (from revision, to revision, fingerprint), so reruns update "last seen" and never duplicate; reviewer decisions survive reruns.
+- `review_comparison_finding()` (project admins, Drawings on): reject, accept or amend. Accept/amend needs Change control on and creates or appends to one draft `project_records` change (module change_control) per revision pair, linked to the drawing. Findings in a non-draft change are locked. No approval, entitlement or valuation fields exist.
+- Checks: `tests/db/comparison_acceptance.sql` (run via the SQL tool).
