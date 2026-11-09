@@ -134,6 +134,13 @@
       "when": 1794266843733,
       "tag": "0018_0018_procurement_order_after_award",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794268510915,
+      "tag": "0019_0019_project_milestones",
+      "breakpoints": true
     }
   ]
 }
