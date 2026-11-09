@@ -108,3 +108,6 @@ Platform admins switch modules per business on the business page. The UI uses `s
 
 ## Commercial
 Fee and budget hours live in project_commercials (one row per project), readable/writable only via has_commercial_access (module on + Owner/Admin or Resource Manager with grant). History is read from audit_log category commercial.
+
+## Resource planner
+Weekly grid at /t/:tenantId/planner (RequireModule resource_planning). Capacity per day comes from the effective-dated working pattern for that date (capacityOn); over-allocation, out-of-dates and On Hold bookings need confirmation in the UI; the database refuses inactive people and Draft/Completed/Archived projects. Employees see only their own row, read-only.
