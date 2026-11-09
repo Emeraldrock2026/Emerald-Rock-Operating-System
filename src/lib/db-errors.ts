@@ -41,7 +41,11 @@ const FRIENDLY: Record<string, string> = {
   BAD_STATUS: "That status isn't available for this register.",
   RESPONSE_REQUIRED: "Record the response before marking the RFI responded or closed.",
   PROGRAMME_FILE_REQUIRED: "Upload the programme file before making it current.",
-  ADMIN_ONLY_STATUS: "Only a project admin can close, reopen, accept or supersede this.",
+  RESULT_REQUIRED: "Record the inspection result before marking it passed or failed.",
+  SUPPLIER_REQUIRED: "Record the selected supplier before awarding or ordering.",
+  FILE_REQUIRED: "Upload the document before submitting, accepting or approving.",
+  FILE_LOCKED: "This document has been accepted or approved, so its file can't be replaced. Add a new record instead.",
+  ADMIN_ONLY_STATUS: "Only a project admin can close, reopen, accept, approve, award, cancel or supersede this.",
   STALE_RECORD: "Someone else changed this record. Refresh the page and try again.",
 };
 

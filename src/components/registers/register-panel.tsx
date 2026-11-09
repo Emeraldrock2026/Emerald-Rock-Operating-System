@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { friendlyError, StaleRecordError } from "@/lib/db-errors";
 import { formatDateGB, todayIn, type DateOnly } from "@/lib/domain/dates";
-import { isOverdue, nextStatuses, REGISTERS, statusProblem, type RegisterModule } from "@/lib/domain/registers";
+import { fileReplaceable, isLateForecast, isOverdue, nextStatuses, REGISTERS, statusProblem, type RegisterModule } from "@/lib/domain/registers";
 import { fileStoragePath } from "@/lib/domain/project-files";
 import { uploadWithProgress } from "@/components/project-files/project-files-panel";
 import { RecordThread } from "./record-thread";
@@ -20,7 +20,7 @@ type Rec = { id: string; reference: string; title: string; description: string; 
 
 export function RegisterPanel(p: Props) {
   const c = REGISTERS[p.module];
-  const newLabel = `New ${p.module === "rfis" ? c.singular : c.singular.toLowerCase()}`;
+  const newLabel = `New ${/^[A-Z]{2,}/.test(c.singular) ? c.singular : c.singular.toLowerCase()}`;
   const qc = useQueryClient();
   const [show, setShow] = useState<"open" | "all">("open");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -61,11 +61,13 @@ export function RegisterPanel(p: Props) {
         <ul className="divide-y rounded-lg border bg-card">
           {rows.map((r) => {
             const late = c.usesDueDate && isOverdue(r.due_date as DateOnly | null, today, r.is_closed);
+            const lateForecast = p.module === "deliveries" && isLateForecast(r.due_date as DateOnly | null, (r.fields["forecast_on"] as DateOnly | undefined) || null, r.is_closed);
             return (
               <li key={r.id}><button className="flex w-full flex-wrap items-center gap-2 p-3 text-left hover:bg-muted/40" onClick={() => setOpenId(r.id)}>
                 <span className="font-mono text-xs">{r.reference}</span><span className="font-medium">{r.title}</span>
                 <Badge variant={r.is_closed ? "secondary" : "outline"}>{c.statusLabel[r.status] ?? r.status}</Badge>
                 {p.module === "programmes" && r.fields["revision"] ? <span className="text-xs text-muted-foreground">Rev {String(r.fields["revision"])}</span> : null}
+                {lateForecast ? <Badge variant="destructive">Forecast {formatDateGB(r.fields["forecast_on"] as DateOnly)} is after required date</Badge> : null}
                 {c.usesDueDate && r.due_date ? <span className={`ml-auto text-xs ${late ? "font-medium text-destructive" : "text-muted-foreground"}`}>{late ? "Overdue · " : "Due "}{formatDateGB(r.due_date as DateOnly)}</span> : null}
               </button></li>
             );
@@ -105,16 +107,16 @@ function RecordDialog(p: Props & { rec: Rec; onClose: () => void }) {
   const upload = useMutation({
     mutationFn: async (file: File) => {
       const fileId = (rec.fields["file_id"] as string | undefined) ?? crypto.randomUUID();
-      const path = fileStoragePath({ tenantId: p.tenantId, projectId: p.projectId, module: "programmes" as never, fileId, uploadId: crypto.randomUUID(), fileName: file.name });
+      const path = fileStoragePath({ tenantId: p.tenantId, projectId: p.projectId, module: p.module as never, fileId, uploadId: crypto.randomUUID(), fileName: file.name });
       setPct(0);
       await uploadWithProgress(path, file, setPct);
-      const { data: v, error } = await supabase.rpc("record_project_file_version", { _file: fileId, _project: p.projectId, _module: "programmes", _path: path, _file_name: file.name, _mime: file.type, _size: file.size, _note: "", _title: `${rec.reference} programme` } as never);
+      const { data: v, error } = await supabase.rpc("record_project_file_version", { _file: fileId, _project: p.projectId, _module: p.module, _path: path, _file_name: file.name, _mime: file.type, _size: file.size, _note: "", _title: `${rec.reference} ${c.singular}` } as never);
       if (error) throw error;
       const { data, error: e2 } = await supabase.from("project_records").update({ fields: { ...rec.fields, file_id: fileId, file_version: v, file_name: file.name } } as never).eq("id", rec.id).eq("version", rec.version).select("id");
       if (e2) throw e2;
       if (!data?.length) throw new StaleRecordError();
     },
-    onSuccess: () => { toast.success("Programme file uploaded."); void invalidate(); },
+    onSuccess: () => { toast.success(`${c.file?.label ?? "File"} uploaded.`); void invalidate(); },
     onError: (e) => toast.error(friendlyError(e)),
     onSettled: () => setPct(null),
   });
@@ -144,11 +146,13 @@ function RecordDialog(p: Props & { rec: Rec; onClose: () => void }) {
           <div><Label htmlFor="rg-title">Title</Label><Input id="rg-title" value={title} maxLength={300} disabled={!editable} onChange={(e) => setTitle(e.target.value)} /></div>
           <div><Label htmlFor="rg-desc">Description</Label><Textarea id="rg-desc" rows={2} value={desc} maxLength={5000} disabled={!editable} onChange={(e) => setDesc(e.target.value)} /></div>
           <div className="grid gap-3 sm:grid-cols-2">
-            {c.usesDueDate ? <div><Label htmlFor="rg-due">{p.module === "rfis" ? "Response needed by" : "Review by"}</Label><Input id="rg-due" type="date" value={due} disabled={!editable} onChange={(e) => setDue(e.target.value)} /></div> : null}
+            {c.usesDueDate ? <div><Label htmlFor="rg-due">{c.dueLabel ?? "Due"}</Label><Input id="rg-due" type="date" value={due} disabled={!editable} onChange={(e) => setDue(e.target.value)} /></div> : null}
             {c.fields.map((f) => (
               <div key={f.key} className={f.kind === "long" ? "sm:col-span-2" : ""}>
                 <Label htmlFor={`rg-${f.key}`}>{f.label}</Label>
-                {f.kind === "long"
+                {f.kind === "choice"
+                  ? <select id={`rg-${f.key}`} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm" value={fields[f.key]} disabled={!editable} onChange={(e) => setFields({ ...fields, [f.key]: e.target.value })}><option value="">Choose…</option>{f.options!.map((o) => <option key={o} value={o}>{o}</option>)}</select>
+                  : f.kind === "long"
                   ? <Textarea id={`rg-${f.key}`} rows={3} maxLength={5000} value={fields[f.key]} disabled={!editable} onChange={(e) => setFields({ ...fields, [f.key]: e.target.value })} />
                   : <Input id={`rg-${f.key}`} type={f.kind === "date" ? "date" : "text"} maxLength={200} value={fields[f.key]} disabled={!editable} onChange={(e) => setFields({ ...fields, [f.key]: e.target.value })} />}
               </div>
@@ -156,16 +160,16 @@ function RecordDialog(p: Props & { rec: Rec; onClose: () => void }) {
           </div>
           {editable ? <Button type="submit" disabled={!dirty || update.isPending}>Save</Button> : null}
         </form>
-        {p.module === "programmes" ? (
-          <section aria-label="Programme file" className="space-y-2 rounded-lg border p-3">
-            <h3 className="text-sm font-semibold">Programme file</h3>
-            {rec.fields["file_id"] ? <div className="flex items-center gap-2 text-sm"><span>{String(rec.fields["file_name"] ?? "Programme")} (version {String(rec.fields["file_version"])})</span><Button size="sm" variant="ghost" onClick={() => void openFile()}>Open</Button></div>
+        {c.file ? (
+          <section aria-label={c.file.label} className="space-y-2 rounded-lg border p-3">
+            <h3 className="text-sm font-semibold">{c.file.label}</h3>
+            {rec.fields["file_id"] ? <div className="flex items-center gap-2 text-sm"><span>{String(rec.fields["file_name"] ?? c.file.label)} (version {String(rec.fields["file_version"])})</span><Button size="sm" variant="ghost" onClick={() => void openFile()}>Open</Button></div>
               : <p className="text-xs text-muted-foreground">No file yet.</p>}
-            {editable && rec.status !== "current" && rec.status !== "superseded" ? (
+            {editable && fileReplaceable(p.module, rec.status) ? (
               <div><Label htmlFor="rg-file">{rec.fields["file_id"] ? "Replace with a new version" : "Upload file"}</Label>
                 <Input id="rg-file" type="file" disabled={upload.isPending || dirty} onChange={(e) => { const f = e.target.files?.[0]; if (f) upload.mutate(f); e.target.value = ""; }} />
                 {pct !== null ? <p className="text-xs text-muted-foreground">Uploading… {pct}%</p> : null}
-                <p className="text-xs text-muted-foreground">Earlier versions are kept. A current or superseded programme's file can't be replaced.</p></div>
+                <p className="text-xs text-muted-foreground">Earlier versions are kept. Uploading doesn't change the status. Once {c.file.lockedIn.map((s) => c.statusLabel[s]!.toLowerCase()).join(" or ")}, the file can't be replaced.</p></div>
             ) : null}
           </section>
         ) : null}
