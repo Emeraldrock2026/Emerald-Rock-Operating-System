@@ -127,3 +127,9 @@ Which cards and exports a person gets is decided by `overviewCards` / `available
 - `project_templates` (Owner/Admin): modules + folder paths; `apply_project_template()` skips modules not on for the business.
 - Shared records: `project_records`, `record_links` (target shown via `linked_record_summary()`, which explains restrictions rather than breaking), `record_comments`; all audited under category project_detail. `project_activity()` feeds the project dashboard.
 - Checks: tests/db/project_foundation_acceptance.sql and the project section of access_acceptance.sql.
+
+## Project photos and documents (stage P2)
+- `project_files` (one row per photo/document, module `photos` or `documents`, optional folder, caption, tags) and append-only `project_file_versions`.
+- Files live in the private `project-files` bucket at `<tenant>/<project>/<module>/<file>/<upload>-<name>`. Storage policies parse the path: read = can_view_project and (module active or project manager); upload = can_contribute_project and module active. No update/delete policies, so versions are immutable.
+- New files and new versions are registered only through `record_project_file_version()`, which re-checks access, the path and that the object exists; `current_version` cannot be changed directly.
+- Contributors can add folders while Photos or Documents is active. Checks: `tests/db/project_files_acceptance.sql`.
