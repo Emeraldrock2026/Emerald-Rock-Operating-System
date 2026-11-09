@@ -3,7 +3,8 @@
 -- Expected: admin_close=closed, closed_flag=true, ew_first=open, ew_member_close=refused ADMIN_ONLY_STATUS, member_reopen=refused ADMIN_ONLY_STATUS,
 --   member_rfi=ok, member_respond_blank=refused RESPONSE_REQUIRED, member_responded=responded, other_business_sees=0, prog_current=current,
 --   prog_member_current=refused ADMIN_ONLY_STATUS, prog_no_file=refused PROGRAMME_FILE_REQUIRED, prog_old=superseded, rfi_off_member=0,
---   rfi_off_admin=1, rfi_off_edit=refused, prog_ref=<project>-PRG-000n, viewer_rfi=refused, viewer_comment=refused, member_comment=ok, bad_status=refused BAD_STATUS
+--   rfi_off_admin=1, rfi_off_edit=refused, prog_ref=<project>-PRG-000n, viewer_rfi=refused, viewer_comment=refused, member_comment=ok, bad_status=refused BAD_STATUS,
+--   rfi_closed_on=set, ew_closed_on=set, ew_reopen_clears=cleared (added stage 10 after shared-rule changes)
 begin;
 create temp table r(k text, v text) on commit drop;
 create temp table ids(k text, v uuid) on commit drop;
@@ -59,6 +60,11 @@ set local role authenticated;
 update project_records set status = 'closed' where id = (select v from ids where k='rfi');
 insert into r select 'admin_close', status from project_records where id = (select v from ids where k='rfi');
 insert into r select 'closed_flag', is_closed::text from project_records where id = (select v from ids where k='rfi');
+insert into r select 'rfi_closed_on', case when completed_on is not null then 'set' else 'missing' end from project_records where id = (select v from ids where k='rfi');
+update project_records set status = 'closed' where title = 'EW test';
+insert into r select 'ew_closed_on', case when completed_on is not null then 'set' else 'missing' end from project_records where title = 'EW test';
+update project_records set status = 'open' where title = 'EW test';
+insert into r select 'ew_reopen_clears', case when completed_on is null then 'cleared' else 'kept' end from project_records where title = 'EW test';
 do $$ begin insert into project_records (tenant_id, project_id, module_id, title, status) values ((select v from ids where k='t'), (select v from ids where k='p'), 'programmes', 'Prog none', 'current');
   insert into r values ('prog_no_file','ALLOWED'); exception when others then insert into r values ('prog_no_file','refused ' || sqlerrm); end $$;
 update project_records set status = 'current' where title = 'Prog A';

@@ -127,6 +127,13 @@
       "when": 1794265914949,
       "tag": "0017_0017_registers_qa_handover_rams_deliveries_procurement_assets",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794266843733,
+      "tag": "0018_0018_procurement_order_after_award",
+      "breakpoints": true
     }
   ]
 }
