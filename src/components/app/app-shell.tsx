@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, type CSSProperties, type ReactNode } from "react";
-import { Building2, Check, ChevronsUpDown, LayoutDashboard, LogOut, Users, Briefcase, FolderKanban, Menu, Settings, CalendarDays } from "lucide-react";
+import { useLayoutEffect, useState, useSyncExternalStore, type ReactNode } from "react";
+import { toast } from "sonner";
+import { Building2, Check, ChevronsUpDown, LayoutDashboard, LogOut, Users, Briefcase, FolderKanban, Menu, Settings, CalendarDays, Sun, Moon, Monitor } from "lucide-react";
 import { BrandMark } from "./brand-mark";
 import { signOut } from "./sign-out";
 import { Button } from "@/components/ui/button";
@@ -10,19 +11,24 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { can } from "@/lib/domain/permissions";
-import { readableTextOn } from "@/lib/domain/brand";
+import type { Appearance } from "@/lib/domain/brand";
+import { accentIsDark, brandStyle, logoUrlQuery } from "@/lib/branding";
+import { getPersonalAppearance, savePersonalAppearance, setBusinessAppearance, subscribeAppearance } from "@/lib/appearance";
+import { friendlyError } from "@/lib/db-errors";
 import { ENVIRONMENT_LABEL, ROLE_LABEL } from "@/lib/labels";
 import { forgetOtherTenants, isUsable, myMembershipsQuery, type TenantContext } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
   label: string;
-  to: "/t/$tenantId" | "/t/$tenantId/people" | "/t/$tenantId/clients" | "/t/$tenantId/projects" | "/t/$tenantId/settings/users" | "/t/$tenantId/planner";
+  to: "/t/$tenantId" | "/t/$tenantId/people" | "/t/$tenantId/clients" | "/t/$tenantId/projects" | "/t/$tenantId/settings/users" | "/t/$tenantId/planner" | "/t/$tenantId/settings/appearance";
   icon: typeof LayoutDashboard;
   exact?: boolean;
 }
@@ -45,18 +51,29 @@ function navItems(ctx: TenantContext): NavItem[] {
   }
   if (ctx.access && can(ctx.access, "tenant.users.manage")) {
     items.push({ label: "Settings", to: "/t/$tenantId/settings/users", icon: Settings });
+  } else if (ctx.access && ctx.access.status === "active") {
+    items.push({ label: "Settings", to: "/t/$tenantId/settings/appearance", icon: Settings });
   }
   return items;
 }
 
 export function AppShell({ ctx, user, children }: { ctx: TenantContext; user: { id: string; email: string }; children: ReactNode }) {
   const tenant = ctx.tenant!;
-  const brand = tenant.brandColour;
-  const style = {
-    "--primary": brand,
-    "--primary-foreground": readableTextOn(brand),
-    "--ring": brand,
-  } as CSSProperties;
+  // Branding goes on <html> before paint so dialogs and menus (rendered outside this tree) match,
+  // and is removed when leaving the business so the next one never shows the previous colours.
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    const vars = brandStyle(tenant.brandColour, tenant.accentColour) as Record<string, string>;
+    for (const [k, v] of Object.entries(vars)) root.style.setProperty(k, v);
+    root.classList.add("brand-scope");
+    return () => {
+      for (const k of Object.keys(vars)) root.style.removeProperty(k);
+      root.classList.remove("brand-scope");
+    };
+  }, [tenant.id, tenant.brandColour, tenant.accentColour]);
+  useLayoutEffect(() => {
+    setBusinessAppearance(tenant.defaultAppearance);
+  }, [tenant.id, tenant.defaultAppearance]);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const nav = (
@@ -81,7 +98,7 @@ export function AppShell({ ctx, user, children }: { ctx: TenantContext; user: { 
   const sidebarBody = (
     <div className="flex h-full flex-col bg-sidebar py-4">
       <div className="px-5 pb-4">
-        <BrandMark className="text-sidebar-primary" />
+        <TenantLogo tenant={tenant} />
       </div>
       {nav}
       <div className="mt-auto px-5 pt-4 font-mono text-[11px] text-sidebar-foreground/70">{ENVIRONMENT_LABEL}</div>
@@ -89,7 +106,7 @@ export function AppShell({ ctx, user, children }: { ctx: TenantContext; user: { 
   );
 
   return (
-    <div style={style} className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background">
       <aside className="hidden w-56 shrink-0 border-r border-sidebar-border md:block">{sidebarBody}</aside>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-14 items-center gap-3 border-b border-border bg-card px-4">
@@ -109,7 +126,7 @@ export function AppShell({ ctx, user, children }: { ctx: TenantContext; user: { 
             <span className="rounded border border-border px-1.5 py-0.5 text-xs text-muted-foreground">Demo business</span>
           ) : null}
           <div className="ml-auto">
-            <UserMenu ctx={ctx} email={user.email} />
+            <UserMenu ctx={ctx} email={user.email} userId={user.id} />
           </div>
         </header>
         <main className="min-w-0 flex-1 px-4 py-6 md:px-8">{children}</main>
@@ -171,7 +188,29 @@ function TenantSwitcher({ ctx, userId }: { ctx: TenantContext; userId: string })
   );
 }
 
-function UserMenu({ ctx, email }: { ctx: TenantContext; email: string }) {
+function TenantLogo({ tenant }: { tenant: NonNullable<TenantContext["tenant"]> }) {
+  const path = (accentIsDark(tenant.accentColour) ? tenant.logoDarkPath : null) ?? tenant.logoPath;
+  const url = useQuery(logoUrlQuery(tenant.id, path));
+  if (path && url.isPending) return <div className="h-10" aria-hidden />;
+  if (path && url.data) {
+    return <img key={url.data} src={url.data} alt={tenant.displayName} className="h-10 w-auto max-w-full object-contain object-left" />;
+  }
+  return (
+    <span className="block">
+      <span className="block font-display text-sm font-semibold tracking-tight text-sidebar-accent-foreground">{tenant.displayName}</span>
+      <BrandMark className="text-[11px] font-normal text-sidebar-foreground" />
+    </span>
+  );
+}
+
+const APPEARANCE_OPTIONS = [
+  { value: "light", label: "Light", icon: Sun },
+  { value: "dark", label: "Dark", icon: Moon },
+  { value: "system", label: "System", icon: Monitor },
+] as const;
+
+function UserMenu({ ctx, email, userId }: { ctx: TenantContext; email: string; userId: string }) {
+  const personal = useSyncExternalStore(subscribeAppearance, getPersonalAppearance, () => null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const role = ctx.membership ? ROLE_LABEL[ctx.membership.role] : "";
@@ -187,6 +226,21 @@ function UserMenu({ ctx, email }: { ctx: TenantContext; email: string }) {
           <span className="block truncate text-sm text-foreground">{email}</span>
           <span className="block text-xs text-muted-foreground">{role}</span>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">Appearance</DropdownMenuLabel>
+        <DropdownMenuRadioGroup
+          value={personal ?? "business"}
+          onValueChange={(v) => {
+            savePersonalAppearance(userId, v === "business" ? null : (v as Appearance)).catch((e) => toast.error(friendlyError(e)));
+          }}
+        >
+          {APPEARANCE_OPTIONS.map((o) => (
+            <DropdownMenuRadioItem key={o.value} value={o.value}>
+              <o.icon className="mr-2 size-4" aria-hidden /> {o.label}
+            </DropdownMenuRadioItem>
+          ))}
+          <DropdownMenuRadioItem value="business">Business default</DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => signOut(queryClient, navigate)}>
           <LogOut className="size-4" aria-hidden /> Sign out
