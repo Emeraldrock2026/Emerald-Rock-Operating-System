@@ -2,7 +2,7 @@
 
 ## Platform
 - One shared app and one shared database. Every tenant-owned row carries `tenant_id`.
-- Database: the owner's own Supabase project. Schema changes are versioned migrations.
+- Database: Lovable Cloud. Schema changes are versioned migrations.
 - Environments: the connected project is development/test. Production will be a second, separate
   project before live business use. The app shows the current environment in its header.
 - Privileged keys stay server-side; the browser only holds the publishable key.
