@@ -362,7 +362,7 @@ export function ProjectModulesCard({ tenantId, projectId, businessModules, canMa
             <li key={id} className="flex items-center justify-between gap-3 border-b py-2 text-sm">
               <div>
                 <label htmlFor={sid} className="font-medium">{MODULES[id].name}</label>
-                {state === "off_for_business" ? <p className="text-xs text-warning-foreground">Switched off for the business. Records are kept.</p> : !MODULES[id].built ? <p className="text-xs text-muted-foreground">Pages coming in a later stage.</p> : null}
+                {state === "off_for_business" ? <p className="text-xs text-warning">Switched off for the business. Records are kept.</p> : !MODULES[id].built ? <p className="text-xs text-muted-foreground">Pages coming in a later stage.</p> : null}
               </div>
               <Switch id={sid} checked={state === "active"} disabled={!canManage || state === "off_for_business" || toggle.isPending}
                 onCheckedChange={(v) => { if (v || window.confirm(`Switch off ${MODULES[id].name} for this project? Its records are kept and reappear when switched back on.`)) toggle.mutate({ module_id: id, enabled: v }); }} />

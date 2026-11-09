@@ -16,6 +16,9 @@ import { friendlyError, StaleRecordError } from "@/lib/db-errors";
 import { clientsQuery, projectsQuery } from "@/lib/projects-data";
 import { employeesQuery } from "@/lib/people";
 import { ProjectCommercials } from "@/components/commercial/project-commercials";
+import { KeyDatesCard, OrganisationsCard, ProjectDashboard, ProjectDetailsCard, ProjectModulesCard, TeamCard } from "@/components/project-setup/project-workspace";
+import { projectDetailQuery } from "@/lib/project-setup-data";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/t/$tenantId/projects/$projectId")({
   head: () => ({
@@ -52,6 +55,8 @@ function ProjectPage() {
   const people = useQuery({ ...employeesQuery(tenantId), enabled: manage });
   const [editing, setEditing] = useState(false);
   const p = projects.data?.find((x) => x.id === projectId);
+  const detail = useQuery({ ...projectDetailQuery(tenantId, projectId), enabled: !!p });
+  const canManageProject = manage || detail.data?.myRole === "project_admin";
 
   const save = useMutation({
     mutationFn: async (patch: Partial<ProjectFormValues> & { status?: ProjectStatus }) => {
@@ -79,7 +84,7 @@ function ProjectPage() {
   };
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-6xl">
       <PageHeader
         title={`${p.reference} · ${p.name}`}
         description={<Link to="/t/$tenantId/projects" params={{ tenantId }} className="underline-offset-4 hover:underline">← All projects</Link>}
@@ -123,6 +128,30 @@ function ProjectPage() {
           </div>
         </dl>
       )}
+
+      <Tabs defaultValue="dashboard" className="mt-6">
+        <TabsList>
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          <TabsTrigger value="setup">Team and setup</TabsTrigger>
+        </TabsList>
+        {(() => {
+          const props = { tenantId, projectId, timezone: ctx.tenant!.timezone, businessModules: ctx.access?.enabledModules ?? new Set(), canManage: canManageProject, isManager: manage };
+          return (
+            <>
+              <TabsContent value="dashboard" className="mt-4 space-y-4">
+                <ProjectDashboard {...props} />
+                <ProjectDetailsCard {...props} />
+              </TabsContent>
+              <TabsContent value="setup" className="mt-4 grid gap-4 lg:grid-cols-2">
+                <TeamCard {...props} />
+                <OrganisationsCard {...props} />
+                <KeyDatesCard {...props} />
+                <div className="lg:col-span-2"><ProjectModulesCard {...props} /></div>
+              </TabsContent>
+            </>
+          );
+        })()}
+      </Tabs>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
         {ctx.access && can(ctx.access, "commercial.view") ? (
