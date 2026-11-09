@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type CSSProperties, type ReactNode } from "react";
-import { Building2, Check, ChevronsUpDown, LayoutDashboard, LogOut, Menu, Settings } from "lucide-react";
+import { Building2, Check, ChevronsUpDown, LayoutDashboard, LogOut, Users, Menu, Settings } from "lucide-react";
 import { BrandMark } from "./brand-mark";
 import { signOut } from "./sign-out";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 
 interface NavItem {
   label: string;
-  to: "/t/$tenantId" | "/t/$tenantId/settings/users";
+  to: "/t/$tenantId" | "/t/$tenantId/people" | "/t/$tenantId/settings/users";
   icon: typeof LayoutDashboard;
   exact?: boolean;
 }
@@ -30,6 +30,10 @@ interface NavItem {
 /** Only areas that exist, are enabled and are permitted appear here. */
 function navItems(ctx: TenantContext): NavItem[] {
   const items: NavItem[] = [{ label: "Overview", to: "/t/$tenantId", icon: LayoutDashboard, exact: true }];
+  if (ctx.access && ctx.access.status === "active" && ctx.access.tenantActive) {
+    const all = can(ctx.access, "employees.view_all");
+    items.push({ label: all ? "People" : "My hours", to: "/t/$tenantId/people", icon: Users });
+  }
   if (ctx.access && can(ctx.access, "tenant.users.manage")) {
     items.push({ label: "Settings", to: "/t/$tenantId/settings/users", icon: Settings });
   }

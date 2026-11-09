@@ -8,6 +8,10 @@ const FRIENDLY: Record<string, string> = {
   PLATFORM_ONLY: "Only a platform administrator can do that.",
   MODULE_DEPENDENCY_DISABLED: "Switch on the modules this one depends on first.",
   MODULE_HAS_DEPENDANTS: "Switch off the modules that depend on this one first.",
+  PATTERN_REWRITES_HISTORY:
+    "That date is in the past and this person already has work booked after it. Choose today or a later date.",
+  ADMIN_ONLY: "Only an Owner/Admin can link or unlink a login.",
+  NOT_A_MEMBER: "That login isn't a member of this business.",
   STALE_RECORD: "Someone else changed this record. Refresh the page and try again.",
 };
 
@@ -20,6 +24,9 @@ export function friendlyError(error: unknown): string {
         : String(error);
   const code = /^([A-Z_]+):\s*(.*)$/s.exec(message);
   if (code) return FRIENDLY[code[1]!] ?? code[2]!;
+  if (/employees_tenant_email_idx/.test(message)) return "Another person in this business already uses that email.";
+  if (/employees_tenant_id_user_id_key/.test(message)) return "That login is already linked to another person.";
+  if (/working_patterns_tenant_id_employee_id_effective_from/.test(message)) return "There is already a pattern starting on that date.";
   if (/invalid login credentials/i.test(message)) return "Email or password is incorrect.";
   if (/rate limit/i.test(message)) return "Too many attempts. Wait a few minutes and try again.";
   if (/pwned|leaked|known to be weak|weak password/i.test(message))
