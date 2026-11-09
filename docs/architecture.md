@@ -84,7 +84,7 @@ database policies are the source of truth.
 - First platform admin: an approved email in `platform_admin_bootstrap` calls
   `claim_platform_admin()` after signing in with a confirmed email; the entry is then consumed.
 - `tests/db/access_acceptance.sql` exercises isolation, roles, modules and guards inside one
-  transaction that always rolls back. Expected result: `RESULT passes=55 fails={}`.
+  transaction that always rolls back. Expected result: `RESULT passes=59 fails={}`.
 
 ## Planning rules (see `src/lib/domain/`)
 - Allocation dates are date-only values. Capacity comes from effective-dated working patterns.
@@ -102,3 +102,6 @@ Platform admins switch modules per business on the business page. The UI uses `s
 
 ## People and working hours (stage 5)
 `/t/<id>/people` lists employees (Employees see only their own linked record as "My hours"); `/t/<id>/people/<employeeId>` edits details, active status, the linked login (Owner/Admin) and working patterns. A new pattern applies from its date until the next one; earlier weeks keep their old hours. `guard_working_pattern` refuses past-dated changes once work is booked after that date; only upcoming patterns can be removed. Period and validation rules: `src/lib/domain/working-patterns.ts`.
+
+## Clients & Projects (stage 6)
+`/t/<id>/clients`, `/t/<id>/projects`, `/t/<id>/projects/<projectId>`, each wrapped in `RequireModule("clients_projects")`. `guard_project_client` refuses inactive clients on new or re-pointed projects (`CLIENT_INACTIVE`). Employees cannot read `clients`; `my_project_client_names(tenant)` returns client names only for projects the caller may see. Status changes offered in the UI come from `allowedStatusTransitions()`; closing still needs future allocations resolved (`guard_project_status`).

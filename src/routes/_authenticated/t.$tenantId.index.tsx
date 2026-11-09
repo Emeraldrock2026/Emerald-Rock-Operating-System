@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { clientsQuery, projectsQuery } from "@/lib/projects-data";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
@@ -92,6 +93,8 @@ function Overview() {
         </section>
       </div>
 
+      <ClientsProjectsCard />
+
       <section className="mt-4 rounded-lg border border-border bg-card p-5 shadow-card" aria-labelledby="next-heading">
         <h2 id="next-heading" className="text-sm font-semibold text-foreground">What you can do now</h2>
         {isAdmin ? (
@@ -100,7 +103,7 @@ function Overview() {
             <Link to="/t/$tenantId/settings/users" params={{ tenantId }} className="font-medium text-primary underline-offset-4 hover:underline">
               Settings → Users
             </Link>
-            . People, clients, projects and the resource planner are being added in the next stages.
+            . Commercial values and the resource planner are being added in the next stages.
           </p>
         ) : (
           <p className="mt-2 text-sm text-muted-foreground">
@@ -109,5 +112,30 @@ function Overview() {
         )}
       </section>
     </div>
+  );
+}
+
+function ClientsProjectsCard() {
+  const { ctx, tenantId } = useTenant();
+  const showProjects = ctx.access ? can(ctx.access, "projects.view_allocated") : false;
+  const showClients = ctx.access ? can(ctx.access, "clients.view") : false;
+  const projects = useQuery({ ...projectsQuery(tenantId), enabled: showProjects });
+  const clients = useQuery({ ...clientsQuery(tenantId), enabled: showClients });
+  if (!showProjects) return null;
+  const activeProjects = projects.data?.filter((p) => p.status === "active").length;
+  const activeClients = clients.data?.filter((c) => c.active).length;
+  return (
+    <section className="mt-4 grid gap-4 sm:grid-cols-2" aria-label="Clients and projects">
+      <Link to="/t/$tenantId/projects" params={{ tenantId }} className="rounded-lg border border-border bg-card p-5 shadow-card hover:border-primary">
+        <p className="text-sm text-muted-foreground">{showClients ? "Active projects" : "Your active projects"}</p>
+        <p className="mt-1 font-mono text-2xl font-semibold text-foreground">{activeProjects ?? "…"}</p>
+      </Link>
+      {showClients ? (
+        <Link to="/t/$tenantId/clients" params={{ tenantId }} className="rounded-lg border border-border bg-card p-5 shadow-card hover:border-primary">
+          <p className="text-sm text-muted-foreground">Active clients</p>
+          <p className="mt-1 font-mono text-2xl font-semibold text-foreground">{activeClients ?? "…"}</p>
+        </Link>
+      ) : null}
+    </section>
   );
 }

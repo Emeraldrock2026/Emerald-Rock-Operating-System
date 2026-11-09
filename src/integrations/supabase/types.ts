@@ -700,6 +700,13 @@ export type Database = {
         Args: { _module: string; _tenant: string }
         Returns: boolean
       }
+      my_project_client_names: {
+        Args: { _tenant: string }
+        Returns: {
+          client_name: string
+          project_id: string
+        }[]
+      }
       platform_tenant_overview: {
         Args: never
         Returns: {

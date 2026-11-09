@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type CSSProperties, type ReactNode } from "react";
-import { Building2, Check, ChevronsUpDown, LayoutDashboard, LogOut, Users, Menu, Settings } from "lucide-react";
+import { Building2, Check, ChevronsUpDown, LayoutDashboard, LogOut, Users, Briefcase, FolderKanban, Menu, Settings } from "lucide-react";
 import { BrandMark } from "./brand-mark";
 import { signOut } from "./sign-out";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 
 interface NavItem {
   label: string;
-  to: "/t/$tenantId" | "/t/$tenantId/people" | "/t/$tenantId/settings/users";
+  to: "/t/$tenantId" | "/t/$tenantId/people" | "/t/$tenantId/clients" | "/t/$tenantId/projects" | "/t/$tenantId/settings/users";
   icon: typeof LayoutDashboard;
   exact?: boolean;
 }
@@ -33,6 +33,12 @@ function navItems(ctx: TenantContext): NavItem[] {
   if (ctx.access && ctx.access.status === "active" && ctx.access.tenantActive) {
     const all = can(ctx.access, "employees.view_all");
     items.push({ label: all ? "People" : "My hours", to: "/t/$tenantId/people", icon: Users });
+  }
+  if (ctx.access && can(ctx.access, "projects.view_allocated")) {
+    items.push({ label: "Projects", to: "/t/$tenantId/projects", icon: FolderKanban });
+  }
+  if (ctx.access && can(ctx.access, "clients.view")) {
+    items.push({ label: "Clients", to: "/t/$tenantId/clients", icon: Briefcase });
   }
   if (ctx.access && can(ctx.access, "tenant.users.manage")) {
     items.push({ label: "Settings", to: "/t/$tenantId/settings/users", icon: Settings });

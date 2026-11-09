@@ -288,6 +288,28 @@ begin
     if sqlerrm like 'NOT_AUTHORISED%' then passes := passes + 1; else fails := fails || ('overview: ' || sqlerrm); end if;
   end;
 
+  -- Stage 6: inactive clients can't get new projects; employees see client names only for allocated projects
+  execute 'reset role';
+  perform set_config('request.jwt.claims', '', true);
+  update tenant_memberships set status = 'active' where user_id = uRmA;
+  update clients set active = false where id = cA;
+  perform set_config('request.jwt.claims', json_build_object('sub', uRmA, 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  begin
+    insert into projects (tenant_id, name, client_id, status, start_date, planned_finish_date) values (tA, 'Inactive client', cA, 'draft', today, today);
+    fails := fails || 'project on inactive client';
+  exception when others then
+    if sqlerrm like 'CLIENT_INACTIVE%' then passes := passes + 1; else fails := fails || ('inactive client: ' || sqlerrm); end if;
+  end;
+  perform set_config('request.jwt.claims', json_build_object('sub', uEmpA, 'role', 'authenticated')::text, true);
+  select count(*) into n from clients;
+  if n = 0 then passes := passes + 1; else fails := fails || 'employee reads clients'; end if;
+  select count(*) into n from my_project_client_names(tA);
+  if n = 1 then passes := passes + 1; else fails := fails || ('employee client names ' || n); end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', uAdmB, 'role', 'authenticated')::text, true);
+  select count(*) into n from my_project_client_names(tA);
+  if n = 0 then passes := passes + 1; else fails := fails || 'other business reads client names'; end if;
+
   execute 'reset role';
   raise exception 'RESULT passes=% fails=%', passes, fails;
 end $$;

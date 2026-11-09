@@ -10,7 +10,7 @@
 - [x] 3. Platform administration: create, suspend/reactivate, invite first Owner/Admin, setup status
 - [x] 4. Module configuration and enforcement
 - [x] 5. Employee directory and effective-dated capacity
-- [ ] 6. Clients & Projects
+- [x] 6. Clients & Projects
 - [ ] 7. Commercial fields and restricted access
 - [ ] 8. Resource Planning (grid; list on small screens)
 - [ ] 9. Adaptive overview, CSV exports, audit views
