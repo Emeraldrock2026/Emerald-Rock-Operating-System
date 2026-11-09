@@ -45,3 +45,4 @@ use the editor.
 - Register-style items in every project module share `project_records` (auto references PROJECT-MOD-0001, links, comments, audit); add module-specific columns via `fields` or a side table rather than a new parallel record system.
 - Project files are stored once in the private project-files bucket and registered only via record_project_file_version(); storage policies parse the path, so access follows project roles and module switches without copying files.
 - Database permission helpers must return true/false, never null (wrap in coalesce), because plpgsql 'if not helper()' silently passes on null.
+- AI comparison findings are saved only by the server via save_drawing_comparison() (service role) after can_compare_drawing() passes as the user, so users cannot insert fabricated findings directly.

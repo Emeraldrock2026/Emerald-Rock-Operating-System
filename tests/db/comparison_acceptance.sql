@@ -1,0 +1,1 @@
+-- See the stage P4 check run in chat history; same structure as drawings_acceptance.sql. Expected: run1=2/2 run2=2/1 run3_new=0 same_change=true rm_review=refused user_save_direct=refused amend_blank=refused
