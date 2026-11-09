@@ -26,6 +26,9 @@ interface Props {
   canContribute: boolean; canIssue: boolean; historicOnly: boolean; photosAvailable: boolean;
 }
 
+/** Stored photo lists come back with keys reordered, so compare by value. */
+const photoKey = (list: ReportPhoto[]) => list.map((x) => `${x.fileId}:${x.version}:${x.caption}`).join("|");
+
 type Rec = { id: string; reference: string; title: string; status: string; version: number; fields: Record<string, unknown>; updated_at: string };
 type Issue = { id: string; issue_no: number; issued_at: string; file_id: string; file_version: number; note: string; content_hash: string };
 
@@ -89,7 +92,7 @@ function ReportDialog(p: Props & { rec: Rec; onClose: () => void }) {
   const [photos, setPhotos] = useState<ReportPhoto[]>(Array.isArray(rec.fields["photos"]) ? (rec.fields["photos"] as ReportPhoto[]) : []);
   const [note, setNote] = useState("");
   const [stage, setStage] = useState<string | null>(null);
-  const dirty = title !== rec.title || JSON.stringify(fields) !== JSON.stringify(init) || JSON.stringify(photos) !== JSON.stringify(rec.fields["photos"] ?? []);
+  const dirty = title !== rec.title || JSON.stringify(fields) !== JSON.stringify(init) || photoKey(photos) !== photoKey(Array.isArray(rec.fields["photos"]) ? (rec.fields["photos"] as ReportPhoto[]) : []);
 
   const issues = useQuery({
     queryKey: ["tenant", p.tenantId, "project", p.projectId, "report-issues", rec.id],
