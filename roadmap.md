@@ -12,7 +12,7 @@
 - [x] 5. Employee directory and effective-dated capacity
 - [x] 6. Clients & Projects
 - [x] 7. Commercial fields and restricted access
-- [ ] 8. Resource Planning (grid; list on small screens)
+- [x] 8. Resource Planning (grid; list on small screens)
 - [ ] 9. Adaptive overview, CSV exports, audit views
 - [ ] 10. Demo tenants (Emerald Rock, Harbour Planning Demo) and acceptance testing
 - [ ] Before live use: separate production project, backup and recovery demonstrated
