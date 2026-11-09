@@ -44,7 +44,9 @@ describe("register status rules", () => {
   it("need a QA result before pass or fail, and a supplier before awarding", () => {
     expect(statusProblem("qa", "passed", {})).toBe("Record the inspection result first.");
     expect(statusProblem("procurement", "awarded", { supplier: " " })).toBe("Record the selected supplier first.");
-    expect(nextStatuses("procurement", "tendering", false)).toEqual(["planning", "ordered"]);
+    expect(nextStatuses("procurement", "tendering", false)).toEqual(["planning"]);
+    expect(nextStatuses("procurement", "tendering", true)).not.toContain("ordered");
+    expect(nextStatuses("procurement", "awarded", false)).toEqual(["planning", "tendering", "ordered"]);
   });
   it("highlight a delivery forecast later than the required date while still expected", () => {
     expect(isLateForecast("2026-11-10", "2026-11-12", false)).toBe(true);

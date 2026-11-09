@@ -127,7 +127,9 @@ export const REGISTERS: Record<RegisterModule, RegisterConfig> = {
 /** Statuses a user may move a record to from its current status. */
 export function nextStatuses(module: RegisterModule, status: string, canManage: boolean): string[] {
   const c = REGISTERS[module];
-  return c.statuses.filter((s) => s !== status && (canManage || (!c.adminOnly.includes(s) && !c.adminOnly.includes(status))));
+  return c.statuses.filter((s) => s !== status && (canManage || (!c.adminOnly.includes(s) && !c.adminOnly.includes(status)))
+    // A package is only ordered after it has been awarded (guard_procurement_order).
+    && !(module === "procurement" && s === "ordered" && status !== "awarded"));
 }
 
 /** Why a record can't move to a status, or null when it can. */

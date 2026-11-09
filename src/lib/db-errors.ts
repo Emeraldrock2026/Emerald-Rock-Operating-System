@@ -43,6 +43,7 @@ const FRIENDLY: Record<string, string> = {
   PROGRAMME_FILE_REQUIRED: "Upload the programme file before making it current.",
   RESULT_REQUIRED: "Record the inspection result before marking it passed or failed.",
   SUPPLIER_REQUIRED: "Record the selected supplier before awarding or ordering.",
+  ORDER_NEEDS_AWARD: "A package must be awarded before it is marked ordered.",
   FILE_REQUIRED: "Upload the document before submitting, accepting or approving.",
   FILE_LOCKED: "This document has been accepted or approved, so its file can't be replaced. Add a new record instead.",
   ADMIN_ONLY_STATUS: "Only a project admin can close, reopen, accept, approve, award, cancel or supersede this.",
