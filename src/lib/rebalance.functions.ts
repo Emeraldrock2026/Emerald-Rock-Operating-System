@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { weekDates, todayIn, isDateOnly } from "@/lib/domain/dates";
-import type { WeeklyHours, WorkingPattern } from "@/lib/domain/capacity";
+import { capacityOn, type WeeklyHours, type WorkingPattern } from "@/lib/domain/capacity";
 import { overCapacityDays, validateProposals, type Proposal } from "@/lib/domain/rebalance";
 
 export type Suggestion = Proposal & { from_employee_id: string; from_date: string; project_id: string };
@@ -42,14 +42,14 @@ export const suggestRebalance = createServerFn({ method: "POST" })
       today: todayIn(t.data!.timezone),
     };
     const over = overCapacityDays(inp);
-    if (over.length === 0) return { overDays: 0, suggestions: [] as (Suggestion & { why?: never })[], note: "No one is over their hours from today onwards this week." };
+    if (over.length === 0) return { overDays: 0, suggestions: [] as Suggestion[], note: "No one is over their hours from today onwards this week." };
 
     // Facts sent to the model use short ids only — no emails or commercial data.
     const facts = {
       today: inp.today,
       week: days,
       people: e.data!.map((x) => ({ id: x.id, name: x.full_name, role: x.job_title, active: x.active,
-        hours_by_day: Object.fromEntries(days.map((d) => [d, (() => { let c = 0, f = ""; for (const pt of patterns.get(x.id) ?? []) if (pt.effectiveFrom <= d && pt.effectiveFrom >= f) { f = pt.effectiveFrom; c = pt.hours[(new Date(d + "T00:00:00Z").getUTCDay() + 6) % 7]!; } return c; })()])) })),
+        hours_by_day: Object.fromEntries(days.map((d) => [d, capacityOn(patterns.get(x.id) ?? [], d)])) })),
       projects: p.data!.map((x) => ({ id: x.id, ref: x.reference, name: x.name, status: x.status })),
       allocations: inp.allocations,
       over_capacity_days: over,
