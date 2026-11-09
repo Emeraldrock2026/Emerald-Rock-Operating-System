@@ -14,16 +14,308 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_log: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          category: string
+          id: number
+          new_values: Json | null
+          occurred_at: string
+          old_values: Json | null
+          record_id: string | null
+          record_table: string
+          tenant_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          category: string
+          id?: never
+          new_values?: Json | null
+          occurred_at?: string
+          old_values?: Json | null
+          record_id?: string | null
+          record_table: string
+          tenant_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          category?: string
+          id?: never
+          new_values?: Json | null
+          occurred_at?: string
+          old_values?: Json | null
+          record_id?: string | null
+          record_table?: string
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      modules: {
+        Row: {
+          depends_on: string[]
+          description: string
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          depends_on?: string[]
+          description: string
+          id: string
+          name: string
+          sort_order: number
+        }
+        Update: {
+          depends_on?: string[]
+          description?: string
+          id?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      platform_admin_bootstrap: {
+        Row: {
+          created_at: string
+          email: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+        }
+        Relationships: []
+      }
+      platform_admins: {
+        Row: {
+          created_at: string
+          email: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tenant_memberships: {
+        Row: {
+          activated_at: string | null
+          commercial_access: boolean
+          created_at: string
+          created_by: string | null
+          email: string
+          id: string
+          invited_at: string
+          invited_by: string | null
+          role: Database["public"]["Enums"]["tenant_role"]
+          status: Database["public"]["Enums"]["membership_status"]
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+          version: number
+        }
+        Insert: {
+          activated_at?: string | null
+          commercial_access?: boolean
+          created_at?: string
+          created_by?: string | null
+          email: string
+          id?: string
+          invited_at?: string
+          invited_by?: string | null
+          role: Database["public"]["Enums"]["tenant_role"]
+          status?: Database["public"]["Enums"]["membership_status"]
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+          version?: number
+        }
+        Update: {
+          activated_at?: string | null
+          commercial_access?: boolean
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          id?: string
+          invited_at?: string
+          invited_by?: string | null
+          role?: Database["public"]["Enums"]["tenant_role"]
+          status?: Database["public"]["Enums"]["membership_status"]
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_memberships_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_modules: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          enabled: boolean
+          module_id: string
+          tenant_id: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          enabled?: boolean
+          module_id: string
+          tenant_id: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          enabled?: boolean
+          module_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_modules_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tenant_modules_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenants: {
+        Row: {
+          base_currency: string
+          brand_colour: string
+          business_name: string
+          created_at: string
+          created_by: string | null
+          date_format: string
+          default_weekly_hours: number[]
+          display_name: string
+          id: string
+          is_demo: boolean
+          logo_path: string | null
+          project_prefix: string
+          status: Database["public"]["Enums"]["tenant_status"]
+          timezone: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+          week_starts_on: string
+        }
+        Insert: {
+          base_currency?: string
+          brand_colour?: string
+          business_name: string
+          created_at?: string
+          created_by?: string | null
+          date_format?: string
+          default_weekly_hours?: number[]
+          display_name: string
+          id?: string
+          is_demo?: boolean
+          logo_path?: string | null
+          project_prefix?: string
+          status?: Database["public"]["Enums"]["tenant_status"]
+          timezone?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+          week_starts_on?: string
+        }
+        Update: {
+          base_currency?: string
+          brand_colour?: string
+          business_name?: string
+          created_at?: string
+          created_by?: string | null
+          date_format?: string
+          default_weekly_hours?: number[]
+          display_name?: string
+          id?: string
+          is_demo?: boolean
+          logo_path?: string | null
+          project_prefix?: string
+          status?: Database["public"]["Enums"]["tenant_status"]
+          timezone?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+          week_starts_on?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      activate_my_memberships: { Args: never; Returns: number }
+      claim_platform_admin: { Args: never; Returns: boolean }
+      has_commercial_access: { Args: { _tenant: string }; Returns: boolean }
+      has_membership: { Args: { _tenant: string }; Returns: boolean }
+      has_tenant_role: {
+        Args: {
+          _roles: Database["public"]["Enums"]["tenant_role"][]
+          _tenant: string
+        }
+        Returns: boolean
+      }
+      is_active_member: { Args: { _tenant: string }; Returns: boolean }
+      is_platform_admin: { Args: never; Returns: boolean }
+      is_tenant_admin: { Args: { _tenant: string }; Returns: boolean }
+      is_tenant_manager: { Args: { _tenant: string }; Returns: boolean }
+      module_enabled: {
+        Args: { _module: string; _tenant: string }
+        Returns: boolean
+      }
+      tenant_today: { Args: { _tenant: string }; Returns: string }
     }
     Enums: {
-      [_ in never]: never
+      membership_status: "invited" | "active" | "suspended" | "removed"
+      project_status: "draft" | "active" | "on_hold" | "completed" | "archived"
+      tenant_role: "owner_admin" | "resource_manager" | "employee"
+      tenant_status: "active" | "suspended"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +442,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      membership_status: ["invited", "active", "suspended", "removed"],
+      project_status: ["draft", "active", "on_hold", "completed", "archived"],
+      tenant_role: ["owner_admin", "resource_manager", "employee"],
+      tenant_status: ["active", "suspended"],
+    },
   },
 } as const
