@@ -668,6 +668,15 @@ export type Database = {
     }
     Functions: {
       activate_my_memberships: { Args: never; Returns: number }
+      add_member_invitation: {
+        Args: {
+          _email: string
+          _role: Database["public"]["Enums"]["tenant_role"]
+          _tenant: string
+        }
+        Returns: string
+      }
+      auth_user_id_by_email: { Args: { _email: string }; Returns: string }
       claim_platform_admin: { Args: never; Returns: boolean }
       current_employee_id: { Args: { _tenant: string }; Returns: string }
       employee_allocated_to: {
