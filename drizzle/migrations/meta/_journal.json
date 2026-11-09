@@ -15,6 +15,13 @@
       "when": 1794252173134,
       "tag": "0001_operational_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794252323136,
+      "tag": "0002_allocation_guard_cross_tenant",
+      "breakpoints": true
     }
   ]
 }
