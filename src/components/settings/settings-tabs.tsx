@@ -9,6 +9,7 @@ export function SettingsTabs() {
   const tabs = [
     ...(admin ? [{ to: "/t/$tenantId/settings/users" as const, label: "Users" }] : []),
     ...(admin ? [{ to: "/t/$tenantId/settings/branding" as const, label: "Business branding" }] : []),
+    ...(admin && ctx.access!.enabledModules.has("clients_projects") ? [{ to: "/t/$tenantId/settings/templates" as const, label: "Project templates" }] : []),
     { to: "/t/$tenantId/settings/appearance" as const, label: "My appearance" },
   ];
   return (
