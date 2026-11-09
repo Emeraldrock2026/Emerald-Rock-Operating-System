@@ -1387,6 +1387,76 @@ export type Database = {
           },
         ]
       }
+      report_issues: {
+        Row: {
+          content_hash: string
+          file_id: string
+          file_version: number
+          id: string
+          issue_no: number
+          issued_at: string
+          issued_by: string
+          module_id: string
+          note: string
+          project_id: string
+          record_id: string
+          snapshot: Json
+          tenant_id: string
+        }
+        Insert: {
+          content_hash: string
+          file_id: string
+          file_version: number
+          id?: string
+          issue_no: number
+          issued_at?: string
+          issued_by: string
+          module_id: string
+          note?: string
+          project_id: string
+          record_id: string
+          snapshot: Json
+          tenant_id: string
+        }
+        Update: {
+          content_hash?: string
+          file_id?: string
+          file_version?: number
+          id?: string
+          issue_no?: number
+          issued_at?: string
+          issued_by?: string
+          module_id?: string
+          note?: string
+          project_id?: string
+          record_id?: string
+          snapshot?: Json
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_issues_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_issues_tenant_id_project_id_fkey"
+            columns: ["tenant_id", "project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "report_issues_tenant_id_record_id_fkey"
+            columns: ["tenant_id", "record_id"]
+            isOneToOne: false
+            referencedRelation: "project_records"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       tenant_memberships: {
         Row: {
           activated_at: string | null
@@ -1722,6 +1792,18 @@ export type Database = {
       is_platform_admin: { Args: never; Returns: boolean }
       is_tenant_admin: { Args: { _tenant: string }; Returns: boolean }
       is_tenant_manager: { Args: { _tenant: string }; Returns: boolean }
+      issue_project_report: {
+        Args: {
+          _expected_version: number
+          _file: string
+          _file_version: number
+          _hash: string
+          _note?: string
+          _record: string
+          _snapshot: Json
+        }
+        Returns: number
+      }
       linked_record_summary: {
         Args: { _record: string }
         Returns: {
