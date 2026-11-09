@@ -57,6 +57,13 @@
       "when": 1794259602634,
       "tag": "0007_branding_and_appearance",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794261709760,
+      "tag": "0008_project_foundation",
+      "breakpoints": true
     }
   ]
 }
