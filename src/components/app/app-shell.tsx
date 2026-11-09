@@ -49,6 +49,9 @@ function navItems(ctx: TenantContext): NavItem[] {
   if (ctx.access && can(ctx.access, "clients.view")) {
     items.push({ label: "Clients", to: "/t/$tenantId/clients", icon: Briefcase });
   }
+  if (availableExports(ctx.access).length) {
+    items.push({ label: "Exports", to: "/t/$tenantId/exports", icon: Download });
+  }
   if (ctx.access && can(ctx.access, "tenant.users.manage")) {
     items.push({ label: "Settings", to: "/t/$tenantId/settings/users", icon: Settings });
   } else if (ctx.access && ctx.access.status === "active") {

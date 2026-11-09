@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatDateGB, type DateOnly } from "@/lib/domain/dates";
 import { impliedRate } from "@/lib/domain/commercial";
 import { toCsv, type ExportKind } from "@/lib/domain/exports";
-import { PROJECT_STATUS_LABEL } from "@/lib/labels";
+import { PROJECT_STATUS_LABEL } from "@/lib/domain/projects";
 
 /**
  * Builds a CSV from what the database lets this person read. Row-level rules
