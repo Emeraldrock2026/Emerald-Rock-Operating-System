@@ -1,0 +1,52 @@
+-- Drawing register checks (stage P3). Run through the backend SQL tool; everything rolls back.
+-- Expected: authorised_after_upload=0, dup_number=refused, earlier_rev=refused, latest=P02, auth_one=P01,
+--   auth_switch=P02, out_of_sequence=refused, rm_sees_revisions=0, rm_authorise=refused, authorise_after_off=refused, historic_revs=2
+begin;
+create temp table r(k text, v text) on commit drop;
+create temp table ids(k text, v uuid) on commit drop;
+grant all on r, ids to authenticated;
+insert into ids select 'p', id from public.projects where tenant_id = '9dc6a64c-5c2c-4b23-885c-a1fed0adc2a7' order by reference limit 1;
+insert into ids values ('f', gen_random_uuid());
+create temp view pth as select '9dc6a64c-5c2c-4b23-885c-a1fed0adc2a7/' || (select v from ids where k='p') || '/drawings/' || (select v from ids where k='f') as base;
+grant select on pth to authenticated;
+update public.tenant_modules set enabled = true where tenant_id = '9dc6a64c-5c2c-4b23-885c-a1fed0adc2a7' and module_id in ('clients_projects','drawings');
+insert into public.project_modules (tenant_id, project_id, module_id, enabled) values ('9dc6a64c-5c2c-4b23-885c-a1fed0adc2a7', (select v from ids where k='p'), 'drawings', true)
+  on conflict (project_id, module_id) do update set enabled = true;
+insert into storage.objects (bucket_id, name) select 'project-files', base || '/a-d.pdf' from pth;
+insert into storage.objects (bucket_id, name) select 'project-files', base || '/b-d.pdf' from pth;
+select set_config('request.jwt.claims', '{"sub":"7f62dbef-3d8c-428c-8f90-904bd01ea448","role":"authenticated"}', true);
+set local role authenticated;
+insert into public.project_records (tenant_id, project_id, module_id, title, fields) values ('9dc6a64c-5c2c-4b23-885c-a1fed0adc2a7', (select v from ids where k='p'), 'drawings', 'GA plan', '{"number":"A-100"}');
+insert into ids select 'd', id from public.project_records where project_id = (select v from ids where k='p') and module_id='drawings' and fields->>'number'='A-100';
+do $$ begin insert into public.project_records (tenant_id, project_id, module_id, title, fields) values ('9dc6a64c-5c2c-4b23-885c-a1fed0adc2a7', (select v from ids where k='p'), 'drawings', 'Dup', '{"number":"a-100"}');
+  insert into r values ('dup_number','ALLOWED'); exception when others then insert into r values ('dup_number','refused'); end $$;
+select public.record_project_file_version((select v from ids where k='f'), (select v from ids where k='p'), 'drawings', (select base from pth) || '/a-d.pdf', 'd.pdf', 'application/pdf', 10);
+select public.record_project_file_version((select v from ids where k='f'), (select v from ids where k='p'), 'drawings', (select base from pth) || '/b-d.pdf', 'd.pdf', 'application/pdf', 10);
+do $$ begin perform public.add_drawing_revision((select v from ids where k='d'), 'X1', '2026-11-01', (select v from ids where k='f'), 1);
+  insert into r values ('out_of_sequence','ALLOWED'); exception when others then insert into r values ('out_of_sequence','refused'); end $$;
+insert into ids select 'r1', public.add_drawing_revision((select v from ids where k='d'), 'P01', '2026-11-01', (select v from ids where k='f'), 1);
+insert into ids select 'r2', public.add_drawing_revision((select v from ids where k='d'), 'p02', '2026-11-05', (select v from ids where k='f'), 2);
+do $$ begin perform public.add_drawing_revision((select v from ids where k='d'), 'P01', '2026-11-06', (select v from ids where k='f'), 2);
+  insert into r values ('earlier_rev','ALLOWED'); exception when others then insert into r values ('earlier_rev','refused'); end $$;
+insert into r select 'authorised_after_upload', count(*)::text from public.drawing_revisions where record_id = (select v from ids where k='d') and authorised;
+insert into r select 'latest', revision from public.drawing_revisions where record_id = (select v from ids where k='d') order by rank desc limit 1;
+select public.set_drawing_authorised((select v from ids where k='r1'), true);
+insert into r select 'auth_one', string_agg(revision, ',') from public.drawing_revisions where record_id = (select v from ids where k='d') and authorised;
+select public.set_drawing_authorised((select v from ids where k='r2'), true);
+insert into r select 'auth_switch', string_agg(revision, ',') from public.drawing_revisions where record_id = (select v from ids where k='d') and authorised;
+reset role;
+select set_config('request.jwt.claims', '{"sub":"a6a521aa-4a96-447a-9eaf-37a96823915f","role":"authenticated"}', true);
+set local role authenticated;
+insert into r select 'rm_sees_revisions', count(*)::text from public.drawing_revisions where tenant_id = '9dc6a64c-5c2c-4b23-885c-a1fed0adc2a7';
+do $$ begin perform public.set_drawing_authorised((select v from ids where k='r1'), true);
+  insert into r values ('rm_authorise','ALLOWED'); exception when others then insert into r values ('rm_authorise','refused'); end $$;
+reset role;
+update public.tenant_modules set enabled = false where tenant_id = '9dc6a64c-5c2c-4b23-885c-a1fed0adc2a7' and module_id = 'drawings';
+select set_config('request.jwt.claims', '{"sub":"7f62dbef-3d8c-428c-8f90-904bd01ea448","role":"authenticated"}', true);
+set local role authenticated;
+insert into r select 'historic_revs', count(*)::text from public.drawing_revisions where record_id = (select v from ids where k='d');
+do $$ begin perform public.set_drawing_authorised((select v from ids where k='r1'), true);
+  insert into r values ('authorise_after_off','ALLOWED'); exception when others then insert into r values ('authorise_after_off','refused'); end $$;
+reset role;
+select string_agg(k||'='||v, ', ' order by k) from r;
+rollback;
