@@ -28,3 +28,9 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- Business rules (capacity, totals, module dependencies, permission matrix, project references) live as pure functions in `src/lib/domain/` with tests beside them; UI and server code call these rather than re-implementing them, so the rules are tested once.
+- Allocation and capacity dates are date-only `YYYY-MM-DD` strings, never Date objects, so timezone conversion cannot shift work to another day.
+- Tenant isolation is enforced in the database (tenant_id on every tenant row, composite tenant foreign keys, membership- and module-checked policies); `src/lib/domain/permissions.ts` only mirrors it for the UI.
+- Architecture and the permission matrix are documented in `docs/architecture.md`; keep it in step with schema changes.
