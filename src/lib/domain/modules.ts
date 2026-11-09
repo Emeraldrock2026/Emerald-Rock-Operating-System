@@ -30,7 +30,7 @@ export type ModuleId = keyof typeof MODULES;
 export const MODULE_IDS = Object.keys(MODULES) as ModuleId[];
 
 export const BUSINESS_MODULE_IDS = MODULE_IDS.filter((m) => MODULES[m].kind === "business");
-export const PROJECT_MODULE_IDS = MODULE_IDS.filter((m) => MODULES[m].kind === "project");
+export const PROJECT_MODULE_IDS = MODULE_IDS.filter((m) => MODULES[m].kind === "project") as ProjectModuleId[];
 export type ProjectModuleId = { [K in ModuleId]: (typeof MODULES)[K]["kind"] extends "project" ? K : never }[ModuleId];
 
 export function isProjectModuleId(value: string): value is ProjectModuleId {

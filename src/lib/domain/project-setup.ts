@@ -10,7 +10,7 @@ export function projectModuleState(id: ProjectModuleId, businessOn: ReadonlySet<
 
 /** Modules a project admin may choose from: only those the business has. */
 export function selectableProjectModules(businessOn: ReadonlySet<ModuleId>): ProjectModuleId[] {
-  return PROJECT_MODULE_IDS.filter((m) => businessOn.has(m)) as ProjectModuleId[];
+  return PROJECT_MODULE_IDS.filter((m) => businessOn.has(m));
 }
 
 /** What applying a template will do, before it runs. Mirrors apply_project_template(). */

@@ -111,7 +111,7 @@ export function ProjectDetailsCard({ tenantId, projectId, canManage }: Props) {
   const [editing, setEditing] = useState(false);
   const p = q.data?.project;
   const save = useMutation({
-    mutationFn: async (patch: Record<string, string>) => {
+    mutationFn: async (patch: { description: string; site_address: string; contract_form: string; contract_reference: string; contract_notes: string }) => {
       const { data, error } = await supabase.from("projects").update(patch).eq("id", projectId).eq("version", p!.version).select("id");
       if (error) throw error;
       if (!data?.length) throw new StaleRecordError();

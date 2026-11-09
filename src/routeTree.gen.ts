@@ -27,6 +27,7 @@ import { Route as AuthenticatedTTenantIdProjectsIndexRouteImport } from './route
 import { Route as AuthenticatedTTenantIdProjectsProjectIdRouteImport } from './routes/_authenticated/t.$tenantId.projects.$projectId'
 import { Route as AuthenticatedTTenantIdSettingsAppearanceRouteImport } from './routes/_authenticated/t.$tenantId.settings.appearance'
 import { Route as AuthenticatedTTenantIdSettingsBrandingRouteImport } from './routes/_authenticated/t.$tenantId.settings.branding'
+import { Route as AuthenticatedTTenantIdSettingsTemplatesRouteImport } from './routes/_authenticated/t.$tenantId.settings.templates'
 import { Route as AuthenticatedTTenantIdSettingsUsersRouteImport } from './routes/_authenticated/t.$tenantId.settings.users'
 
 const IndexRoute = IndexRouteImport.update({
@@ -130,6 +131,12 @@ const AuthenticatedTTenantIdSettingsBrandingRoute =
     path: '/settings/branding',
     getParentRoute: () => AuthenticatedTTenantIdRoute,
   } as any)
+const AuthenticatedTTenantIdSettingsTemplatesRoute =
+  AuthenticatedTTenantIdSettingsTemplatesRouteImport.update({
+    id: '/settings/templates',
+    path: '/settings/templates',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
 const AuthenticatedTTenantIdSettingsUsersRoute =
   AuthenticatedTTenantIdSettingsUsersRouteImport.update({
     id: '/settings/users',
@@ -152,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   '/t/$tenantId/settings/appearance': typeof AuthenticatedTTenantIdSettingsAppearanceRoute
   '/t/$tenantId/settings/branding': typeof AuthenticatedTTenantIdSettingsBrandingRoute
+  '/t/$tenantId/settings/templates': typeof AuthenticatedTTenantIdSettingsTemplatesRoute
   '/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
   '/t/$tenantId/clients/': typeof AuthenticatedTTenantIdClientsIndexRoute
   '/t/$tenantId/people/': typeof AuthenticatedTTenantIdPeopleIndexRoute
@@ -171,6 +179,7 @@ export interface FileRoutesByTo {
   '/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   '/t/$tenantId/settings/appearance': typeof AuthenticatedTTenantIdSettingsAppearanceRoute
   '/t/$tenantId/settings/branding': typeof AuthenticatedTTenantIdSettingsBrandingRoute
+  '/t/$tenantId/settings/templates': typeof AuthenticatedTTenantIdSettingsTemplatesRoute
   '/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
   '/t/$tenantId/clients': typeof AuthenticatedTTenantIdClientsIndexRoute
   '/t/$tenantId/people': typeof AuthenticatedTTenantIdPeopleIndexRoute
@@ -193,6 +202,7 @@ export interface FileRoutesById {
   '/_authenticated/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   '/_authenticated/t/$tenantId/settings/appearance': typeof AuthenticatedTTenantIdSettingsAppearanceRoute
   '/_authenticated/t/$tenantId/settings/branding': typeof AuthenticatedTTenantIdSettingsBrandingRoute
+  '/_authenticated/t/$tenantId/settings/templates': typeof AuthenticatedTTenantIdSettingsTemplatesRoute
   '/_authenticated/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
   '/_authenticated/t/$tenantId/clients/': typeof AuthenticatedTTenantIdClientsIndexRoute
   '/_authenticated/t/$tenantId/people/': typeof AuthenticatedTTenantIdPeopleIndexRoute
@@ -215,6 +225,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/projects/$projectId'
     | '/t/$tenantId/settings/appearance'
     | '/t/$tenantId/settings/branding'
+    | '/t/$tenantId/settings/templates'
     | '/t/$tenantId/settings/users'
     | '/t/$tenantId/clients/'
     | '/t/$tenantId/people/'
@@ -234,6 +245,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/projects/$projectId'
     | '/t/$tenantId/settings/appearance'
     | '/t/$tenantId/settings/branding'
+    | '/t/$tenantId/settings/templates'
     | '/t/$tenantId/settings/users'
     | '/t/$tenantId/clients'
     | '/t/$tenantId/people'
@@ -255,6 +267,7 @@ export interface FileRouteTypes {
     | '/_authenticated/t/$tenantId/projects/$projectId'
     | '/_authenticated/t/$tenantId/settings/appearance'
     | '/_authenticated/t/$tenantId/settings/branding'
+    | '/_authenticated/t/$tenantId/settings/templates'
     | '/_authenticated/t/$tenantId/settings/users'
     | '/_authenticated/t/$tenantId/clients/'
     | '/_authenticated/t/$tenantId/people/'
@@ -396,6 +409,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdSettingsBrandingRouteImport
       parentRoute: typeof AuthenticatedTTenantIdRoute
     }
+    '/_authenticated/t/$tenantId/settings/templates': {
+      id: '/_authenticated/t/$tenantId/settings/templates'
+      path: '/settings/templates'
+      fullPath: '/t/$tenantId/settings/templates'
+      preLoaderRoute: typeof AuthenticatedTTenantIdSettingsTemplatesRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
     '/_authenticated/t/$tenantId/settings/users': {
       id: '/_authenticated/t/$tenantId/settings/users'
       path: '/settings/users'
@@ -414,6 +434,7 @@ interface AuthenticatedTTenantIdRouteChildren {
   AuthenticatedTTenantIdProjectsProjectIdRoute: typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   AuthenticatedTTenantIdSettingsAppearanceRoute: typeof AuthenticatedTTenantIdSettingsAppearanceRoute
   AuthenticatedTTenantIdSettingsBrandingRoute: typeof AuthenticatedTTenantIdSettingsBrandingRoute
+  AuthenticatedTTenantIdSettingsTemplatesRoute: typeof AuthenticatedTTenantIdSettingsTemplatesRoute
   AuthenticatedTTenantIdSettingsUsersRoute: typeof AuthenticatedTTenantIdSettingsUsersRoute
   AuthenticatedTTenantIdClientsIndexRoute: typeof AuthenticatedTTenantIdClientsIndexRoute
   AuthenticatedTTenantIdPeopleIndexRoute: typeof AuthenticatedTTenantIdPeopleIndexRoute
@@ -433,6 +454,8 @@ const AuthenticatedTTenantIdRouteChildren: AuthenticatedTTenantIdRouteChildren =
       AuthenticatedTTenantIdSettingsAppearanceRoute,
     AuthenticatedTTenantIdSettingsBrandingRoute:
       AuthenticatedTTenantIdSettingsBrandingRoute,
+    AuthenticatedTTenantIdSettingsTemplatesRoute:
+      AuthenticatedTTenantIdSettingsTemplatesRoute,
     AuthenticatedTTenantIdSettingsUsersRoute:
       AuthenticatedTTenantIdSettingsUsersRoute,
     AuthenticatedTTenantIdClientsIndexRoute:
