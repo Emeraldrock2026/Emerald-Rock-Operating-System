@@ -12,6 +12,10 @@ const FRIENDLY: Record<string, string> = {
     "That date is in the past and this person already has work booked after it. Choose today or a later date.",
   ADMIN_ONLY: "Only an Owner/Admin can link or unlink a login.",
   NOT_A_MEMBER: "That login isn't a member of this business.",
+  PROJECT_HAS_FUTURE_ALLOCATIONS: "This project still has work booked from today onwards. Move or remove that work first.",
+  CLIENT_INACTIVE: "That client is inactive. Reactivate them or choose another client.",
+  IMMUTABLE: "Project references never change.",
+  CROSS_TENANT_REFERENCE: "That record belongs to another business.",
   STALE_RECORD: "Someone else changed this record. Refresh the page and try again.",
 };
 
@@ -24,6 +28,9 @@ export function friendlyError(error: unknown): string {
         : String(error);
   const code = /^([A-Z_]+):\s*(.*)$/s.exec(message);
   if (code) return FRIENDLY[code[1]!] ?? code[2]!;
+  if (/clients_tenant_name_idx/.test(message)) return "A client with that name already exists.";
+  if (/projects_planned_finish_date_check|planned_finish_date >= start_date/.test(message)) return "The planned finish date can't be before the start date.";
+  if (/violates foreign key constraint/.test(message)) return "That choice isn't available in this business.";
   if (/employees_tenant_email_idx/.test(message)) return "Another person in this business already uses that email.";
   if (/employees_tenant_id_user_id_key/.test(message)) return "That login is already linked to another person.";
   if (/working_patterns_tenant_id_employee_id_effective_from/.test(message)) return "There is already a pattern starting on that date.";
