@@ -20,6 +20,7 @@ type Rec = { id: string; reference: string; title: string; description: string; 
 
 export function RegisterPanel(p: Props) {
   const c = REGISTERS[p.module];
+  const newLabel = `New ${p.module === "rfis" ? c.singular : c.singular.toLowerCase()}`;
   const qc = useQueryClient();
   const [show, setShow] = useState<"open" | "all">("open");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -37,7 +38,7 @@ export function RegisterPanel(p: Props) {
   const create = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.from("project_records")
-        .insert({ tenant_id: p.tenantId, project_id: p.projectId, module_id: p.module, title: `New ${c.singular.toLowerCase()}`, status: c.firstStatus, fields: {} } as never).select("id").single();
+        .insert({ tenant_id: p.tenantId, project_id: p.projectId, module_id: p.module, title: newLabel, status: c.firstStatus, fields: {} } as never).select("id").single();
       if (error) throw error;
       return (data as { id: string }).id;
     },
@@ -53,7 +54,7 @@ export function RegisterPanel(p: Props) {
       <div className="flex flex-wrap items-center gap-2">
         <Button size="sm" variant={show === "open" ? "default" : "outline"} onClick={() => setShow("open")}>Open</Button>
         <Button size="sm" variant={show === "all" ? "default" : "outline"} onClick={() => setShow("all")}>All</Button>
-        {p.canContribute && !p.historicOnly ? <Button className="ml-auto" onClick={() => create.mutate()} disabled={create.isPending}>New {c.singular.toLowerCase()}</Button> : null}
+        {p.canContribute && !p.historicOnly ? <Button className="ml-auto" onClick={() => create.mutate()} disabled={create.isPending}>{newLabel}</Button> : null}
       </div>
       {q.error ? <p className="text-sm text-destructive">{friendlyError(q.error)}</p> : null}
       {q.isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : !rows.length ? <p className="text-sm text-muted-foreground">Nothing to show.</p> : (
