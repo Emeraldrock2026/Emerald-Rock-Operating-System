@@ -340,6 +340,129 @@ export type Database = {
           },
         ]
       }
+      project_file_versions: {
+        Row: {
+          file_id: string
+          file_name: string
+          id: string
+          mime_type: string
+          note: string
+          size_bytes: number
+          storage_path: string
+          tenant_id: string
+          uploaded_at: string
+          uploaded_by: string | null
+          version_no: number
+        }
+        Insert: {
+          file_id: string
+          file_name: string
+          id?: string
+          mime_type?: string
+          note?: string
+          size_bytes?: number
+          storage_path: string
+          tenant_id: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+          version_no: number
+        }
+        Update: {
+          file_id?: string
+          file_name?: string
+          id?: string
+          mime_type?: string
+          note?: string
+          size_bytes?: number
+          storage_path?: string
+          tenant_id?: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+          version_no?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_file_versions_tenant_id_file_id_fkey"
+            columns: ["tenant_id", "file_id"]
+            isOneToOne: false
+            referencedRelation: "project_files"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      project_files: {
+        Row: {
+          caption: string
+          created_at: string
+          created_by: string | null
+          current_version: number
+          folder_id: string | null
+          id: string
+          module_id: string
+          project_id: string
+          tags: string[]
+          tenant_id: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          caption?: string
+          created_at?: string
+          created_by?: string | null
+          current_version?: number
+          folder_id?: string | null
+          id?: string
+          module_id: string
+          project_id: string
+          tags?: string[]
+          tenant_id: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          caption?: string
+          created_at?: string
+          created_by?: string | null
+          current_version?: number
+          folder_id?: string | null
+          id?: string
+          module_id?: string
+          project_id?: string
+          tags?: string[]
+          tenant_id?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_files_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "modules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_files_tenant_id_folder_id_fkey"
+            columns: ["tenant_id", "folder_id"]
+            isOneToOne: false
+            referencedRelation: "project_folders"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "project_files_tenant_id_project_id_fkey"
+            columns: ["tenant_id", "project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       project_folders: {
         Row: {
           created_at: string
@@ -1239,8 +1362,16 @@ export type Database = {
         Args: { _project: string; _tenant: string }
         Returns: boolean
       }
+      can_read_project_file_object: {
+        Args: { _name: string }
+        Returns: boolean
+      }
       can_view_project: {
         Args: { _project: string; _tenant: string }
+        Returns: boolean
+      }
+      can_write_project_file_object: {
+        Args: { _name: string }
         Returns: boolean
       }
       claim_platform_admin: { Args: never; Returns: boolean }
@@ -1312,6 +1443,15 @@ export type Database = {
           summary: string
         }[]
       }
+      project_file_path_parts: {
+        Args: { _name: string }
+        Returns: {
+          file_id: string
+          module_id: string
+          project_id: string
+          tenant_id: string
+        }[]
+      }
       project_module_active: {
         Args: { _module: string; _project: string; _tenant: string }
         Returns: boolean
@@ -1319,6 +1459,23 @@ export type Database = {
       project_role_of: {
         Args: { _project: string; _tenant: string }
         Returns: string
+      }
+      record_project_file_version: {
+        Args: {
+          _caption?: string
+          _file: string
+          _file_name: string
+          _folder?: string
+          _mime: string
+          _module: string
+          _note?: string
+          _path: string
+          _project: string
+          _size: number
+          _tags?: string[]
+          _title?: string
+        }
+        Returns: number
       }
       tenant_today: { Args: { _tenant: string }; Returns: string }
     }

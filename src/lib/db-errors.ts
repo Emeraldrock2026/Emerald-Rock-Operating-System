@@ -22,6 +22,12 @@ const FRIENDLY: Record<string, string> = {
   NOT_PROJECT_MODULE: "That isn't a project module.",
   TEMPLATE_NOT_FOUND: "That template no longer exists or has been switched off.",
   BAD_FOLDER_PATH: "Folder paths need a name at every level, separated by /, up to 6 levels.",
+  MODULE_NOT_ACTIVE: "That module is switched off for this project, so nothing new can be added.",
+  BAD_FILE_PATH: "The upload didn't match this project. Please try again.",
+  UPLOAD_MISSING: "The file didn't finish uploading. Use Retry.",
+  FOLDER_NOT_IN_PROJECT: "That folder belongs to a different project.",
+  FILE_VERSION_DIRECT: "Versions can only be added by uploading a file.",
+  FILE_IMMUTABLE_FIELDS: "A file can't be moved to another project or module.",
   NOT_ALLOWED: "You don't have permission to do that.",
   STALE_RECORD: "Someone else changed this record. Refresh the page and try again.",
 };

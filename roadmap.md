@@ -21,7 +21,7 @@
 ## Project modules (brief: Configurable Project Module, 09/11/2026)
 Platform admin switches project modules per business; project admins pick from those per project. Email issue deferred.
 - [x] P1 Foundation: project details (description, address, organisations, team, key dates, contract), project module catalogue + per-project selection, project templates, shared record structure (refs, status, history, comments, links), project dashboard
-- [ ] P2 Photos (mobile capture, multi-upload, folders, captions, previews) and Documents (folders, versions, permissions, default folder structure)
+- [x] P2 Photos (mobile capture, multi-upload, folders, captions, previews) and Documents (folders, versions, permissions, default folder structure)
 - [ ] P3 Drawings register, revision matrix, upload-new-revision, latest vs authorised status
 - [ ] P4 AI drawing comparison + change control register (no duplicates, reviewer accepts findings)
 - [ ] P5 Shared PDF service; progress reports; delay reports (issue history, no email yet)
