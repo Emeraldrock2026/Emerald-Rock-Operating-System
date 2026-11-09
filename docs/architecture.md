@@ -73,7 +73,7 @@ database policies are the source of truth.
 - First platform admin: an approved email in `platform_admin_bootstrap` calls
   `claim_platform_admin()` after signing in with a confirmed email; the entry is then consumed.
 - `tests/db/access_acceptance.sql` exercises isolation, roles, modules and guards inside one
-  transaction that always rolls back. Expected result: `RESULT passes=50 fails={}`.
+  transaction that always rolls back. Expected result: `RESULT passes=53 fails={}`.
 
 ## Planning rules (see `src/lib/domain/`)
 - Allocation dates are date-only values. Capacity comes from effective-dated working patterns.
