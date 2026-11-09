@@ -25,7 +25,7 @@ Platform admin switches project modules per business; project admins pick from t
 - [x] P3 Drawings register, revision matrix, upload-new-revision, latest vs authorised status
 - [x] P4 AI drawing comparison + change control register (no duplicates, reviewer accepts findings)
 - [x] P5 Shared PDF service; progress reports; delay reports (issue history, no email yet)
-- [ ] P6 Registers: RFIs, early warnings, programmes
+- [x] P6 Registers: RFIs, early warnings, programmes
 - [ ] P7 QA, handover, RAMS, deliveries, procurement, assets & plant
 - [ ] P8 Email issue (needs sending domain) — blocked: user chose later
 - [ ] Stage 10 demo businesses + acceptance testing — after project modules
