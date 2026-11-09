@@ -55,7 +55,7 @@ export function MilestonesPanel(p: Props) {
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 className="text-sm font-semibold">Milestones</h2>
-          <p className="text-xs text-muted-foreground">Variance is the actual date (or forecast, until achieved) compared with the current baseline. These dates are as entered; they are not a programme analysis or a critical-path assessment.</p>
+          <p className="text-xs text-muted-foreground">Variance is the actual date (or forecast, until achieved) compared with the current baseline, in calendar days. These dates are as entered; they are not a programme analysis or a critical-path assessment.</p>
         </div>
         {p.canManage && !p.historicOnly ? <Button size="sm" onClick={() => setAdding(true)}>Add milestone</Button> : null}
       </div>
