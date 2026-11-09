@@ -2,7 +2,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLayoutEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { toast } from "sonner";
-import { Building2, Check, ChevronsUpDown, LayoutDashboard, LogOut, Users, Briefcase, FolderKanban, Menu, Settings, CalendarDays, Sun, Moon, Monitor } from "lucide-react";
+import { Building2, Check, ChevronsUpDown, LayoutDashboard, LogOut, Users, Briefcase, FolderKanban, Menu, Settings, CalendarDays, Sun, Moon, Monitor, Download } from "lucide-react";
+import { availableExports } from "@/lib/domain/exports";
 import { BrandMark } from "./brand-mark";
 import { signOut } from "./sign-out";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,7 @@ import { cn } from "@/lib/utils";
 
 interface NavItem {
   label: string;
-  to: "/t/$tenantId" | "/t/$tenantId/people" | "/t/$tenantId/clients" | "/t/$tenantId/projects" | "/t/$tenantId/settings/users" | "/t/$tenantId/planner" | "/t/$tenantId/settings/appearance";
+  to: "/t/$tenantId" | "/t/$tenantId/people" | "/t/$tenantId/clients" | "/t/$tenantId/projects" | "/t/$tenantId/settings/users" | "/t/$tenantId/planner" | "/t/$tenantId/settings/appearance" | "/t/$tenantId/exports";
   icon: typeof LayoutDashboard;
   exact?: boolean;
 }
@@ -48,6 +49,9 @@ function navItems(ctx: TenantContext): NavItem[] {
   }
   if (ctx.access && can(ctx.access, "clients.view")) {
     items.push({ label: "Clients", to: "/t/$tenantId/clients", icon: Briefcase });
+  }
+  if (availableExports(ctx.access).length) {
+    items.push({ label: "Exports", to: "/t/$tenantId/exports", icon: Download });
   }
   if (ctx.access && can(ctx.access, "tenant.users.manage")) {
     items.push({ label: "Settings", to: "/t/$tenantId/settings/users", icon: Settings });

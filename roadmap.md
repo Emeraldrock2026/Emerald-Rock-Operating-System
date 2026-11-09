@@ -13,6 +13,7 @@
 - [x] 6. Clients & Projects
 - [x] 7. Commercial fields and restricted access
 - [x] 8. Resource Planning (grid; list on small screens)
-- [ ] 9. Adaptive overview, CSV exports, audit views
+- [x] 9. Adaptive overview and CSV exports
+- [ ] 9b. Audit history views (not yet requested)
 - [ ] 10. Demo tenants (Emerald Rock, Harbour Planning Demo) and acceptance testing
 - [ ] Before live use: separate production project, backup and recovery demonstrated
