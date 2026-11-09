@@ -28,7 +28,7 @@ export function capacityOn(patterns: readonly WorkingPattern[], date: DateOnly):
       current = p;
     }
   }
-  return current ? current.hours[weekdayIndex(date)] : 0;
+  return current?.hours[weekdayIndex(date)] ?? 0;
 }
 
 export interface DayFigures {
