@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,9 @@ import { friendlyError, StaleRecordError } from "@/lib/db-errors";
 import { formatTimestamp } from "@/lib/domain/dates";
 import { DECISION_LABEL, type FindingDecision } from "@/lib/domain/comparison";
 
-interface Props { tenantId: string; projectId: string; timezone: string; canEdit: boolean; historicOnly: boolean }
+interface Props { tenantId: string; projectId: string; timezone: string; canEdit: boolean; historicOnly: boolean; focus?: { id: string; n: number } | null }
 
-export function ChangeRegister({ tenantId, projectId, timezone, canEdit, historicOnly }: Props) {
+export function ChangeRegister({ tenantId, projectId, timezone, canEdit, historicOnly, focus }: Props) {
   const q = useQuery({
     queryKey: ["tenant", tenantId, "project", projectId, "changes"],
     queryFn: async () => {
@@ -24,13 +24,18 @@ export function ChangeRegister({ tenantId, projectId, timezone, canEdit, histori
       return data ?? [];
     },
   });
+  useEffect(() => {
+    if (!focus || !q.data?.some((c) => c.id === focus.id)) return;
+    const el = document.getElementById(`change-${focus.id}`);
+    el?.scrollIntoView({ block: "center" }); el?.focus();
+  }, [focus, q.data]);
   return (
     <div className="space-y-3">
       {historicOnly ? <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">Change control is switched off. You can look at earlier changes as a project admin, but nothing can be edited.</p> : null}
       <p className="text-xs text-muted-foreground">Draft changes are created when a project admin accepts drawing comparison findings. A draft is not an instruction, approval, entitlement or valuation.</p>
       {q.error ? <p className="text-sm text-destructive">{friendlyError(q.error)}</p> : null}
       {q.isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : (q.data ?? []).length === 0 ? <p className="text-sm text-muted-foreground">No changes yet.</p> : (
-        <ul className="space-y-3">{(q.data ?? []).map((c) => <ChangeCard key={c.id} c={c} tenantId={tenantId} projectId={projectId} timezone={timezone} canEdit={canEdit && !historicOnly} />)}</ul>
+        <ul className="space-y-3">{(q.data ?? []).map((c) => <ChangeCard key={c.id} highlighted={focus?.id === c.id} c={c} tenantId={tenantId} projectId={projectId} timezone={timezone} canEdit={canEdit && !historicOnly} />)}</ul>
       )}
     </div>
   );

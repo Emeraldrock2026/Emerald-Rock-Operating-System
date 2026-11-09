@@ -64,6 +64,9 @@ function ProjectPage() {
   const people = useQuery({ ...employeesQuery(tenantId), enabled: manage });
   const [editing, setEditing] = useState(false);
   const [tab, setTab] = useState("dashboard");
+  // Record to open after a dashboard click; `n` makes repeat clicks on the same record re-open it.
+  const [focus, setFocus] = useState<{ id: string; n: number } | null>(null);
+  const openRecord = (module: string, id: string) => { setTab(module === "change_control" ? "changes" : module); setFocus((f) => ({ id, n: (f?.n ?? 0) + 1 })); };
   const p = projects.data?.find((x) => x.id === projectId);
   const detail = useQuery({ ...projectDetailQuery(tenantId, projectId), enabled: !!p });
   const canManageProject = manage || detail.data?.myRole === "project_admin";
@@ -208,13 +211,14 @@ function ProjectPage() {
             <>
               <TabsContent value="dashboard" className="mt-4 space-y-4">
                 <LiveDashboard tenantId={tenantId} projectId={projectId} timezone={props.timezone} modules={dashModules}
+                  photosActive={photosOn} onOpenRecord={openRecord}
                   onOpenModule={(id) => setTab(id === "change_control" ? "changes" : id)} />
                 <ProjectDashboard {...props} />
                 <ProjectDetailsCard {...props} />
               </TabsContent>
               {fileTabs.map((t) => (
                 <TabsContent key={t.id} value={t.id} className="mt-4">
-                  <ProjectFilesPanel tenantId={tenantId} projectId={projectId} module={t.id} canUpload={t.access.canUpload} historicOnly={t.access.historicOnly} timezone={ctx.tenant!.timezone} />
+                  <ProjectFilesPanel tenantId={tenantId} projectId={projectId} module={t.id} canUpload={t.access.canUpload} historicOnly={t.access.historicOnly} timezone={ctx.tenant!.timezone} focus={focus} />
                 </TabsContent>
               ))}
               {drawingsAccess.visible ? (
@@ -227,17 +231,17 @@ function ProjectPage() {
                   <ReportsPanel tenantId={tenantId} projectId={projectId} module={t.id} timezone={ctx.tenant!.timezone}
                     project={{ reference: p.reference, name: p.name }}
                     brand={{ businessName: ctx.tenant!.displayName, colour: ctx.tenant!.brandColour, logoPath: ctx.tenant!.logoPath }}
-                    canContribute={t.access.canUpload} canIssue={canManageProject} historicOnly={t.access.historicOnly} photosAvailable={photosOn} />
+                    canContribute={t.access.canUpload} canIssue={canManageProject} historicOnly={t.access.historicOnly} photosAvailable={photosOn} focus={focus} />
                 </TabsContent>
               ))}
               {registerTabs.map((t) => (
                 <TabsContent key={t.id} value={t.id} className="mt-4">
-                  <RegisterPanel tenantId={tenantId} projectId={projectId} module={t.id} timezone={ctx.tenant!.timezone} canContribute={t.access.canUpload} canManage={canManageProject} historicOnly={t.access.historicOnly} />
+                  <RegisterPanel tenantId={tenantId} projectId={projectId} module={t.id} timezone={ctx.tenant!.timezone} canContribute={t.access.canUpload} canManage={canManageProject} historicOnly={t.access.historicOnly} focus={focus} />
                 </TabsContent>
               ))}
               {changeAccess.visible ? (
                 <TabsContent value="changes" className="mt-4">
-                  <ChangeRegister tenantId={tenantId} projectId={projectId} timezone={ctx.tenant!.timezone} canEdit={canManageProject} historicOnly={changeAccess.historicOnly} />
+                  <ChangeRegister tenantId={tenantId} projectId={projectId} timezone={ctx.tenant!.timezone} canEdit={canManageProject} historicOnly={changeAccess.historicOnly} focus={focus} />
                 </TabsContent>
               ) : null}
               <TabsContent value="setup" className="mt-4 grid gap-4 lg:grid-cols-2">

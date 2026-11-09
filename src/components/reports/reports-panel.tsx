@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import { uploadWithProgress } from "@/components/project-files/project-files-pan
 const BUCKET = "project-files";
 
 interface Props {
+  focus?: { id: string; n: number } | null;
   tenantId: string; projectId: string; module: ReportModule; timezone: string;
   project: { reference: string; name: string };
   brand: { businessName: string; colour: string; logoPath: string | null };
@@ -56,6 +57,9 @@ export function ReportsPanel(p: Props) {
     onSuccess: (id) => { void qc.invalidateQueries({ queryKey: key }); setOpenId(id); },
     onError: (e) => toast.error(friendlyError(e)),
   });
+  useEffect(() => {
+    if (p.focus && q.data?.some((r) => r.id === p.focus!.id)) setOpenId(p.focus.id);
+  }, [p.focus, q.data]);
   const open = q.data?.find((r) => r.id === openId) ?? null;
   return (
     <div className="space-y-3">
