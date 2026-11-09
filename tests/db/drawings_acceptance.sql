@@ -1,5 +1,5 @@
 -- Drawing register checks (stage P3). Run through the backend SQL tool; everything rolls back.
--- Expected: authorised_after_upload=0, dup_number=refused, earlier_rev=refused, latest=P02, auth_one=P01,
+-- Expected: authorised_after_upload=0, dup_number=refused, earlier_rev=refused, latest=P02, auth_one=P01, (result labels containing "auth" may be redacted by the SQL tool; rename if needed)
 --   auth_switch=P02, out_of_sequence=refused, rm_sees_revisions=0, rm_authorise=refused, authorise_after_off=refused, historic_revs=2
 begin;
 create temp table r(k text, v text) on commit drop;

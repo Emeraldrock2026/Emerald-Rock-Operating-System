@@ -133,3 +133,9 @@ Which cards and exports a person gets is decided by `overviewCards` / `available
 - Files live in the private `project-files` bucket at `<tenant>/<project>/<module>/<file>/<upload>-<name>`. Storage policies parse the path: read = can_view_project and (module active or project manager); upload = can_contribute_project and module active. No update/delete policies, so versions are immutable.
 - New files and new versions are registered only through `record_project_file_version()`, which re-checks access, the path and that the object exists; `current_version` cannot be changed directly.
 - Contributors can add folders while Photos or Documents is active. Checks: `tests/db/project_files_acceptance.sql`.
+
+## Drawing register (stage P3)
+- A drawing is a `project_records` row (module `drawings`, `fields.number` unique per project, `fields.discipline`). Its files are one `project_files` row (module `drawings`) whose versions back each revision.
+- `drawing_revisions`: revision code, rank (series order then number), revision date, received date, file version, and a separate `authorised` flag (at most one per drawing). Inserted only by `add_drawing_revision()`, which enforces the project's sequence (`drawing_register_settings`: series such as P,C or A-Z, digit count) and that each revision is later than the latest. Uploading never authorises; `set_drawing_authorised()` is project-admin only and refused when the module is off.
+- `drawing_revision_rank()` mirrors `parseRevision` in src/lib/domain/drawings.ts. Checks: `tests/db/drawings_acceptance.sql`.
+- Project access helpers (`can_view/contribute/manage_project`, `project_module_active`) always return true/false (migration 0012); before that a null result let `if not ...` checks in functions pass.
