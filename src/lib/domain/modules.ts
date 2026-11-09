@@ -1,13 +1,41 @@
 /** Central catalogue of implemented, switchable modules. Identifiers are stable. */
+const CP = ["clients_projects"] as const;
+/**
+ * kind "business" modules work across the business; kind "project" modules are chosen per project
+ * from those the platform admin has switched on. built=false means its pages aren't built yet.
+ */
 export const MODULES = {
-  clients_projects: { name: "Clients & Projects", dependsOn: [] },
-  resource_planning: { name: "Resource Planning", dependsOn: ["clients_projects"] },
-  commercial: { name: "Commercial", dependsOn: ["clients_projects"] },
-} as const satisfies Record<string, { name: string; dependsOn: readonly string[] }>;
+  clients_projects: { name: "Clients & Projects", dependsOn: [], kind: "business", built: true },
+  resource_planning: { name: "Resource Planning", dependsOn: CP, kind: "business", built: true },
+  commercial: { name: "Commercial", dependsOn: CP, kind: "business", built: true },
+  progress_reports: { name: "Progress reports", dependsOn: CP, kind: "project", built: false },
+  photos: { name: "Photos", dependsOn: CP, kind: "project", built: false },
+  delay_reports: { name: "Delay reports", dependsOn: CP, kind: "project", built: false },
+  qa: { name: "QA", dependsOn: CP, kind: "project", built: false },
+  handover: { name: "Handover", dependsOn: CP, kind: "project", built: false },
+  rams: { name: "RAMS and risk assessments", dependsOn: CP, kind: "project", built: false },
+  deliveries: { name: "Deliveries", dependsOn: CP, kind: "project", built: false },
+  programmes: { name: "Programmes", dependsOn: CP, kind: "project", built: false },
+  documents: { name: "Documents", dependsOn: CP, kind: "project", built: false },
+  early_warnings: { name: "Early warnings", dependsOn: CP, kind: "project", built: false },
+  rfis: { name: "RFIs", dependsOn: CP, kind: "project", built: false },
+  procurement: { name: "Procurement", dependsOn: CP, kind: "project", built: false },
+  assets_plant: { name: "Assets and plant", dependsOn: CP, kind: "project", built: false },
+  drawings: { name: "Drawings", dependsOn: CP, kind: "project", built: false },
+  change_control: { name: "Change control", dependsOn: CP, kind: "project", built: false },
+} as const satisfies Record<string, { name: string; dependsOn: readonly string[]; kind: "business" | "project"; built: boolean }>;
 
 export type ModuleId = keyof typeof MODULES;
 
 export const MODULE_IDS = Object.keys(MODULES) as ModuleId[];
+
+export const BUSINESS_MODULE_IDS = MODULE_IDS.filter((m) => MODULES[m].kind === "business");
+export const PROJECT_MODULE_IDS = MODULE_IDS.filter((m) => MODULES[m].kind === "project");
+export type ProjectModuleId = Extract<ModuleId, { [K in ModuleId]: (typeof MODULES)[K]["kind"] extends "project" ? K : never }[ModuleId]>;
+
+export function isProjectModuleId(value: string): value is ProjectModuleId {
+  return isModuleId(value) && MODULES[value].kind === "project";
+}
 
 export function isModuleId(value: string): value is ModuleId {
   return value in MODULES;
