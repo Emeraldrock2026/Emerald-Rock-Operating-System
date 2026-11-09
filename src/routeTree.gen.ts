@@ -18,6 +18,8 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedTTenantIdRouteImport } from './routes/_authenticated/t.$tenantId'
 import { Route as AuthenticatedAdminBusinessesTenantIdRouteImport } from './routes/_authenticated/admin.businesses.$tenantId'
 import { Route as AuthenticatedTTenantIdIndexRouteImport } from './routes/_authenticated/t.$tenantId.index'
+import { Route as AuthenticatedTTenantIdPeopleIndexRouteImport } from './routes/_authenticated/t.$tenantId.people.index'
+import { Route as AuthenticatedTTenantIdPeopleEmployeeIdRouteImport } from './routes/_authenticated/t.$tenantId.people.$employeeId'
 import { Route as AuthenticatedTTenantIdSettingsUsersRouteImport } from './routes/_authenticated/t.$tenantId.settings.users'
 
 const IndexRoute = IndexRouteImport.update({
@@ -67,6 +69,18 @@ const AuthenticatedTTenantIdIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedTTenantIdRoute,
   } as any)
+const AuthenticatedTTenantIdPeopleIndexRoute =
+  AuthenticatedTTenantIdPeopleIndexRouteImport.update({
+    id: '/people/',
+    path: '/people/',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
+const AuthenticatedTTenantIdPeopleEmployeeIdRoute =
+  AuthenticatedTTenantIdPeopleEmployeeIdRouteImport.update({
+    id: '/people/$employeeId',
+    path: '/people/$employeeId',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
 const AuthenticatedTTenantIdSettingsUsersRoute =
   AuthenticatedTTenantIdSettingsUsersRouteImport.update({
     id: '/settings/users',
@@ -83,7 +97,9 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/businesses/$tenantId': typeof AuthenticatedAdminBusinessesTenantIdRoute
   '/t/$tenantId/': typeof AuthenticatedTTenantIdIndexRoute
+  '/t/$tenantId/people/$employeeId': typeof AuthenticatedTTenantIdPeopleEmployeeIdRoute
   '/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
+  '/t/$tenantId/people/': typeof AuthenticatedTTenantIdPeopleIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -93,7 +109,9 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/businesses/$tenantId': typeof AuthenticatedAdminBusinessesTenantIdRoute
   '/t/$tenantId': typeof AuthenticatedTTenantIdIndexRoute
+  '/t/$tenantId/people/$employeeId': typeof AuthenticatedTTenantIdPeopleEmployeeIdRoute
   '/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
+  '/t/$tenantId/people': typeof AuthenticatedTTenantIdPeopleIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -106,7 +124,9 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/businesses/$tenantId': typeof AuthenticatedAdminBusinessesTenantIdRoute
   '/_authenticated/t/$tenantId/': typeof AuthenticatedTTenantIdIndexRoute
+  '/_authenticated/t/$tenantId/people/$employeeId': typeof AuthenticatedTTenantIdPeopleEmployeeIdRoute
   '/_authenticated/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
+  '/_authenticated/t/$tenantId/people/': typeof AuthenticatedTTenantIdPeopleIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -119,7 +139,9 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/admin/businesses/$tenantId'
     | '/t/$tenantId/'
+    | '/t/$tenantId/people/$employeeId'
     | '/t/$tenantId/settings/users'
+    | '/t/$tenantId/people/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -129,7 +151,9 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/businesses/$tenantId'
     | '/t/$tenantId'
+    | '/t/$tenantId/people/$employeeId'
     | '/t/$tenantId/settings/users'
+    | '/t/$tenantId/people'
   id:
     | '__root__'
     | '/'
@@ -141,7 +165,9 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/_authenticated/admin/businesses/$tenantId'
     | '/_authenticated/t/$tenantId/'
+    | '/_authenticated/t/$tenantId/people/$employeeId'
     | '/_authenticated/t/$tenantId/settings/users'
+    | '/_authenticated/t/$tenantId/people/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -216,6 +242,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdIndexRouteImport
       parentRoute: typeof AuthenticatedTTenantIdRoute
     }
+    '/_authenticated/t/$tenantId/people/': {
+      id: '/_authenticated/t/$tenantId/people/'
+      path: '/people'
+      fullPath: '/t/$tenantId/people/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPeopleIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
+    '/_authenticated/t/$tenantId/people/$employeeId': {
+      id: '/_authenticated/t/$tenantId/people/$employeeId'
+      path: '/people/$employeeId'
+      fullPath: '/t/$tenantId/people/$employeeId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdPeopleEmployeeIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
     '/_authenticated/t/$tenantId/settings/users': {
       id: '/_authenticated/t/$tenantId/settings/users'
       path: '/settings/users'
@@ -228,14 +268,20 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedTTenantIdRouteChildren {
   AuthenticatedTTenantIdIndexRoute: typeof AuthenticatedTTenantIdIndexRoute
+  AuthenticatedTTenantIdPeopleEmployeeIdRoute: typeof AuthenticatedTTenantIdPeopleEmployeeIdRoute
   AuthenticatedTTenantIdSettingsUsersRoute: typeof AuthenticatedTTenantIdSettingsUsersRoute
+  AuthenticatedTTenantIdPeopleIndexRoute: typeof AuthenticatedTTenantIdPeopleIndexRoute
 }
 
 const AuthenticatedTTenantIdRouteChildren: AuthenticatedTTenantIdRouteChildren =
   {
     AuthenticatedTTenantIdIndexRoute: AuthenticatedTTenantIdIndexRoute,
+    AuthenticatedTTenantIdPeopleEmployeeIdRoute:
+      AuthenticatedTTenantIdPeopleEmployeeIdRoute,
     AuthenticatedTTenantIdSettingsUsersRoute:
       AuthenticatedTTenantIdSettingsUsersRoute,
+    AuthenticatedTTenantIdPeopleIndexRoute:
+      AuthenticatedTTenantIdPeopleIndexRoute,
   }
 
 const AuthenticatedTTenantIdRouteWithChildren =
