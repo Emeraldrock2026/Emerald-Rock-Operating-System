@@ -18,9 +18,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { friendlyError } from "@/lib/db-errors";
-import { formatDate } from "@/lib/domain/dates";
+import { formatDateGB, todayIn } from "@/lib/domain/dates";
+import { MODULES, isModuleId } from "@/lib/domain/modules";
 import { setupSteps } from "@/lib/domain/tenant-setup";
-import { MODULE_NAME } from "@/lib/labels";
 import { inviteMember } from "@/lib/members.functions";
 import { platformTenantsQuery, setBusinessStatus, tenantOwnersQuery } from "@/lib/platform";
 import { isPlatformAdminQuery } from "@/lib/session";
@@ -55,8 +55,7 @@ function BusinessPage() {
   return <BusinessDetail email={user.email} />;
 }
 
-const londonDate = (iso: string) =>
-  formatDate(new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" }).format(new Date(iso)));
+const londonDate = (iso: string) => formatDateGB(todayIn("Europe/London", new Date(iso)));
 
 function BusinessDetail({ email }: { email: string }) {
   const { tenantId } = Route.useParams();
@@ -123,7 +122,7 @@ function BusinessDetail({ email }: { email: string }) {
           <h3 className="mt-5 text-sm font-medium text-foreground">Modules switched on</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             {tenant.modulesEnabled.length
-              ? tenant.modulesEnabled.map((m) => MODULE_NAME[m] ?? m).join(", ")
+              ? tenant.modulesEnabled.map((m) => (isModuleId(m) ? MODULES[m].name : m)).join(", ")
               : "None yet. Switching modules on and off arrives in the next stage."}
           </p>
           <p className="mt-3 text-sm text-muted-foreground">{tenant.membersActive} people have active access.</p>

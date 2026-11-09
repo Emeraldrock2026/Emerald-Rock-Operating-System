@@ -14,7 +14,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedSelectBusinessRouteImport } from './routes/_authenticated/select-business'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedTTenantIdRouteImport } from './routes/_authenticated/t.$tenantId'
+import { Route as AuthenticatedAdminBusinessesTenantIdRouteImport } from './routes/_authenticated/admin.businesses.$tenantId'
 import { Route as AuthenticatedTTenantIdIndexRouteImport } from './routes/_authenticated/t.$tenantId.index'
 import { Route as AuthenticatedTTenantIdSettingsUsersRouteImport } from './routes/_authenticated/t.$tenantId.settings.users'
 
@@ -43,11 +45,22 @@ const AuthenticatedSelectBusinessRoute =
     path: '/select-business',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTTenantIdRoute = AuthenticatedTTenantIdRouteImport.update({
   id: '/t/$tenantId',
   path: '/t/$tenantId',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminBusinessesTenantIdRoute =
+  AuthenticatedAdminBusinessesTenantIdRouteImport.update({
+    id: '/admin/businesses/$tenantId',
+    path: '/admin/businesses/$tenantId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTTenantIdIndexRoute =
   AuthenticatedTTenantIdIndexRouteImport.update({
     id: '/',
@@ -67,6 +80,8 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/select-business': typeof AuthenticatedSelectBusinessRoute
   '/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/businesses/$tenantId': typeof AuthenticatedAdminBusinessesTenantIdRoute
   '/t/$tenantId/': typeof AuthenticatedTTenantIdIndexRoute
   '/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
 }
@@ -75,6 +90,8 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/select-business': typeof AuthenticatedSelectBusinessRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/businesses/$tenantId': typeof AuthenticatedAdminBusinessesTenantIdRoute
   '/t/$tenantId': typeof AuthenticatedTTenantIdIndexRoute
   '/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
 }
@@ -86,6 +103,8 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/select-business': typeof AuthenticatedSelectBusinessRoute
   '/_authenticated/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/businesses/$tenantId': typeof AuthenticatedAdminBusinessesTenantIdRoute
   '/_authenticated/t/$tenantId/': typeof AuthenticatedTTenantIdIndexRoute
   '/_authenticated/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
 }
@@ -97,6 +116,8 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/select-business'
     | '/t/$tenantId'
+    | '/admin/'
+    | '/admin/businesses/$tenantId'
     | '/t/$tenantId/'
     | '/t/$tenantId/settings/users'
   fileRoutesByTo: FileRoutesByTo
@@ -105,6 +126,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/select-business'
+    | '/admin'
+    | '/admin/businesses/$tenantId'
     | '/t/$tenantId'
     | '/t/$tenantId/settings/users'
   id:
@@ -115,6 +138,8 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/select-business'
     | '/_authenticated/t/$tenantId'
+    | '/_authenticated/admin/'
+    | '/_authenticated/admin/businesses/$tenantId'
     | '/_authenticated/t/$tenantId/'
     | '/_authenticated/t/$tenantId/settings/users'
   fileRoutesById: FileRoutesById
@@ -163,11 +188,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSelectBusinessRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/t/$tenantId': {
       id: '/_authenticated/t/$tenantId'
       path: '/t/$tenantId'
       fullPath: '/t/$tenantId'
       preLoaderRoute: typeof AuthenticatedTTenantIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/businesses/$tenantId': {
+      id: '/_authenticated/admin/businesses/$tenantId'
+      path: '/admin/businesses/$tenantId'
+      fullPath: '/admin/businesses/$tenantId'
+      preLoaderRoute: typeof AuthenticatedAdminBusinessesTenantIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/t/$tenantId/': {
@@ -207,11 +246,16 @@ const AuthenticatedTTenantIdRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSelectBusinessRoute: typeof AuthenticatedSelectBusinessRoute
   AuthenticatedTTenantIdRoute: typeof AuthenticatedTTenantIdRouteWithChildren
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminBusinessesTenantIdRoute: typeof AuthenticatedAdminBusinessesTenantIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSelectBusinessRoute: AuthenticatedSelectBusinessRoute,
   AuthenticatedTTenantIdRoute: AuthenticatedTTenantIdRouteWithChildren,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminBusinessesTenantIdRoute:
+    AuthenticatedAdminBusinessesTenantIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
