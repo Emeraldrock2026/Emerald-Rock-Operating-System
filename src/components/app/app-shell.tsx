@@ -29,7 +29,7 @@ import { cn } from "@/lib/utils";
 
 interface NavItem {
   label: string;
-  to: "/t/$tenantId" | "/t/$tenantId/people" | "/t/$tenantId/clients" | "/t/$tenantId/projects" | "/t/$tenantId/settings/users" | "/t/$tenantId/planner" | "/t/$tenantId/settings/appearance";
+  to: "/t/$tenantId" | "/t/$tenantId/people" | "/t/$tenantId/clients" | "/t/$tenantId/projects" | "/t/$tenantId/settings/users" | "/t/$tenantId/planner" | "/t/$tenantId/settings/appearance" | "/t/$tenantId/exports";
   icon: typeof LayoutDashboard;
   exact?: boolean;
 }
