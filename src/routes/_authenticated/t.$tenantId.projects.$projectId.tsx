@@ -62,6 +62,7 @@ function ProjectPage() {
   const clients = useQuery({ ...clientsQuery(tenantId), enabled: manage });
   const people = useQuery({ ...employeesQuery(tenantId), enabled: manage });
   const [editing, setEditing] = useState(false);
+  const [tab, setTab] = useState("dashboard");
   const p = projects.data?.find((x) => x.id === projectId);
   const detail = useQuery({ ...projectDetailQuery(tenantId, projectId), enabled: !!p });
   const canManageProject = manage || detail.data?.myRole === "project_admin";
