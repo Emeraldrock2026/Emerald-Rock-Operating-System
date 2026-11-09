@@ -97,6 +97,15 @@ function ProjectPage() {
       canView: true, canContribute, canManage: canManageProject,
     }),
   })).filter((t) => t.access.visible);
+  const tabItems = [
+    { value: "dashboard", label: "Dashboard" },
+    ...fileTabs.map((t) => ({ value: t.id as string, label: t.label })),
+    ...(drawingsAccess.visible ? [{ value: "drawings", label: "Drawings" }] : []),
+    ...reportTabs.map((t) => ({ value: t.id as string, label: t.label })),
+    ...registerTabs.map((t) => ({ value: t.id as string, label: t.label })),
+    ...(changeAccess.visible ? [{ value: "changes", label: "Change register" }] : []),
+    { value: "setup", label: "Team and setup" },
+  ];
   const photosOn = (ctx.access?.enabledModules.has("photos") ?? false) && (projectMods.data?.has("photos") ?? false);
 
   const save = useMutation({
@@ -170,8 +179,14 @@ function ProjectPage() {
         </dl>
       )}
 
-      <Tabs defaultValue="dashboard" className="mt-6">
-        <TabsList className="h-auto flex-wrap">
+      <Tabs value={tab} onValueChange={setTab} className="mt-6">
+        <div className="sm:hidden">
+          <label htmlFor="project-section" className="mb-1 block text-xs text-muted-foreground">Project section</label>
+          <select id="project-section" className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={tab} onChange={(e) => setTab(e.target.value)}>
+            {tabItems.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+          </select>
+        </div>
+        <TabsList className="hidden h-auto flex-wrap sm:inline-flex">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           {fileTabs.map((t) => <TabsTrigger key={t.id} value={t.id}>{t.label}</TabsTrigger>)}
           {drawingsAccess.visible ? <TabsTrigger value="drawings">Drawings</TabsTrigger> : null}
