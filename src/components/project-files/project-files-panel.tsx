@@ -21,7 +21,7 @@ import { projectFoldersQuery } from "@/lib/project-setup-data";
 const BUCKET = "project-files";
 const ROOT = "__root__";
 
-interface Props { tenantId: string; projectId: string; module: FileModuleId; canUpload: boolean; historicOnly: boolean; timezone: string }
+interface Props { tenantId: string; projectId: string; module: FileModuleId; canUpload: boolean; historicOnly: boolean; timezone: string; focus?: { id: string; n: number } | null }
 
 const filesQuery = (tenantId: string, projectId: string, module: FileModuleId) => queryOptions({
   queryKey: ["tenant", tenantId, "project", projectId, "files", module],

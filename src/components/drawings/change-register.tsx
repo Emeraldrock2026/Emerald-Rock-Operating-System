@@ -44,7 +44,7 @@ export function ChangeRegister({ tenantId, projectId, timezone, canEdit, histori
 type Change = { id: string; reference: string; title: string; description: string; status: string; updated_at: string; version: number;
   comparison_findings: { id: string; category: string; location: string; summary: string; amended_summary: string | null; decision: string }[] };
 
-function ChangeCard({ c, tenantId, projectId, timezone, canEdit }: { c: Change; tenantId: string; projectId: string; timezone: string; canEdit: boolean }) {
+function ChangeCard({ c, tenantId, projectId, timezone, canEdit, highlighted }: { highlighted?: boolean; c: Change; tenantId: string; projectId: string; timezone: string; canEdit: boolean }) {
   const qc = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(c.title);
@@ -59,7 +59,7 @@ function ChangeCard({ c, tenantId, projectId, timezone, canEdit }: { c: Change; 
     onError: (e) => toast.error(friendlyError(e)),
   });
   return (
-    <li className="rounded-lg border bg-card p-4">
+    <li id={`change-${c.id}`} tabIndex={-1} className={`rounded-lg border bg-card p-4 outline-none ${highlighted ? "ring-2 ring-ring" : ""}`}>
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-mono text-xs">{c.reference}</span>
         <span className="font-medium">{c.title}</span>
