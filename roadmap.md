@@ -28,4 +28,4 @@ Platform admin switches project modules per business; project admins pick from t
 - [x] P6 Registers: RFIs, early warnings, programmes
 - [x] P7 QA, handover, RAMS, deliveries, procurement, assets & plant
 - [ ] P8 Email issue (needs sending domain) — blocked: user chose later
-- [ ] Stage 10 demo businesses + acceptance testing — after project modules
+- [x] Stage 10 demo businesses + acceptance testing — after project modules

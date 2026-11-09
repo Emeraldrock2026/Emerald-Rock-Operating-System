@@ -3,7 +3,7 @@
 -- Expected: qa_ref=<project>-QA-000n, qa_no_result=refused RESULT_REQUIRED, qa_passed=passed, qa_member_close=refused ADMIN_ONLY_STATUS,
 --   rams_upload_status=draft, rams_submit_no_file=refused FILE_REQUIRED, rams_member_approve=refused ADMIN_ONLY_STATUS, rams_admin_approve=approved,
 --   rams_swap_file=refused FILE_LOCKED, rams_wrong_file=refused BAD_FILE_PATH, handover_member_accept=refused ADMIN_ONLY_STATUS,
---   proc_no_supplier=refused SUPPLIER_REQUIRED, proc_member_award=refused ADMIN_ONLY_STATUS, delivery_member_delivered=delivered,
+--   proc_no_supplier=refused SUPPLIER_REQUIRED, proc_member_award=refused ADMIN_ONLY_STATUS, proc_order_before_award=refused ORDER_NEEDS_AWARD, delivery_member_delivered=delivered,
 --   delivery_member_cancel=refused ADMIN_ONLY_STATUS, asset_member_offhire=off_hired, asset_closed_on=set, viewer_qa=refused,
 --   other_business_sees=0, qa_off_member=0, qa_off_admin=1, qa_off_edit=refused
 begin;
@@ -60,6 +60,8 @@ do $$ begin update project_records set status = 'ordered' where title = 'PCM tes
   insert into r values ('proc_no_supplier','ALLOWED'); exception when others then insert into r values ('proc_no_supplier','refused ' || sqlerrm); end $$;
 do $$ begin update project_records set status = 'awarded', fields = '{"supplier":"Acme"}' where title = 'PCM test';
   insert into r values ('proc_member_award','ALLOWED'); exception when others then insert into r values ('proc_member_award','refused ' || sqlerrm); end $$;
+do $$ begin update project_records set status = 'ordered', fields = '{"supplier":"Acme"}' where title = 'PCM test';
+  insert into r values ('proc_order_before_award','ALLOWED'); exception when others then insert into r values ('proc_order_before_award','refused ' || sqlerrm); end $$;
 
 insert into project_records (tenant_id, project_id, module_id, title, status, due_date) values ((select v from ids where k='t'), (select v from ids where k='p'), 'deliveries', 'DLV test', 'expected', '2026-11-20'),
   ((select v from ids where k='t'), (select v from ids where k='p'), 'deliveries', 'DLV test 2', 'expected', '2026-11-20');
