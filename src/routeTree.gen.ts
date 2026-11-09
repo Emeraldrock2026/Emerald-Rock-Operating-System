@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedSelectBusinessRouteImport } from './routes/_authenticated/select-business'
 import { Route as AuthenticatedTTenantIdRouteImport } from './routes/_authenticated/t.$tenantId'
+import { Route as AuthenticatedTTenantIdIndexRouteImport } from './routes/_authenticated/t.$tenantId.index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,20 +47,27 @@ const AuthenticatedTTenantIdRoute = AuthenticatedTTenantIdRouteImport.update({
   path: '/t/$tenantId',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTTenantIdIndexRoute =
+  AuthenticatedTTenantIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/select-business': typeof AuthenticatedSelectBusinessRoute
-  '/t/$tenantId': typeof AuthenticatedTTenantIdRoute
+  '/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
+  '/t/$tenantId/': typeof AuthenticatedTTenantIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/select-business': typeof AuthenticatedSelectBusinessRoute
-  '/t/$tenantId': typeof AuthenticatedTTenantIdRoute
+  '/t/$tenantId': typeof AuthenticatedTTenantIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -68,12 +76,18 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/select-business': typeof AuthenticatedSelectBusinessRoute
-  '/_authenticated/t/$tenantId': typeof AuthenticatedTTenantIdRoute
+  '/_authenticated/t/$tenantId': typeof AuthenticatedTTenantIdRouteWithChildren
+  '/_authenticated/t/$tenantId/': typeof AuthenticatedTTenantIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/reset-password' | '/select-business' | '/t/$tenantId'
+    | '/'
+    | '/auth'
+    | '/reset-password'
+    | '/select-business'
+    | '/t/$tenantId'
+    | '/t/$tenantId/'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/auth' | '/reset-password' | '/select-business' | '/t/$tenantId'
   id:
@@ -84,6 +98,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/select-business'
     | '/_authenticated/t/$tenantId'
+    | '/_authenticated/t/$tenantId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -137,17 +152,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/t/$tenantId/': {
+      id: '/_authenticated/t/$tenantId/'
+      path: '/'
+      fullPath: '/t/$tenantId/'
+      preLoaderRoute: typeof AuthenticatedTTenantIdIndexRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
   }
 }
 
+interface AuthenticatedTTenantIdRouteChildren {
+  AuthenticatedTTenantIdIndexRoute: typeof AuthenticatedTTenantIdIndexRoute
+}
+
+const AuthenticatedTTenantIdRouteChildren: AuthenticatedTTenantIdRouteChildren =
+  {
+    AuthenticatedTTenantIdIndexRoute: AuthenticatedTTenantIdIndexRoute,
+  }
+
+const AuthenticatedTTenantIdRouteWithChildren =
+  AuthenticatedTTenantIdRoute._addFileChildren(
+    AuthenticatedTTenantIdRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSelectBusinessRoute: typeof AuthenticatedSelectBusinessRoute
-  AuthenticatedTTenantIdRoute: typeof AuthenticatedTTenantIdRoute
+  AuthenticatedTTenantIdRoute: typeof AuthenticatedTTenantIdRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSelectBusinessRoute: AuthenticatedSelectBusinessRoute,
-  AuthenticatedTTenantIdRoute: AuthenticatedTTenantIdRoute,
+  AuthenticatedTTenantIdRoute: AuthenticatedTTenantIdRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
