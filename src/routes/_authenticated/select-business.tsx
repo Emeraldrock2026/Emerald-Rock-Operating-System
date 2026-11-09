@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { CenteredPanel } from "@/components/app/centered-panel";
 import { StatusBadge } from "@/components/app/status-badge";
@@ -39,7 +39,7 @@ function SelectBusiness() {
   const queryClient = useQueryClient();
   const { data: memberships } = useSuspenseQuery(myMembershipsQuery(user.id));
   const { data: platformAdmin } = useSuspenseQuery(isPlatformAdminQuery(user.id));
-  const usable = memberships.filter(isUsable);
+  const usable = useMemo(() => memberships.filter(isUsable), [memberships]);
   const [resolved, setResolved] = useState(false);
 
   useEffect(() => {
