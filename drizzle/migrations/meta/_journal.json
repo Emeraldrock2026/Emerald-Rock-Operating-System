@@ -64,6 +64,13 @@
       "when": 1794261709760,
       "tag": "0008_project_foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794262032295,
+      "tag": "0009_audit_categories_project_detail",
+      "breakpoints": true
     }
   ]
 }

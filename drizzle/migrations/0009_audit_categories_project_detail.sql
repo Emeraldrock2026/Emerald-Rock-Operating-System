@@ -1,0 +1,2 @@
+alter table public.audit_log drop constraint audit_log_category_check;
+alter table public.audit_log add constraint audit_log_category_check check (category = any (array['tenant','module','membership','employee','working_pattern','project','allocation','commercial','project_detail','template']));
