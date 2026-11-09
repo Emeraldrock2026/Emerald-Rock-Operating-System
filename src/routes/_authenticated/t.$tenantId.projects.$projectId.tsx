@@ -17,7 +17,9 @@ import { clientsQuery, projectsQuery } from "@/lib/projects-data";
 import { employeesQuery } from "@/lib/people";
 import { ProjectCommercials } from "@/components/commercial/project-commercials";
 import { KeyDatesCard, OrganisationsCard, ProjectDashboard, ProjectDetailsCard, ProjectModulesCard, TeamCard } from "@/components/project-setup/project-workspace";
-import { projectDetailQuery } from "@/lib/project-setup-data";
+import { projectDetailQuery, projectModulesQuery } from "@/lib/project-setup-data";
+import { ProjectFilesPanel } from "@/components/project-files/project-files-panel";
+import { fileModuleAccess, type FileModuleId } from "@/lib/domain/project-files";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/t/$tenantId/projects/$projectId")({
@@ -57,6 +59,15 @@ function ProjectPage() {
   const p = projects.data?.find((x) => x.id === projectId);
   const detail = useQuery({ ...projectDetailQuery(tenantId, projectId), enabled: !!p });
   const canManageProject = manage || detail.data?.myRole === "project_admin";
+  const projectMods = useQuery(projectModulesQuery(tenantId, projectId));
+  const canContribute = manage || detail.data?.myRole === "project_admin" || detail.data?.myRole === "member";
+  const fileTabs = (["photos", "documents"] as FileModuleId[]).map((id) => ({
+    id, label: id === "photos" ? "Photos" : "Documents",
+    access: fileModuleAccess({
+      businessOn: ctx.access?.enabledModules.has(id) ?? false, projectOn: projectMods.data?.has(id) ?? false,
+      canView: true, canContribute, canManage: canManageProject,
+    }),
+  })).filter((t) => t.access.visible);
 
   const save = useMutation({
     mutationFn: async (patch: Partial<ProjectFormValues> & { status?: ProjectStatus }) => {
@@ -132,6 +143,7 @@ function ProjectPage() {
       <Tabs defaultValue="dashboard" className="mt-6">
         <TabsList>
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          {fileTabs.map((t) => <TabsTrigger key={t.id} value={t.id}>{t.label}</TabsTrigger>)}
           <TabsTrigger value="setup">Team and setup</TabsTrigger>
         </TabsList>
         {(() => {
@@ -142,6 +154,11 @@ function ProjectPage() {
                 <ProjectDashboard {...props} />
                 <ProjectDetailsCard {...props} />
               </TabsContent>
+              {fileTabs.map((t) => (
+                <TabsContent key={t.id} value={t.id} className="mt-4">
+                  <ProjectFilesPanel tenantId={tenantId} projectId={projectId} module={t.id} canUpload={t.access.canUpload} historicOnly={t.access.historicOnly} timezone={ctx.tenant!.timezone} />
+                </TabsContent>
+              ))}
               <TabsContent value="setup" className="mt-4 grid gap-4 lg:grid-cols-2">
                 <TeamCard {...props} />
                 <OrganisationsCard {...props} />

@@ -21,7 +21,7 @@ import { projectFoldersQuery } from "@/lib/project-setup-data";
 const BUCKET = "project-files";
 const ROOT = "__root__";
 
-interface Props { tenantId: string; projectId: string; module: FileModuleId; canUpload: boolean; historicOnly: boolean }
+interface Props { tenantId: string; projectId: string; module: FileModuleId; canUpload: boolean; historicOnly: boolean; timezone: string }
 
 const filesQuery = (tenantId: string, projectId: string, module: FileModuleId) => queryOptions({
   queryKey: ["tenant", tenantId, "project", projectId, "files", module],
@@ -67,7 +67,7 @@ async function uploadWithProgress(path: string, file: File, onProgress: (pct: nu
 
 interface QueueItem { key: string; file: File; status: "waiting" | "uploading" | "saving" | "done" | "failed"; pct: number; error?: string; fileId: string; existingFileId?: string }
 
-export function ProjectFilesPanel({ tenantId, projectId, module, canUpload, historicOnly }: Props) {
+export function ProjectFilesPanel({ tenantId, projectId, module, canUpload, historicOnly, timezone }: Props) {
   const qc = useQueryClient();
   const files = useQuery(filesQuery(tenantId, projectId, module));
   const folders = useQuery(projectFoldersQuery(tenantId, projectId));
@@ -216,7 +216,7 @@ export function ProjectFilesPanel({ tenantId, projectId, module, canUpload, hist
               <button className="flex w-full items-center gap-3 p-3 text-left hover:bg-muted/50" onClick={() => setOpen(f)}>
                 <FileText className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
                 <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium">{f.title}</span>
-                  <span className="block truncate text-xs text-muted-foreground">{f.current?.file_name} · {f.current ? formatBytes(f.current.size_bytes) : ""} · updated {formatTimestamp(f.updated_at)}</span></span>
+                  <span className="block truncate text-xs text-muted-foreground">{f.current?.file_name} · {f.current ? formatBytes(f.current.size_bytes) : ""} · updated {formatTimestamp(f.updated_at, timezone)}</span></span>
                 <Badge variant="secondary">Rev {f.current_version}</Badge>
               </button>
             </li>
@@ -227,7 +227,7 @@ export function ProjectFilesPanel({ tenantId, projectId, module, canUpload, hist
       {open ? (
         <FileDialog
           row={(files.data ?? []).find((r) => r.id === open.id) ?? open}
-          folders={folderOptions} canEdit={canUpload} module={module}
+          folders={folderOptions} canEdit={canUpload} module={module} timezone={timezone}
           onClose={() => setOpen(null)} onSaved={invalidate}
           onNewVersion={(list) => void addFiles(list, open.id)}
         />
@@ -264,8 +264,8 @@ function NewFolderButton({ tenantId, projectId, parentId, onDone }: { tenantId: 
   );
 }
 
-function FileDialog({ row, folders, canEdit, module, onClose, onSaved, onNewVersion }: {
-  row: FileRow; folders: { id: string; path: string }[]; canEdit: boolean; module: FileModuleId;
+function FileDialog({ row, folders, canEdit, module, timezone, onClose, onSaved, onNewVersion }: {
+  row: FileRow; folders: { id: string; path: string }[]; canEdit: boolean; module: FileModuleId; timezone: string;
   onClose: () => void; onSaved: () => void; onNewVersion: (l: FileList | null) => void;
 }) {
   const [title, setTitle] = useState(row.title);
@@ -276,7 +276,7 @@ function FileDialog({ row, folders, canEdit, module, onClose, onSaved, onNewVers
   const save = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.from("project_files")
-        .update({ title: title.trim(), caption, tags: parseTags(tags), folder_id: folder === ROOT ? null : folder, version: row.version + 1 })
+        .update({ title: title.trim(), caption, tags: parseTags(tags), folder_id: folder === ROOT ? null : folder })
         .eq("id", row.id).eq("version", row.version).select("id");
       if (error) throw error;
       if (!data?.length) throw new StaleRecordError();
@@ -320,7 +320,7 @@ function FileDialog({ row, folders, canEdit, module, onClose, onSaved, onNewVers
             {row.versions.map((v) => (
               <li key={v.id} className="flex items-center justify-between gap-2 p-2">
                 <span className="min-w-0"><span className="font-medium">Version {v.version_no}</span>{v.version_no === row.current_version ? <Badge className="ml-2" variant="secondary">Current</Badge> : null}
-                  <span className="block truncate text-xs text-muted-foreground">{v.file_name} · {formatBytes(v.size_bytes)} · {formatTimestamp(v.uploaded_at)}</span></span>
+                  <span className="block truncate text-xs text-muted-foreground">{v.file_name} · {formatBytes(v.size_bytes)} · {formatTimestamp(v.uploaded_at, timezone)}</span></span>
                 <Button size="sm" variant="ghost" onClick={() => void download(v.storage_path)}>Open</Button>
               </li>
             ))}
