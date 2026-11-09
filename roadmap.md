@@ -2,10 +2,10 @@
 
 - [x] Planning rules and automatic checks (dates, capacity, totals, modules, permissions, references)
 - [x] Architecture, tenant model and permission matrix documented (docs/architecture.md)
-- [ ] Connect owner's own Supabase project (blocked: owner connects it in Settings)
+- [x] Backend connected (Lovable Cloud)
 - [ ] Connect GitHub (blocked: owner connects it in Settings)
 - [x] First platform administrator email received
-- [ ] 1. Schema, tenant isolation policies, audit log (migrations)
+- [x] 1. Schema, tenant isolation policies, audit log (migrations) — 50 database checks pass
 - [ ] 2. Invitation sign-in, memberships, tenant switching
 - [ ] 3. Platform administration and tenant setup
 - [ ] 4. Module configuration and enforcement
