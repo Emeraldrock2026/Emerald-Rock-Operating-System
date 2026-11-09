@@ -90,14 +90,15 @@ export function LiveDashboard({ tenantId, projectId, timezone, modules, onOpenMo
               <dl className="mt-2 grid grid-cols-2 gap-x-3 text-xs text-muted-foreground">
                 <div className="flex justify-between"><dt>Overdue</dt><dd className="tabular-nums">{k.overdue}</dd></div>
                 <div className="flex justify-between"><dt>Due in 7 days</dt><dd className="tabular-nums">{k.dueSoon}</dd></div>
-                <div className="flex justify-between"><dt>Raised in period</dt><dd className="tabular-nums">{k.raised}</dd></div>
-                <div className="flex justify-between"><dt>Closed in period</dt><dd className="tabular-nums">{k.closed}</dd></div>
+                <div className="flex justify-between"><dt>Raised*</dt><dd className="tabular-nums">{k.raised}</dd></div>
+                <div className="flex justify-between"><dt>Closed*</dt><dd className="tabular-nums">{k.closed}</dd></div>
               </dl>
             </button>
           ))}
         </div>
       )}
 
+      {modules.length ? <p className="text-xs text-muted-foreground">* Raised and closed within the chosen period. Open, overdue and due-in-7-days counts are as of today. Cards only count registers switched on for this project that you can open.</p> : null}
       <section className="rounded-lg border bg-card p-5" aria-label="Outstanding actions">
         <h2 className="mb-3 text-sm font-semibold">Outstanding actions <span className="font-normal text-muted-foreground">({actions.length})</span></h2>
         {q.isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : actions.length === 0 ? (
