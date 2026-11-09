@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/app/page-header";
 import { StatusBadge } from "@/components/app/status-badge";
+import { SettingsTabs } from "@/components/settings/settings-tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -83,6 +84,7 @@ function UsersPage() {
   return (
     <div className="max-w-6xl">
       <PageHeader title="Users" description="People with access to this business." actions={<InviteDialog tenantId={tenantId} />} />
+      <SettingsTabs />
       {members.isPending ? <p className="text-sm text-muted-foreground">Loading users…</p> : null}
       {members.isError ? <p role="alert" className="text-sm text-destructive">{friendlyError(members.error)}</p> : null}
       {members.data ? (
