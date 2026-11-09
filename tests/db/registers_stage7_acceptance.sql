@@ -11,7 +11,7 @@ create temp table r(k text, v text) on commit drop;
 create temp table ids(k text, v uuid) on commit drop;
 grant all on r, ids to authenticated;
 insert into ids values ('t','8a22502a-072a-4d17-92b2-03f6482ff26a'), ('p','e977adf3-28db-49d1-87e2-caeb01bc14ad'), ('dan','7f62dbef-3d8c-428c-8f90-904bd01ea448'),
-  ('f', gen_random_uuid()), ('f2', gen_random_uuid()), ('fp', gen_random_uuid()),
+  ('f', gen_random_uuid()), ('f2', gen_random_uuid()), ('fp', gen_random_uuid()), ('fh', gen_random_uuid()),
   ('mem','10000000-0000-0000-0000-0000000000e1'), ('vw','10000000-0000-0000-0000-0000000000e2'), ('out','10000000-0000-0000-0000-0000000000e3');
 insert into tenant_memberships (tenant_id, user_id, email, role, status) values
   ((select v from ids where k='t'), (select v from ids where k='mem'), 'mem@test.invalid', 'employee', 'active'),
@@ -25,7 +25,8 @@ insert into project_team (tenant_id, project_id, employee_id, project_role)
 insert into project_files (id, tenant_id, project_id, module_id, title, current_version) values
   ((select v from ids where k='f'), (select v from ids where k='t'), (select v from ids where k='p'), 'rams', 'rams.pdf', 1),
   ((select v from ids where k='f2'), (select v from ids where k='t'), (select v from ids where k='p'), 'rams', 'rams2.pdf', 1),
-  ((select v from ids where k='fp'), (select v from ids where k='t'), (select v from ids where k='p'), 'programmes', 'prog.pdf', 1);
+  ((select v from ids where k='fp'), (select v from ids where k='t'), (select v from ids where k='p'), 'programmes', 'prog.pdf', 1),
+  ((select v from ids where k='fh'), (select v from ids where k='t'), (select v from ids where k='p'), 'handover', 'om.pdf', 1);
 
 -- Member
 select set_config('request.jwt.claims', json_build_object('sub', (select v from ids where k='mem'), 'role', 'authenticated')::text, true);
@@ -51,7 +52,7 @@ do $$ begin update project_records set status = 'approved' where title = 'RAMS t
   insert into r values ('rams_member_approve','ALLOWED'); exception when others then insert into r values ('rams_member_approve','refused ' || sqlerrm); end $$;
 
 insert into project_records (tenant_id, project_id, module_id, title, status) values ((select v from ids where k='t'), (select v from ids where k='p'), 'handover', 'HO test', 'not_started');
-do $$ begin update project_records set status = 'accepted', fields = json_build_object('file_id', (select v from ids where k='f'))::jsonb where title = 'HO test';
+do $$ begin update project_records set status = 'accepted', fields = json_build_object('file_id', (select v from ids where k='fh'))::jsonb where title = 'HO test';
   insert into r values ('handover_member_accept','ALLOWED'); exception when others then insert into r values ('handover_member_accept','refused ' || sqlerrm); end $$;
 
 insert into project_records (tenant_id, project_id, module_id, title, status) values ((select v from ids where k='t'), (select v from ids where k='p'), 'procurement', 'PCM test', 'tendering');
