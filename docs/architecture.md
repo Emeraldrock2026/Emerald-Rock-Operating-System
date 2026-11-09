@@ -150,3 +150,9 @@ Which cards and exports a person gets is decided by `overviewCards` / `available
 - Drafts are `project_records` (modules progress_reports / delay_reports) with content in `fields`; contributors draft, project admins issue.
 - Issuing builds a branded PDF from a snapshot, stores it in project-files under the report module, and calls `issue_project_report()`. `report_issues` (select-only) keeps issue number, snapshot, content hash and exact file version. Identical re-issues are refused (DUPLICATE_ISSUE); edits after loading are refused (STALE_EDIT).
 - Module off: no new drafts or issues; project admins still see history. Checks: tests/db/reports_acceptance.sql.
+
+## RFIs, early warnings and programmes (P6)
+- All three are `project_records`; module fields live in `fields`. Shared comments (`record_comments`) and links (`record_links`, shown through `linked_record_summary`, which explains restricted links) are used by every register.
+- `guard_register_record()` checks allowed statuses, sets `is_closed`, needs a response before an RFI is responded/closed, and a programme file before a programme is current. Closing, reopening, making current or superseding is for project admins. Making a programme current supersedes the previous one.
+- Reference codes: `record_reference_code()` (e.g. PRO progress reports, PRG programmes, DEL delay reports, DLV deliveries, PCM procurement).
+- Checks: tests/db/registers_acceptance.sql.
