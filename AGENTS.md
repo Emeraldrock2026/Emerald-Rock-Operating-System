@@ -37,3 +37,4 @@ use the editor.
 - Database access rules are verified by `tests/db/access_acceptance.sql` (one rolled-back transaction); extend and re-run it whenever policies, guards or tables change.
 - Business-scoped pages live under `src/routes/_authenticated/t.$tenantId.*` and their query keys start with `["tenant", tenantId, …]`, so switching business can drop other tenants' cache and direct links always name the business.
 - Navigation items are derived from `can()` in `src/components/app/app-shell.tsx`; add an item only when its page exists, its module is enabled and the role permits it.
+- Every module page wraps its content in `RequireModule` (src/components/app/require-module.tsx) and is listed in navigation only when its module is on, so direct links to switched-off modules show a clear message while the database still refuses the data.

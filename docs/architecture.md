@@ -96,3 +96,6 @@ database policies are the source of truth.
 Timesheets & Approvals · Expanded Commercial Reporting · CRM & Opportunities · Programme & Project
 Controls · NEC/JCT Contract Registers · Documents & Project Governance · People & HR · Assets &
 Equipment · Property · Advanced Reporting & Integrations.
+
+## Module switches (stage 4)
+Platform admins switch modules per business on the business page. The UI uses `switchBlockedReason()`; the database trigger `guard_tenant_module` enforces dependencies and every module table's policies call `module_enabled()`. Changes are audited (category `module`). Module pages use `RequireModule`; open sessions refresh business context every minute.
