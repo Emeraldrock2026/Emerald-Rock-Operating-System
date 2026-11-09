@@ -5,13 +5,14 @@ import { AppShell } from "@/components/app/app-shell";
 import { CenteredPanel } from "@/components/app/centered-panel";
 import { Button } from "@/components/ui/button";
 import { lastTenantKey, tenantContextQuery } from "@/lib/session";
+import { friendlyError } from "@/lib/db-errors";
 
 export const Route = createFileRoute("/_authenticated/t/$tenantId")({
   loader: ({ context, params }) =>
     context.queryClient.ensureQueryData(tenantContextQuery(params.tenantId, context.user.id)),
   pendingComponent: () => <CenteredPanel title="Opening business…" />,
   errorComponent: ({ error }) => (
-    <CenteredPanel title="This business didn't load" description={error.message}>
+    <CenteredPanel title="This business didn't load" description={friendlyError(error)}>
       <Button asChild className="w-full">
         <Link to="/select-business" search={{ choose: "1" }}>Choose a business</Link>
       </Button>
