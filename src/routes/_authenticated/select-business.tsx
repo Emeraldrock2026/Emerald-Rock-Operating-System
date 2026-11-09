@@ -108,9 +108,9 @@ function SelectBusiness() {
       ) : null}
 
       {platformAdmin ? (
-        <p className="mt-6 rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-          You're a platform administrator. The platform administration area is added in the next stage.
-        </p>
+        <Button asChild variant="secondary" className="mt-6 w-full">
+          <Link to="/admin">Platform administration</Link>
+        </Button>
       ) : null}
 
       <Button variant="outline" className="mt-6 w-full" onClick={() => signOut(queryClient, navigate)}>

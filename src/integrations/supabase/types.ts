@@ -700,6 +700,23 @@ export type Database = {
         Args: { _module: string; _tenant: string }
         Returns: boolean
       }
+      platform_tenant_overview: {
+        Args: never
+        Returns: {
+          business_name: string
+          created_at: string
+          display_name: string
+          is_demo: boolean
+          members_active: number
+          modules_enabled: string[]
+          owners_active: number
+          owners_invited: number
+          project_prefix: string
+          status: Database["public"]["Enums"]["tenant_status"]
+          tenant_id: string
+          version: number
+        }[]
+      }
       tenant_today: { Args: { _tenant: string }; Returns: string }
     }
     Enums: {
