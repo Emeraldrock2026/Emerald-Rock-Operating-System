@@ -95,3 +95,12 @@ export async function setBusinessStatus(id: string, version: number, status: "ac
   if (error) throw error;
   if (!data?.length) throw new StaleRecordError();
 }
+
+export async function setModuleEnabled(tenantId: string, moduleId: string, enabled: boolean) {
+  const { error } = await supabase
+    .from("tenant_modules")
+    .update({ enabled })
+    .eq("tenant_id", tenantId)
+    .eq("module_id", moduleId);
+  if (error) throw error;
+}
