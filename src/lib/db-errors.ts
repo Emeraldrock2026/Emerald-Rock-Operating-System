@@ -6,6 +6,8 @@ const FRIENDLY: Record<string, string> = {
   NOT_AUTHORISED: "You don't have permission to do that.",
   INVALID_EMAIL: "Enter a valid email address.",
   PLATFORM_ONLY: "Only a platform administrator can do that.",
+  MODULE_DEPENDENCY_DISABLED: "Switch on the modules this one depends on first.",
+  MODULE_HAS_DEPENDANTS: "Switch off the modules that depend on this one first.",
   STALE_RECORD: "Someone else changed this record. Refresh the page and try again.",
 };
 

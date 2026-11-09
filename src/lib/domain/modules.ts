@@ -32,3 +32,14 @@ export function checkDisable(
   );
   return blockedBy.length ? { ok: false, blockedBy } : { ok: true };
 }
+
+/** Plain-English reason a switch can't change right now, or null if it can. */
+export function switchBlockedReason(id: ModuleId, enabled: ReadonlySet<ModuleId>): string | null {
+  const names = (ids: readonly ModuleId[]) => ids.map((m) => MODULES[m].name).join(" and ");
+  if (enabled.has(id)) {
+    const r = checkDisable(id, enabled);
+    return r.ok ? null : `Switch off ${names(r.blockedBy)} first.`;
+  }
+  const r = checkEnable(id, enabled);
+  return r.ok ? null : `Needs ${names(r.missingDependencies)} switched on first.`;
+}

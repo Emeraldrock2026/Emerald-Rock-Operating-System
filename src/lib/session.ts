@@ -87,6 +87,8 @@ export interface TenantContext {
 export const tenantContextQuery = (tenantId: string, userId: string) =>
   queryOptions({
     queryKey: ["tenant", tenantId, "context", userId],
+    // Module switches and suspensions should reach open sessions quickly.
+    refetchInterval: 60_000,
     queryFn: async (): Promise<TenantContext> => {
       const [tenantRes, membershipRes, modulesRes] = await Promise.all([
         supabase
