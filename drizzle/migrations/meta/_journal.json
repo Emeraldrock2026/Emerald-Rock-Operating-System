@@ -43,6 +43,13 @@
       "when": 1794254249087,
       "tag": "0005_platform_tenant_overview",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794258169192,
+      "tag": "0006_projects_client_rules",
+      "breakpoints": true
     }
   ]
 }
