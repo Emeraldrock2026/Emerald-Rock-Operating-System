@@ -81,7 +81,6 @@ export const REGISTERS: Record<RegisterModule, RegisterConfig> = {
     label: "RAMS", singular: "RAMS", statuses: ["draft", "submitted", "approved", "rejected", "superseded"], closed: ["rejected", "superseded"], adminOnly: ["approved", "rejected", "superseded"],
     statusLabel: { draft: "Draft", submitted: "Submitted", approved: "Approved", rejected: "Rejected", superseded: "Superseded" }, firstStatus: "draft", usesDueDate: true, dueLabel: "Work starts",
     file: { label: "RAMS document", requiredFor: ["submitted", "approved"], lockedIn: ["approved", "superseded"] },
-    requires: [{ status: ["approved", "rejected"], field: "review_comments", message: "Record the review comments first." }],
     fields: [
       { key: "activity", label: "Activity covered", kind: "long" },
       { key: "contractor", label: "Contractor", kind: "text" },
