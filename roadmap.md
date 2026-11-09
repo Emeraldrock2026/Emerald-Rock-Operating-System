@@ -22,7 +22,7 @@
 Platform admin switches project modules per business; project admins pick from those per project. Email issue deferred.
 - [x] P1 Foundation: project details (description, address, organisations, team, key dates, contract), project module catalogue + per-project selection, project templates, shared record structure (refs, status, history, comments, links), project dashboard
 - [x] P2 Photos (mobile capture, multi-upload, folders, captions, previews) and Documents (folders, versions, permissions, default folder structure)
-- [ ] P3 Drawings register, revision matrix, upload-new-revision, latest vs authorised status
+- [x] P3 Drawings register, revision matrix, upload-new-revision, latest vs authorised status
 - [ ] P4 AI drawing comparison + change control register (no duplicates, reviewer accepts findings)
 - [ ] P5 Shared PDF service; progress reports; delay reports (issue history, no email yet)
 - [ ] P6 Registers: RFIs, early warnings, programmes

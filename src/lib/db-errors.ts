@@ -28,6 +28,9 @@ const FRIENDLY: Record<string, string> = {
   FOLDER_NOT_IN_PROJECT: "That folder belongs to a different project.",
   FILE_VERSION_DIRECT: "Versions can only be added by uploading a file.",
   FILE_IMMUTABLE_FIELDS: "A file can't be moved to another project or module.",
+  NOT_A_DRAWING: "That entry isn't a drawing.",
+  REVISION_OUT_OF_SEQUENCE: "That revision doesn't follow this project's revision sequence.",
+  REVISION_NOT_LATER: "A new revision must come after the latest one received.",
   NOT_ALLOWED: "You don't have permission to do that.",
   STALE_RECORD: "Someone else changed this record. Refresh the page and try again.",
 };
@@ -41,6 +44,8 @@ export function friendlyError(error: unknown): string {
         : String(error);
   const code = /^([A-Z_]+):\s*(.*)$/s.exec(message);
   if (code) return FRIENDLY[code[1]!] ?? code[2]!;
+  if (/^[A-Z_]+$/.test(message.trim()) && FRIENDLY[message.trim()]) return FRIENDLY[message.trim()]!;
+  if (/project_records_drawing_number_idx/.test(message)) return "That drawing number is already in the register.";
   if (/project_templates_name_idx/.test(message)) return "A template with that name already exists.";
   if (/project_team_project_id_employee_id_key/.test(message)) return "That person is already on the project team.";
   if (/clients_tenant_name_idx/.test(message)) return "A client with that name already exists.";

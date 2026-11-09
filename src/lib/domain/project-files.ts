@@ -1,5 +1,5 @@
 /** Rules for project photos and documents. Mirrors database checks for the UI. */
-export type FileModuleId = "photos" | "documents";
+export type FileModuleId = "photos" | "documents" | "drawings";
 
 export interface FileModuleAccessInput {
   businessOn: boolean;
