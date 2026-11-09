@@ -129,7 +129,7 @@ function ProjectPage() {
           <ProjectCommercials tenantId={tenantId} projectId={projectId} canEdit={can(ctx.access, "commercial.edit")} />
         ) : null}
         {ctx.access && can(ctx.access, "allocations.view_all") ? (
-          <Placeholder title="Planned work" text="Allocations for this project will show here once Resource Planning is built." />
+          <Placeholder title="Planned work" text="Book and change work for this project in the Planner." />
         ) : null}
       </div>
     </div>
