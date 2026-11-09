@@ -114,3 +114,6 @@ Weekly grid at /t/:tenantId/planner (RequireModule resource_planning). Capacity 
 
 ## Rebalancing suggestions
 suggestRebalance (src/lib/rebalance.functions.ts) runs as the signed-in user (RLS), requires is_tenant_manager + resource_planning, sends only this business's week (ids, names, job titles, hours; no emails or commercial data) to the AI Gateway, then filters every proposal through validateProposals (src/lib/domain/rebalance.ts). Changes are saved only after the user confirms, version-checked.
+
+## Branding and appearance
+Tenants carry brand_colour (primary), accent_colour (navigation), logo_path, logo_dark_path and default_appearance; Owner/Admins edit them (existing tenant update policy). Logos are in the private tenant-branding bucket under <tenant_id>/, readable by members, writable by that business's Owner/Admins; shown through short-lived signed links. user_preferences holds each person's Light/Dark/System choice (own row only). Checks: tests/db/branding_acceptance.sql.

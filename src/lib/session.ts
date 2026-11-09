@@ -74,6 +74,11 @@ export interface TenantContext {
     businessName: string;
     displayName: string;
     brandColour: string;
+    accentColour: string;
+    logoPath: string | null;
+    logoDarkPath: string | null;
+    defaultAppearance: "light" | "dark" | "system";
+    version: number;
     timezone: string;
     baseCurrency: string;
     status: "active" | "suspended";
@@ -93,7 +98,7 @@ export const tenantContextQuery = (tenantId: string, userId: string) =>
       const [tenantRes, membershipRes, modulesRes] = await Promise.all([
         supabase
           .from("tenants")
-          .select("id, business_name, display_name, brand_colour, timezone, base_currency, status, is_demo")
+          .select("id, business_name, display_name, brand_colour, accent_colour, logo_path, logo_dark_path, default_appearance, version, timezone, base_currency, status, is_demo")
           .eq("id", tenantId)
           .maybeSingle(),
         supabase
@@ -119,6 +124,11 @@ export const tenantContextQuery = (tenantId: string, userId: string) =>
               businessName: t.business_name,
               displayName: t.display_name,
               brandColour: t.brand_colour,
+              accentColour: t.accent_colour,
+              logoPath: t.logo_path,
+              logoDarkPath: t.logo_dark_path,
+              defaultAppearance: (["light", "dark", "system"].includes(t.default_appearance) ? t.default_appearance : "system") as "light" | "dark" | "system",
+              version: t.version,
               timezone: t.timezone,
               baseCurrency: t.base_currency,
               status: t.status,

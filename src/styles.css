@@ -69,6 +69,7 @@
   --color-success-surface: var(--success-surface);
   --font-sans: var(--font-sans-family);
   --font-mono: var(--font-mono-family);
+  --font-display: var(--font-display-family);
   --shadow-card: var(--shadow-card);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -80,49 +81,108 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/*
+ * Emerald Rock palette, read from emeraldrockgroup.com: emerald #2F8C6C, deep green #0B2B22,
+ * forest #0F4A38, near-black #080B0A, warm off-white #F1F0EA, sage grey #A6ADA8.
+ * Business branding overrides only --primary/--ring and the navigation surface (see .brand-scope).
+ * Status colours (destructive, warning, success) never come from branding.
+ */
 :root {
   --radius: 0.375rem;
-  --font-sans-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display-family: "Montserrat", "Inter", ui-sans-serif, sans-serif;
   --font-mono-family: "IBM Plex Mono", ui-monospace, monospace;
-  /* Emerald Rock palette: deep emerald, charcoal, white, light grey */
-  --background: oklch(0.975 0.003 160);
-  --foreground: oklch(0.24 0.008 160);
+  --background: oklch(0.972 0.006 100);
+  --foreground: oklch(0.2 0.012 165);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.24 0.008 160);
+  --card-foreground: oklch(0.2 0.012 165);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.24 0.008 160);
-  --primary: oklch(0.42 0.09 162);
+  --popover-foreground: oklch(0.2 0.012 165);
+  --primary: oklch(0.56 0.1 163);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.945 0.005 160);
-  --secondary-foreground: oklch(0.27 0.01 160);
-  --muted: oklch(0.955 0.004 160);
-  --muted-foreground: oklch(0.48 0.012 160);
-  --accent: oklch(0.94 0.025 162);
-  --accent-foreground: oklch(0.32 0.08 162);
+  --secondary: oklch(0.945 0.008 110);
+  --secondary-foreground: oklch(0.25 0.015 165);
+  --muted: oklch(0.952 0.006 110);
+  --muted-foreground: oklch(0.47 0.012 160);
+  --accent: oklch(0.94 0.025 163);
+  --accent-foreground: oklch(0.3 0.06 165);
   --destructive: oklch(0.53 0.2 27);
   --destructive-foreground: oklch(0.99 0 0);
   --warning: oklch(0.72 0.15 70);
-  --warning-foreground: oklch(0.3 0.07 60);
+  --warning-foreground: oklch(0.32 0.07 60);
   --warning-surface: oklch(0.96 0.05 85);
-  --success: oklch(0.5 0.11 155);
-  --success-surface: oklch(0.95 0.04 158);
-  --border: oklch(0.9 0.005 160);
-  --input: oklch(0.86 0.006 160);
-  --ring: oklch(0.5 0.11 162);
-  --chart-1: oklch(0.42 0.09 162);
-  --chart-2: oklch(0.6 0.1 175);
-  --chart-3: oklch(0.35 0.01 160);
+  --success: oklch(0.5 0.12 150);
+  --success-surface: oklch(0.95 0.04 150);
+  --border: oklch(0.9 0.006 110);
+  --input: oklch(0.86 0.008 110);
+  --ring: oklch(0.56 0.1 163);
+  --chart-1: oklch(0.56 0.1 163);
+  --chart-2: oklch(0.38 0.06 165);
+  --chart-3: oklch(0.72 0.02 150);
   --chart-4: oklch(0.72 0.15 70);
   --chart-5: oklch(0.6 0.02 160);
-  --sidebar: oklch(0.22 0.01 165);
-  --sidebar-foreground: oklch(0.88 0.008 160);
-  --sidebar-primary: oklch(0.72 0.11 162);
-  --sidebar-primary-foreground: oklch(0.18 0.01 165);
-  --sidebar-accent: oklch(0.3 0.025 165);
+  --sidebar: oklch(0.27 0.04 168);
+  --sidebar-foreground: oklch(0.9 0.008 110);
+  --sidebar-primary: oklch(0.72 0.11 163);
+  --sidebar-primary-foreground: oklch(0.18 0.02 168);
+  --sidebar-accent: oklch(1 0 0 / 10%);
   --sidebar-accent-foreground: oklch(0.98 0 0);
-  --sidebar-border: oklch(0.3 0.012 165);
-  --sidebar-ring: oklch(0.72 0.11 162);
-  --shadow-card: 0 1px 2px oklch(0.24 0.008 160 / 6%), 0 1px 1px oklch(0.24 0.008 160 / 4%);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.72 0.11 163);
+  --shadow-card: 0 1px 2px oklch(0.2 0.012 165 / 6%), 0 1px 1px oklch(0.2 0.012 165 / 4%);
+}
+
+.dark {
+  --background: oklch(0.16 0.006 165);
+  --foreground: oklch(0.94 0.008 100);
+  --card: oklch(0.205 0.008 165);
+  --card-foreground: oklch(0.94 0.008 100);
+  --popover: oklch(0.22 0.008 165);
+  --popover-foreground: oklch(0.94 0.008 100);
+  --primary: oklch(0.66 0.11 163);
+  --primary-foreground: oklch(0.15 0.02 165);
+  --secondary: oklch(0.26 0.01 165);
+  --secondary-foreground: oklch(0.92 0.008 100);
+  --muted: oklch(0.24 0.008 165);
+  --muted-foreground: oklch(0.72 0.012 150);
+  --accent: oklch(0.3 0.04 165);
+  --accent-foreground: oklch(0.92 0.03 163);
+  --destructive: oklch(0.66 0.19 25);
+  --destructive-foreground: oklch(0.15 0.01 25);
+  --warning: oklch(0.78 0.14 75);
+  --warning-foreground: oklch(0.88 0.08 85);
+  --warning-surface: oklch(0.3 0.06 75);
+  --success: oklch(0.7 0.13 150);
+  --success-surface: oklch(0.28 0.05 150);
+  --border: oklch(0.3 0.01 165);
+  --input: oklch(0.36 0.012 165);
+  --ring: oklch(0.66 0.11 163);
+  --chart-1: oklch(0.66 0.11 163);
+  --chart-2: oklch(0.8 0.06 163);
+  --chart-3: oklch(0.55 0.02 150);
+  --chart-4: oklch(0.78 0.14 75);
+  --chart-5: oklch(0.7 0.02 160);
+  --sidebar: oklch(0.13 0.01 168);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 30%);
+}
+
+/* Business branding: values are set as inline custom properties on the app shell. */
+.brand-scope {
+  --primary: var(--brand-light);
+  --primary-foreground: var(--brand-light-fg);
+  --ring: var(--brand-light);
+  --sidebar: var(--brand-accent);
+  --sidebar-foreground: var(--brand-accent-fg-soft);
+  --sidebar-accent-foreground: var(--brand-accent-fg);
+  --sidebar-primary: var(--brand-on-accent);
+}
+.dark .brand-scope,
+.dark.brand-scope {
+  --primary: var(--brand-dark);
+  --primary-foreground: var(--brand-dark-fg);
+  --ring: var(--brand-dark);
+  --sidebar: var(--brand-accent-dark);
 }
 
 @layer base {
@@ -136,6 +196,11 @@
     font-family: var(--font-sans-family);
     font-feature-settings: "tnum" 1;
     -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display-family);
+    letter-spacing: -0.01em;
   }
 
   :focus-visible {
