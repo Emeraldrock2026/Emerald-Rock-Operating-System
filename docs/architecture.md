@@ -117,3 +117,6 @@ suggestRebalance (src/lib/rebalance.functions.ts) runs as the signed-in user (RL
 
 ## Branding and appearance
 Tenants carry brand_colour (primary), accent_colour (navigation), logo_path, logo_dark_path and default_appearance; Owner/Admins edit them (existing tenant update policy). Logos are in the private tenant-branding bucket under <tenant_id>/, readable by members, writable by that business's Owner/Admins; shown through short-lived signed links. user_preferences holds each person's Light/Dark/System choice (own row only). Checks: tests/db/branding_acceptance.sql.
+
+## Overview cards and CSV exports (stage 9)
+Which cards and exports a person gets is decided by `overviewCards` / `availableExports` in `src/lib/domain/exports.ts`, derived from `can()`. Exports are built in the browser from ordinary reads, so row-level policies (tenant, module switches, role, commercial grant) decide every row; the fees export only exists for people with commercial access while Commercial is on. Cells that start with = + - @ are prefixed with ' to stop spreadsheet formula injection.

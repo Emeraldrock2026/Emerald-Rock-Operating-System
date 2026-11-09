@@ -191,7 +191,7 @@ function CommercialCard() {
       {!projects.data || !comm.data ? <p className="mt-3 text-sm text-muted-foreground">Loading…</p> : (
         <>
           <p className="mt-2 font-mono text-2xl font-semibold text-foreground">{formatGBP(fee)}</p>
-          <p className="text-xs text-muted-foreground">{roundHours(hours)} budget hours across {live.length} projects</p>
+          <p className="text-xs text-muted-foreground">{roundHours(hours)} budget hours across {live.length} {live.length === 1 ? "project" : "projects"}</p>
           {missing ? <p className="mt-2 text-sm text-muted-foreground">{missing} without an agreed fee</p> : null}
         </>
       )}
