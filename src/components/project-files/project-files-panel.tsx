@@ -46,7 +46,7 @@ const filesQuery = (tenantId: string, projectId: string, module: FileModuleId) =
 type FileRow = Awaited<ReturnType<NonNullable<ReturnType<typeof filesQuery>["queryFn"]>>>[number];
 
 /** Upload with progress (the storage client has no progress callback). */
-async function uploadWithProgress(path: string, file: File, onProgress: (pct: number) => void): Promise<void> {
+export async function uploadWithProgress(path: string, file: File, onProgress: (pct: number) => void): Promise<void> {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
   if (!token) throw new Error("Your session has expired. Please sign in again.");
