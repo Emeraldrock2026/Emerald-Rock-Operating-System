@@ -1,5 +1,7 @@
 /** Turns database/auth errors into plain British English. Database guards raise "CODE: message". */
 const FRIENDLY: Record<string, string> = {
+  INVALID_PO_DOCUMENT: "That PO document is not a stored version in this project's enabled modules.",
+  INVALID_READINESS_SETTINGS: "Those readiness requirements could not be saved.",
   SELF_CHANGE: "You can't change your own role, access or status. Ask another Owner/Admin.",
   LAST_OWNER: "A business must keep at least one active Owner/Admin.",
   ALREADY_MEMBER: "That person already has access to this business.",
