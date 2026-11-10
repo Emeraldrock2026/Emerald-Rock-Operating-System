@@ -23,7 +23,7 @@ begin
  insert into clients(id,tenant_id,name) values(c,t,'SQL Client');
  insert into projects(id,tenant_id,name,status,start_date,planned_finish_date) values(p,t,'SQL Project','active','2026-11-10','2027-06-01'),(p2,t,'Other Project','active','2026-11-10','2027-06-01');
  insert into project_team(tenant_id,project_id,employee_id,project_role) values(t,p,e,'viewer');
- insert into project_modules(tenant_id,project_id,module_id,enabled) values(t,p,'documents',true),(t,p2,'documents',true) on conflict (tenant_id,project_id,module_id) do update set enabled=true;
+ insert into project_modules(tenant_id,project_id,module_id,enabled) values(t,p,'documents',true),(t,p2,'documents',true) on conflict (project_id,module_id) do update set enabled=true;
  insert into project_files(id,tenant_id,project_id,module_id,title) values(f,t,p,'documents','PO 4471'),(f2,t,p2,'documents','Other PO');
  insert into project_file_versions(tenant_id,file_id,version_no,storage_path,file_name,mime_type,size_bytes) values(t,f,1,'x/po1.pdf','po1.pdf','application/pdf',10),(t,f2,1,'x/po2.pdf','po2.pdf','application/pdf',10);
  perform set_config('request.jwt.claims',json_build_object('sub',u,'role','authenticated')::text,true);
