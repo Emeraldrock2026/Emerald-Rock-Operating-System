@@ -328,6 +328,21 @@ begin
   select count(*) into n from project_team;
   if n = 0 then passes := passes + 1; else fails := fails || 'other business sees team'; end if;
 
+  -- Health settings use project permissions; weights never expose commercial figures.
+  perform set_config('request.jwt.claims', json_build_object('sub', uAdmA, 'role', 'authenticated')::text, true);
+  insert into project_health_settings (tenant_id, project_id) values (tA, pA2);
+  select count(*) into n from project_health_settings where project_id = pA2;
+  if n = 1 then passes := passes + 1; else fails := fails || 'health owner read'; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', uMulti, 'role', 'authenticated')::text, true);
+  select count(*) into n from project_health_settings where project_id = pA2;
+  if n = 1 then passes := passes + 1; else fails := fails || 'health viewer read'; end if;
+  update project_health_settings set actions_weight = 90 where project_id = pA2;
+  get diagnostics n = row_count;
+  if n = 0 then passes := passes + 1; else fails := fails || 'health viewer write'; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', uAdmB, 'role', 'authenticated')::text, true);
+  select count(*) into n from project_health_settings where project_id = pA2;
+  if n = 0 then passes := passes + 1; else fails := fails || 'health cross business read'; end if;
+
   execute 'reset role';
   raise exception 'RESULT passes=% fails=%', passes, fails;
 end $$;
