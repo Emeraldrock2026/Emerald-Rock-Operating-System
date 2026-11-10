@@ -57,7 +57,19 @@ function ClientsPage() {
   const fieldOptions = useQuery({ ...clientFieldOptionsQuery(tenantId), enabled: allowed && optionsOpen });
 
   const save = useMutation({
-    mutationFn: async (v: { id?: string; version?: number; patch: Partial<Pick<Client, "name" | "contact_name" | "contact_email" | "active">> }) => {
+    mutationFn: async (v: { id?: string; version?: number; patch?: Partial<Pick<Client, "name" | "contact_name" | "contact_email" | "active">>; option?: { id?: string; version?: number; field?: string; value?: string; active?: boolean } }) => {
+      if (v.option) {
+        if (v.option.id) {
+          if (v.option.version === undefined) throw new StaleRecordError();
+          const { data, error } = await supabase.from("client_field_options").update({ active: v.option.active }).eq("tenant_id", tenantId).eq("id", v.option.id).eq("version", v.option.version).select("id");
+          if (error) throw error;
+          if (!data?.length) throw new StaleRecordError();
+        } else {
+          const { error } = await supabase.from("client_field_options").insert({ tenant_id: tenantId, field: v.option.field ?? "", value: v.option.value ?? "" });
+          if (error) throw error;
+        }
+        return;
+      }
       if (!v.id) {
         const name = v.patch.name;
         if (!name?.trim()) throw new Error("Enter a client name.");
