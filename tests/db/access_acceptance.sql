@@ -1,6 +1,6 @@
 -- Database acceptance checks for tenant isolation, roles, modules and business rules.
 -- Runs entirely inside one transaction and always ends by raising, so nothing is kept.
--- The final error message reports: RESULT passes=<n> fails={...}. Expect fails={}. Run: psql "$SUPABASE_DB_URL" -f tests/db/access_acceptance.sql
+-- The final error message reports: RESULT passes=<n> fails={...}. Expect fails={}. Run through the privileged database query tool; sandbox psql cannot execute these helpers.
 do $$
 declare
   tA uuid := '00000000-0000-0000-0000-00000000000a';
