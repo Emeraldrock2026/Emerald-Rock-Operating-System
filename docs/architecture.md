@@ -167,3 +167,8 @@ Which cards and exports a person gets is decided by `overviewCards` / `available
 ## Commercial forecast (dashboard stage 4)
 - `project_commercials` also holds forecast_final_account, forecast_note and database-stamped forecast_updated_on (same commercial-only policies).
 - `change_estimates` (one per change register item) is readable only with commercial access on projects the person can view; writes need change control on for the project. Checked by `tests/db/commercial_forecast_acceptance.sql`.
+
+### Budget basis and adjustments (dashboard stage 4)
+- `project_commercials.budget_basis` (revenue | expenditure | cost) and `original_budget` (backfilled from agreed fee). Same commercial-access policies as the fee.
+- `budget_adjustments`: append-only (guard trigger raises ADJUSTMENT_LOCKED on update/delete), reason required, non-zero amount, audited under 'commercial'. Read/insert need commercial access and project view. Verified by `tests/db/budget_basis_acceptance.sql`.
+- Variance compares forecast with original + adjustments; on revenue a higher forecast is favourable, on expenditure/cost it is adverse.
