@@ -61,7 +61,7 @@ function ClientsPage() {
       if (v.option) {
         if (v.option.id) {
           if (v.option.version === undefined) throw new StaleRecordError();
-          const { data, error } = await supabase.from("client_field_options").update({ active: v.option.active }).eq("tenant_id", tenantId).eq("id", v.option.id).eq("version", v.option.version).select("id");
+          const { data, error } = await supabase.from("client_field_options").update({ active: !!v.option.active }).eq("tenant_id", tenantId).eq("id", v.option.id).eq("version", v.option.version).select("id");
           if (error) throw error;
           if (!data?.length) throw new StaleRecordError();
         } else {
@@ -73,7 +73,7 @@ function ClientsPage() {
       if (!v.id) {
         const name = v.patch?.name;
         if (!name?.trim()) throw new Error("Enter a client name.");
-        const { error } = await supabase.from("clients").insert({ tenant_id: tenantId, name, contact_name: v.patch.contact_name ?? null, contact_email: v.patch.contact_email ?? null });
+        const { error } = await supabase.from("clients").insert({ tenant_id: tenantId, name, contact_name: v.patch?.contact_name ?? null, contact_email: v.patch?.contact_email ?? null });
         if (error) throw error;
         return;
       }
