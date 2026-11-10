@@ -71,13 +71,13 @@ function ClientsPage() {
         return;
       }
       if (!v.id) {
-        const name = v.patch.name;
+        const name = v.patch?.name;
         if (!name?.trim()) throw new Error("Enter a client name.");
         const { error } = await supabase.from("clients").insert({ tenant_id: tenantId, name, contact_name: v.patch.contact_name ?? null, contact_email: v.patch.contact_email ?? null });
         if (error) throw error;
         return;
       }
-      if (v.version === undefined) throw new StaleRecordError();
+      if (v.version === undefined || !v.patch) throw new StaleRecordError();
       const { data, error } = await supabase.from("clients").update(v.patch).eq("tenant_id",tenantId).eq("id", v.id).eq("version", v.version).select("id");
       if (error) throw error;
       if (!data?.length) throw new StaleRecordError();
