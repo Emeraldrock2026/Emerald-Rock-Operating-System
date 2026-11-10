@@ -363,5 +363,23 @@ begin
   select count(*) into n from tenant_dashboard_settings where tenant_id=tA;
   if n=0 then passes:=passes+1; else fails:=fails||'dashboard cross tenant read'; end if;
   execute 'reset role';
+  -- Client profiles: linked contacts, verification and controlled proposals.
+  execute 'reset role';
+  perform set_config('request.jwt.claims','',true);
+  update clients set profile='{"legal_name":"Client A Limited","registration_number":"00123456","jurisdiction":"UK","registered_address":"1 Test Street"}' where id=cA;
+  insert into client_contacts(tenant_id,client_id,name,roles) values(tA,cA,'Shared contact',array['relationship','invoice_approver']);
+  perform set_config('request.jwt.claims',json_build_object('sub',uAdmA,'role','authenticated')::text,true);
+  execute 'set local role authenticated';
+  select version into n from clients where id=cA;
+  perform verify_client_profile(cA,n,'Checked test incorporation evidence');
+  begin update clients set name='Unreviewed replacement' where id=cA;fails:=fails||'verified client direct replacement';exception when others then if sqlerrm like 'SENSITIVE_CHANGE_REVIEW_REQUIRED%' then passes:=passes+1;else fails:=fails||sqlerrm;end if;end;
+  select count(*) into n from client_contacts where client_id=cA and roles @> array['relationship','invoice_approver'];if n=1 then passes:=passes+1;else fails:=fails||'multi role contact';end if;
+  perform set_config('request.jwt.claims',json_build_object('sub',uEmpA,'role','authenticated')::text,true);
+  select count(*) into n from client_contacts where client_id=cA;if n=0 then passes:=passes+1;else fails:=fails||'employee client contacts disclosure';end if;
+  perform set_config('request.jwt.claims',json_build_object('sub',uAdmB,'role','authenticated')::text,true);
+  select count(*) into n from client_contacts where client_id=cA;if n=0 then passes:=passes+1;else fails:=fails||'cross tenant client contacts';end if;
+  execute 'reset role';perform set_config('request.jwt.claims','',true);
+  select count(*) into n from audit_log where tenant_id=tA and category='client' and record_id=cA::text;if n>0 then passes:=passes+1;else fails:=fails||'client audit missing';end if;
+
   raise exception 'RESULT passes=% fails=%', passes, fails;
 end $$;
