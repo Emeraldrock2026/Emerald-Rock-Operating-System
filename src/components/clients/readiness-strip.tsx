@@ -46,11 +46,11 @@ export function ReadinessStrip({ tenantId, appointment, commercial }: { tenantId
   return (
     <section aria-label="Readiness" className="space-y-3 rounded-md border p-3">
       <div className="flex flex-wrap gap-1.5">
-        <StatusBadge tone={tone(appt)}>Appointment: {READINESS_LABEL[appt]}</StatusBadge>
+        <StatusBadge tone={tone(appt)}>{`Appointment: ${READINESS_LABEL[appt]}`}</StatusBadge>
         {commercial ? (
           <>
-            <StatusBadge tone={tone(poStatus(input.terms))}>PO: {READINESS_LABEL[poStatus(input.terms)]}</StatusBadge>
-            <StatusBadge tone={tone(invoicingRouteConfirmed(input.terms))}>Invoicing route: {READINESS_LABEL[invoicingRouteConfirmed(input.terms)]}</StatusBadge>
+            <StatusBadge tone={tone(poStatus(input.terms))}>{`PO: ${READINESS_LABEL[poStatus(input.terms)]}`}</StatusBadge>
+            <StatusBadge tone={tone(invoicingRouteConfirmed(input.terms))}>{`Invoicing route: ${READINESS_LABEL[invoicingRouteConfirmed(input.terms)]}`}</StatusBadge>
           </>
         ) : null}
       </div>
