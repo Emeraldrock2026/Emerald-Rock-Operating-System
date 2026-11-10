@@ -9,7 +9,7 @@ import { can } from "@/lib/domain/permissions";
 import { friendlyError, StaleRecordError } from "@/lib/db-errors";
 import { clientDirectoryQuery, clientGroupsQuery, clientContactsQuery, type ClientContact } from "@/lib/client-profile-data";
 import { projectsQuery } from "@/lib/projects-data";
-import { CLIENT_FIELDS, CONTACT_ROLES, profileObject, identityGaps, validCompanyNumber, liveProjectCount } from "@/lib/domain/client-profile";
+import { CLIENT_FIELDS, CONTACT_ROLES, profileObject, identityGaps, validCompanyNumber, liveProjectCount, duplicateContactIds } from "@/lib/domain/client-profile";
 import { StatusBadge } from "@/components/app/status-badge";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";

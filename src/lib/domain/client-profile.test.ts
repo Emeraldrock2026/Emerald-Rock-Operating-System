@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { identityGaps, informationComplete, validCompanyNumber, liveProjectCount } from "./client-profile";
+import { duplicateContactIds, identityGaps, informationComplete, validCompanyNumber, liveProjectCount } from "./client-profile";
 describe("client profile rules", () => {
   it("keeps TBA and unknown visibly incomplete", () => { expect(informationComplete("TBA")).toBe(false); expect(informationComplete("unknown")).toBe(false); expect(identityGaps({ legal_name: "Unknown" })).toHaveLength(4); });
   it("preserves leading-zero UK company numbers as text", () => { expect(validCompanyNumber("00123456", "UK")).toBe(true); expect(validCompanyNumber("123456", "UK")).toBe(false); });
