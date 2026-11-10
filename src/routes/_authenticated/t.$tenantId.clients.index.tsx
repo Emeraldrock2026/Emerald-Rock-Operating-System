@@ -17,7 +17,8 @@ import { useTenant } from "@/lib/use-tenant";
 import { can } from "@/lib/domain/permissions";
 import { friendlyError, StaleRecordError } from "@/lib/db-errors";
 import { projectsQuery } from "@/lib/projects-data";
-import { clientDirectoryQuery, clientGroupsQuery, clientContactsQuery } from "@/lib/client-profile-data";
+import { clientDirectoryQuery, clientGroupsQuery, clientContactsQuery, clientFieldOptionsQuery } from "@/lib/client-profile-data";
+import { OPTION_FIELDS } from "@/lib/domain/client-fields";
 import { liveProjectCount, profileObject } from "@/lib/domain/client-profile";
 
 export const Route = createFileRoute("/_authenticated/t/$tenantId/clients/")({
@@ -51,6 +52,9 @@ function ClientsPage() {
   const [search, setSearch] = useState("");
   const [showInactive, setShowInactive] = useState(false);
   const [editing, setEditing] = useState<Client | "new" | null>(null);
+  const [optionsOpen, setOptionsOpen] = useState(false);
+  const manage = ctx.access ? can(ctx.access, "clients.manage") : false;
+  const fieldOptions = useQuery({ ...clientFieldOptionsQuery(tenantId), enabled: allowed && optionsOpen });
 
   const save = useMutation({
     mutationFn: async (v: { id?: string; version?: number; patch: Partial<Pick<Client, "name" | "contact_name" | "contact_email" | "active">> }) => {
