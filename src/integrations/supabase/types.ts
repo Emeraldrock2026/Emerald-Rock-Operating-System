@@ -85,6 +85,7 @@ export type Database = {
           agreed_fee: number | null
           appointment_id: string
           charging_basis: string
+          commencement_exception: Json | null
           created_at: string
           created_by: string | null
           defaults_confirmed: boolean
@@ -99,6 +100,7 @@ export type Database = {
           agreed_fee?: number | null
           appointment_id: string
           charging_basis?: string
+          commencement_exception?: Json | null
           created_at?: string
           created_by?: string | null
           defaults_confirmed?: boolean
@@ -113,6 +115,7 @@ export type Database = {
           agreed_fee?: number | null
           appointment_id?: string
           charging_basis?: string
+          commencement_exception?: Json | null
           created_at?: string
           created_by?: string | null
           defaults_confirmed?: boolean
@@ -426,6 +429,56 @@ export type Database = {
           },
         ]
       }
+      client_field_options: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          field: string
+          id: string
+          position: number
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          value: string
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          field: string
+          id?: string
+          position?: number
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          value: string
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          field?: string
+          id?: string
+          position?: number
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_field_options_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_groups: {
         Row: {
           created_at: string
@@ -538,6 +591,7 @@ export type Database = {
           contact_name: string | null
           created_at: string
           created_by: string | null
+          display_reference: string
           group_id: string | null
           id: string
           name: string
@@ -557,6 +611,7 @@ export type Database = {
           contact_name?: string | null
           created_at?: string
           created_by?: string | null
+          display_reference?: string
           group_id?: string | null
           id?: string
           name: string
@@ -576,6 +631,7 @@ export type Database = {
           contact_name?: string | null
           created_at?: string
           created_by?: string | null
+          display_reference?: string
           group_id?: string | null
           id?: string
           name?: string

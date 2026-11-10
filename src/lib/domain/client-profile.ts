@@ -30,3 +30,17 @@ export function validCompanyNumber(number: string, jurisdiction: string): boolea
 export function liveProjectCount(projects: readonly { status: string }[]) {
   return projects.filter((p) => p.status === "active" || p.status === "on_hold").length;
 }
+// Flags contacts that may be the same person (shared email or identical name within one
+// client) for human review. Never merge automatically: a shared name alone is not proof.
+export function duplicateContactIds(contacts: readonly { id: string; name: string; email: string | null }[]): Set<string> {
+  const flagged = new Set<string>();
+  for (let i = 0; i < contacts.length; i++) {
+    for (let j = i + 1; j < contacts.length; j++) {
+      const a = contacts[i]!, b = contacts[j]!;
+      const sameEmail = Boolean(a.email && b.email && a.email.toLowerCase() === b.email.toLowerCase());
+      const sameName = a.name.trim().toLowerCase() === b.name.trim().toLowerCase();
+      if (sameEmail || sameName) { flagged.add(a.id); flagged.add(b.id); }
+    }
+  }
+  return flagged;
+}
