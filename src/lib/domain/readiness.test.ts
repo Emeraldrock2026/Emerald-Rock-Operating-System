@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { appointmentConfirmed, invoicingRouteConfirmed, missingRequirements, poStatus, readyToCommence, readyToInvoice, readyToPrepareProposal } from "./readiness";
+import { appointmentConfirmed, invoicingRouteConfirmed, missingRequirements, poStatus, readyToCommence, readyToInvoice, readyToPrepareProposal, readinessRequirements } from "./readiness";
 
 const base = {
   scope: "Tender planning support",
@@ -45,5 +45,31 @@ describe("appointment readiness", () => {
     expect(missing).toContain("Record appointment approval or execution");
     expect(missing).toContain("Add at least one service stage");
     expect(missingRequirements(base)).toEqual([]);
+  });
+});
+
+describe("configurable readiness requirements", () => {
+  const po = { ...base, terms: { ...base.terms, po_required: "yes", po_status: "yes", po_number: "PO-9" } };
+  it("defaults keep existing checks and leave the PO document optional", () => {
+    const r = readinessRequirements({});
+    expect(r.commence_executed).toBe(true);
+    expect(r.commence_po_document).toBe(false);
+    expect(readyToCommence(po)).toBe(true);
+  });
+  it("ignores non-boolean stored values", () => {
+    expect(readinessRequirements({ commence_executed: "no" }).commence_executed).toBe(true);
+  });
+  it("requires an attached PO document when the business switches it on", () => {
+    const requirements = readinessRequirements({ commence_po_document: true });
+    expect(readyToCommence({ ...po, requirements })).toBe(false);
+    expect(missingRequirements({ ...po, requirements })).toContain("Attach the purchase order document");
+    expect(readyToCommence({ ...po, requirements, poDocumentLinked: true })).toBe(true);
+    expect(readyToCommence({ ...base, requirements })).toBe(true);
+  });
+  it("drops a check the business has switched off", () => {
+    const requirements = readinessRequirements({ invoice_recipients: false, commence_executed: false });
+    expect(readyToInvoice({ ...base, requirements, terms: { ...base.terms, invoice_recipients: "" } })).toBe(true);
+    expect(readyToCommence({ ...base, requirements, executionStatus: "pending" })).toBe(true);
+    expect(missingRequirements({ ...base, requirements, executionStatus: "pending" })).not.toContain("Record appointment approval or execution");
   });
 });
