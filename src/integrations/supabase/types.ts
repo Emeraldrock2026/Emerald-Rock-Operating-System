@@ -130,6 +130,60 @@ export type Database = {
           },
         ]
       }
+      change_estimates: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          note: string
+          project_id: string
+          record_id: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          note?: string
+          project_id: string
+          record_id: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          note?: string
+          project_id?: string
+          record_id?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "change_estimates_tenant_id_project_id_fkey"
+            columns: ["tenant_id", "project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "change_estimates_tenant_id_record_id_fkey"
+            columns: ["tenant_id", "record_id"]
+            isOneToOne: false
+            referencedRelation: "project_records"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           active: boolean
@@ -655,6 +709,9 @@ export type Database = {
           budget_hours: number | null
           created_at: string
           created_by: string | null
+          forecast_final_account: number | null
+          forecast_note: string
+          forecast_updated_on: string | null
           project_id: string
           tenant_id: string
           updated_at: string
@@ -666,6 +723,9 @@ export type Database = {
           budget_hours?: number | null
           created_at?: string
           created_by?: string | null
+          forecast_final_account?: number | null
+          forecast_note?: string
+          forecast_updated_on?: string | null
           project_id: string
           tenant_id: string
           updated_at?: string
@@ -677,6 +737,9 @@ export type Database = {
           budget_hours?: number | null
           created_at?: string
           created_by?: string | null
+          forecast_final_account?: number | null
+          forecast_note?: string
+          forecast_updated_on?: string | null
           project_id?: string
           tenant_id?: string
           updated_at?: string
