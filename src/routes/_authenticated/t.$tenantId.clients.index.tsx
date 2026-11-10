@@ -14,7 +14,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useTenant } from "@/lib/use-tenant";
 import { can } from "@/lib/domain/permissions";
 import { friendlyError, StaleRecordError } from "@/lib/db-errors";
-import { clientsQuery } from "@/lib/projects-data";
+import { projectsQuery } from "@/lib/projects-data";
+import { clientDirectoryQuery, clientGroupsQuery, clientContactsQuery } from "@/lib/client-profile-data";
+import { ClientSummaryCard } from "@/components/clients/client-summary-card";
+import { liveProjectCount } from "@/lib/domain/client-profile";
 
 export const Route = createFileRoute("/_authenticated/t/$tenantId/clients/")({
   head: () => ({
@@ -40,7 +43,10 @@ function ClientsPage() {
   const { ctx, tenantId } = useTenant();
   const qc = useQueryClient();
   const allowed = ctx.access ? can(ctx.access, "clients.view") : false;
-  const clients = useQuery({ ...clientsQuery(tenantId), enabled: allowed });
+  const clients = useQuery({ ...clientDirectoryQuery(tenantId), enabled: allowed });
+  const projects = useQuery({ ...projectsQuery(tenantId), enabled: allowed });
+  const groups = useQuery({ ...clientGroupsQuery(tenantId), enabled: allowed });
+  const contacts = useQuery({ ...clientContactsQuery(tenantId), enabled: allowed });
   const [search, setSearch] = useState("");
   const [showInactive, setShowInactive] = useState(false);
   const [editing, setEditing] = useState<Client | "new" | null>(null);
@@ -48,11 +54,14 @@ function ClientsPage() {
   const save = useMutation({
     mutationFn: async (v: { id?: string; version?: number; patch: Partial<Pick<Client, "name" | "contact_name" | "contact_email" | "active">> }) => {
       if (!v.id) {
-        const { error } = await supabase.from("clients").insert({ tenant_id: tenantId, name: v.patch.name!, contact_name: v.patch.contact_name ?? null, contact_email: v.patch.contact_email ?? null });
+        const name = v.patch.name;
+        if (!name?.trim()) throw new Error("Enter a client name.");
+        const { error } = await supabase.from("clients").insert({ tenant_id: tenantId, name, contact_name: v.patch.contact_name ?? null, contact_email: v.patch.contact_email ?? null });
         if (error) throw error;
         return;
       }
-      const { data, error } = await supabase.from("clients").update(v.patch).eq("id", v.id).eq("version", v.version!).select("id");
+      if (v.version === undefined) throw new StaleRecordError();
+      const { data, error } = await supabase.from("clients").update(v.patch).eq("tenant_id",tenantId).eq("id", v.id).eq("version", v.version).select("id");
       if (error) throw error;
       if (!data?.length) throw new StaleRecordError();
     },
@@ -78,7 +87,7 @@ function ClientsPage() {
 
   return (
     <>
-      <PageHeader title="Clients" description="The organisations you work for. Clients are never deleted; mark them inactive instead." actions={<Button onClick={() => setEditing("new")}>Add client</Button>} />
+      <PageHeader title="Clients" actions={<Button onClick={() => setEditing("new")}>Add client</Button>} />
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Input aria-label="Search clients" placeholder="Search clients" value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
         {inactive > 0 ? <Button variant="link" className="px-0" onClick={() => setShowInactive((v) => !v)}>{showInactive ? "Hide inactive" : `Show ${inactive} inactive`}</Button> : null}
@@ -87,37 +96,7 @@ function ClientsPage() {
       {clients.isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : null}
       {clients.data && rows.length === 0 ? <p className="rounded-md border border-dashed p-6 text-sm text-muted-foreground">No clients to show.</p> : null}
       {rows.length > 0 ? (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Client</TableHead>
-                <TableHead className="hidden sm:table-cell">Contact</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead><span className="sr-only">Actions</span></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((c) => (
-                <TableRow key={c.id}>
-                  <TableCell className="font-medium">{c.name}</TableCell>
-                  <TableCell className="hidden sm:table-cell text-sm">
-                    {c.contact_name ?? "—"}
-                    {c.contact_email ? <div className="text-xs text-muted-foreground">{c.contact_email}</div> : null}
-                  </TableCell>
-                  <TableCell><StatusBadge tone={c.active ? "ok" : "off"}>{c.active ? "Active" : "Inactive"}</StatusBadge></TableCell>
-                  <TableCell className="text-right whitespace-nowrap">
-                    <Button variant="ghost" size="sm" onClick={() => setEditing(c)}>Edit</Button>
-                    <Button variant="ghost" size="sm" disabled={save.isPending}
-                      onClick={() => window.confirm(c.active ? `Mark ${c.name} inactive? Existing projects are kept, but no new projects can be created for them.` : `Reactivate ${c.name}?`) && save.mutate({ id: c.id, version: c.version, patch: { active: !c.active } })}>
-                      {c.active ? "Mark inactive" : "Reactivate"}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{rows.map(c=><div key={c.id}><ClientSummaryCard client={c} tenantId={tenantId} group={groups.data?.find(g=>g.id===c.group_id)?.name} contact={contacts.data?.find(x=>x.client_id===c.id&&x.active&&x.roles.includes("relationship"))} liveCount={liveProjectCount((projects.data??[]).filter(p=>p.client_id===c.id))}/><Button variant="link" className="px-0" disabled={save.isPending} onClick={()=>window.confirm(c.active?`Mark ${c.name} inactive? Existing projects are kept.`:`Reactivate ${c.name}?`)&&save.mutate({id:c.id,version:c.version,patch:{active:!c.active}})}>{c.active?"Mark inactive":"Reactivate"}</Button></div>)}</div>
       ) : null}
 
       <Dialog open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>

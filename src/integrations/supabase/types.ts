@@ -225,11 +225,70 @@ export type Database = {
           },
         ]
       }
-      clients: {
+      client_contacts: {
         Row: {
           active: boolean
-          contact_email: string | null
-          contact_name: string | null
+          client_id: string
+          created_at: string
+          created_by: string | null
+          division: string
+          email: string | null
+          id: string
+          name: string
+          position: string
+          roles: string[]
+          telephone: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          client_id: string
+          created_at?: string
+          created_by?: string | null
+          division?: string
+          email?: string | null
+          id?: string
+          name: string
+          position?: string
+          roles?: string[]
+          telephone?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          client_id?: string
+          created_at?: string
+          created_by?: string | null
+          division?: string
+          email?: string | null
+          id?: string
+          name?: string
+          position?: string
+          roles?: string[]
+          telephone?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_contacts_tenant_id_client_id_fkey"
+            columns: ["tenant_id", "client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      client_groups: {
+        Row: {
           created_at: string
           created_by: string | null
           id: string
@@ -240,9 +299,6 @@ export type Database = {
           version: number
         }
         Insert: {
-          active?: boolean
-          contact_email?: string | null
-          contact_name?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -253,9 +309,6 @@ export type Database = {
           version?: number
         }
         Update: {
-          active?: boolean
-          contact_email?: string | null
-          contact_name?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -266,6 +319,144 @@ export type Database = {
           version?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "client_groups_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_profile_changes: {
+        Row: {
+          client_id: string
+          expected_version: number
+          id: string
+          proposed_group_id: string | null
+          proposed_name: string
+          proposed_profile: Json
+          reason: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string
+          submitted_by: string
+          tenant_id: string
+        }
+        Insert: {
+          client_id: string
+          expected_version: number
+          id?: string
+          proposed_group_id?: string | null
+          proposed_name: string
+          proposed_profile: Json
+          reason: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          submitted_by: string
+          tenant_id: string
+        }
+        Update: {
+          client_id?: string
+          expected_version?: number
+          id?: string
+          proposed_group_id?: string | null
+          proposed_name?: string
+          proposed_profile?: Json
+          reason?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          submitted_by?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_profile_changes_tenant_id_client_id_fkey"
+            columns: ["tenant_id", "client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "client_profile_changes_tenant_id_proposed_group_id_fkey"
+            columns: ["tenant_id", "proposed_group_id"]
+            isOneToOne: false
+            referencedRelation: "client_groups"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          active: boolean
+          client_reference: string | null
+          contact_email: string | null
+          contact_name: string | null
+          created_at: string
+          created_by: string | null
+          group_id: string | null
+          id: string
+          name: string
+          profile: Json
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          verification_source: string | null
+          verified_at: string | null
+          verified_by: string | null
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          client_reference?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          group_id?: string | null
+          id?: string
+          name: string
+          profile?: Json
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          verification_source?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          version?: number
+        }
+        Update: {
+          active?: boolean
+          client_reference?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          group_id?: string | null
+          id?: string
+          name?: string
+          profile?: Json
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          verification_source?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_group_tenant_fk"
+            columns: ["tenant_id", "group_id"]
+            isOneToOne: false
+            referencedRelation: "client_groups"
+            referencedColumns: ["tenant_id", "id"]
+          },
           {
             foreignKeyName: "clients_tenant_id_fkey"
             columns: ["tenant_id"]
@@ -2203,6 +2394,10 @@ export type Database = {
         Returns: number
       }
       record_reference_code: { Args: { _module: string }; Returns: string }
+      review_client_profile_change: {
+        Args: { _accept: boolean; _change: string }
+        Returns: undefined
+      }
       review_comparison_finding: {
         Args: { _amended?: string; _decision: string; _finding: string }
         Returns: string
@@ -2237,7 +2432,22 @@ export type Database = {
         }
         Returns: number
       }
+      submit_client_profile_change: {
+        Args: {
+          _client: string
+          _group: string
+          _name: string
+          _profile: Json
+          _reason: string
+          _version: number
+        }
+        Returns: string
+      }
       tenant_today: { Args: { _tenant: string }; Returns: string }
+      verify_client_profile: {
+        Args: { _client: string; _source: string; _version: number }
+        Returns: undefined
+      }
     }
     Enums: {
       membership_status: "invited" | "active" | "suspended" | "removed"

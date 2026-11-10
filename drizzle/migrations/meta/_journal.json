@@ -183,6 +183,27 @@
       "when": 1794295652368,
       "tag": "0025_restrict_dashboard_settings_delete",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794298109592,
+      "tag": "0026_client_profiles_and_shared_contacts",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1794298394159,
+      "tag": "0027_client_profile_audit_category",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1794298507712,
+      "tag": "0028_clear_client_review_write_scope",
+      "breakpoints": true
     }
   ]
 }

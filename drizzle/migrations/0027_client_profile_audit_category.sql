@@ -1,0 +1,2 @@
+ALTER TABLE public.audit_log DROP CONSTRAINT audit_log_category_check;
+ALTER TABLE public.audit_log ADD CONSTRAINT audit_log_category_check CHECK(category = ANY(ARRAY['tenant','module','membership','employee','working_pattern','project','allocation','commercial','project_detail','template','client']::text[]));

@@ -1,0 +1,2 @@
+CREATE OR REPLACE FUNCTION public.clear_client_review_scope() RETURNS trigger LANGUAGE plpgsql SET search_path=public AS $$ BEGIN PERFORM set_config('app.client_review','',true);RETURN NEW;END $$;
+CREATE TRIGGER clients_clear_review AFTER UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION public.clear_client_review_scope();
