@@ -343,6 +343,25 @@ begin
   select count(*) into n from project_health_settings where project_id = pA2;
   if n = 0 then passes := passes + 1; else fails := fails || 'health cross business read'; end if;
 
+  -- Business dashboard configuration: owner writes, viewers read configuration only,
+  -- outsiders cannot read, and project managers do not become business settings admins.
+  perform set_config('request.jwt.claims', json_build_object('sub', uAdmA, 'role', 'authenticated')::text, true);
+  insert into tenant_dashboard_settings (tenant_id) values (tA);
+  select count(*) into n from tenant_dashboard_settings where tenant_id=tA;
+  if n=1 then passes:=passes+1; else fails:=fails||'dashboard owner read'; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', uMulti, 'role', 'authenticated')::text, true);
+  select count(*) into n from tenant_dashboard_settings where tenant_id=tA;
+  if n=1 then passes:=passes+1; else fails:=fails||'dashboard member read'; end if;
+  update tenant_dashboard_settings set config=jsonb_set(config,'{freshness,milestones}','14') where tenant_id=tA;
+  get diagnostics n=row_count;
+  if n=0 then passes:=passes+1; else fails:=fails||'dashboard member wrote'; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', uRmA, 'role', 'authenticated')::text, true);
+  update tenant_dashboard_settings set config=jsonb_set(config,'{freshness,milestones}','14') where tenant_id=tA;
+  get diagnostics n=row_count;
+  if n=0 then passes:=passes+1; else fails:=fails||'dashboard RM wrote'; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', uAdmB, 'role', 'authenticated')::text, true);
+  select count(*) into n from tenant_dashboard_settings where tenant_id=tA;
+  if n=0 then passes:=passes+1; else fails:=fails||'dashboard cross tenant read'; end if;
   execute 'reset role';
   raise exception 'RESULT passes=% fails=%', passes, fails;
 end $$;

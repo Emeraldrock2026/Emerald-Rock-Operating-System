@@ -169,6 +169,20 @@
       "when": 1794294000197,
       "tag": "0023_project_health_weights",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794295424714,
+      "tag": "0024_business_dashboard_settings",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794295652368,
+      "tag": "0025_restrict_dashboard_settings_delete",
+      "breakpoints": true
     }
   ]
 }

@@ -20,13 +20,13 @@ export interface MilestoneView {
   flags: ("stale_forecast" | "forecast_passed")[];
 }
 
-export function milestoneView(m: Milestone, today: DateOnly): MilestoneView {
+export function milestoneView(m: Milestone, today: DateOnly, staleDays = STALE_FORECAST_DAYS): MilestoneView {
   const flags: MilestoneView["flags"] = [];
   const compare = m.actual_date ?? m.forecast_date;
   const variance = m.baseline_date && compare ? daysBetween(m.baseline_date, compare) : null;
   if (!m.actual_date && m.forecast_date) {
     if (m.forecast_date < today) flags.push("forecast_passed");
-    if (!m.forecast_updated_on || daysBetween(m.forecast_updated_on, today) > STALE_FORECAST_DAYS) flags.push("stale_forecast");
+    if (!m.forecast_updated_on || daysBetween(m.forecast_updated_on, today) > staleDays) flags.push("stale_forecast");
   }
   let state: MilestoneState;
   if (!m.baseline_date) state = "no_baseline";
@@ -46,8 +46,8 @@ export function varianceLabel(v: number | null): string {
   if (v === 0) return "On baseline";
   return v > 0 ? `${v} day${v === 1 ? "" : "s"} late` : `${-v} day${v === -1 ? "" : "s"} early`;
 }
-export function milestoneSummary(ms: readonly Milestone[], today: DateOnly) {
-  const views = ms.map((m) => milestoneView(m, today));
+export function milestoneSummary(ms: readonly Milestone[], today: DateOnly, staleDays = STALE_FORECAST_DAYS) {
+  const views = ms.map((m) => milestoneView(m, today, staleDays));
   return {
     total: ms.length,
     achieved: views.filter((v) => v.state === "achieved" || v.state === "achieved_late").length,

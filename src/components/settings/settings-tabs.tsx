@@ -10,10 +10,11 @@ export function SettingsTabs() {
     ...(admin ? [{ to: "/t/$tenantId/settings/users" as const, label: "Users" }] : []),
     ...(admin ? [{ to: "/t/$tenantId/settings/branding" as const, label: "Business branding" }] : []),
     ...(admin && ctx.access!.enabledModules.has("clients_projects") ? [{ to: "/t/$tenantId/settings/templates" as const, label: "Project templates" }] : []),
+    ...(admin && ctx.access?.enabledModules.has("clients_projects") ? [{ to: "/t/$tenantId/settings/dashboard" as const, label: "Dashboard" }] : []),
     { to: "/t/$tenantId/settings/appearance" as const, label: "My appearance" },
   ];
   return (
-    <nav aria-label="Settings" className="mb-6 flex gap-1 border-b border-border">
+    <nav aria-label="Settings" className="mb-6 flex flex-wrap gap-1 border-b border-border">
       {tabs.map((t) => (
         <Link key={t.to} to={t.to} params={{ tenantId }}
           className="-mb-px border-b-2 border-transparent px-3 py-2 text-sm text-muted-foreground hover:text-foreground"

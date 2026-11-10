@@ -30,6 +30,7 @@ import { CommercialForecastCard } from "@/components/dashboard/commercial-foreca
 import { MilestonesPanel } from "@/components/dashboard/milestones-panel";
 import { HealthCard } from "@/components/dashboard/health-card";
 import { LiveDashboard } from "@/components/dashboard/live-dashboard";
+import { dashboardSettingsQuery } from "@/lib/dashboard-settings-data";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/t/$tenantId/projects/$projectId")({
@@ -74,6 +75,7 @@ function ProjectPage() {
   const detail = useQuery({ ...projectDetailQuery(tenantId, projectId), enabled: !!p });
   const canManageProject = manage || detail.data?.myRole === "project_admin";
   const projectMods = useQuery(projectModulesQuery(tenantId, projectId));
+  const dashboardSettings = useQuery(dashboardSettingsQuery(tenantId));
   const canContribute = manage || detail.data?.myRole === "project_admin" || detail.data?.myRole === "member";
   const fileTabs = (["photos", "documents"] as FileModuleId[]).map((id) => ({
     id, label: id === "photos" ? "Photos" : "Documents",
@@ -213,19 +215,15 @@ function ProjectPage() {
           return (
             <>
               <TabsContent value="dashboard" className="mt-4 space-y-4">
-                <HealthCard tenantId={tenantId} projectId={projectId} onOpenRecord={openRecord} onOpenSection={(section) => { document.querySelector(`[aria-label="${section === "milestones" ? "Milestones" : "Commercial forecast"}"]`)?.scrollIntoView({ block: "start" }); }} />
-                <LiveDashboard tenantId={tenantId} projectId={projectId} timezone={props.timezone} modules={dashModules}
-                  photosActive={photosOn} onOpenRecord={openRecord}
-                  onOpenModule={(id) => setTab(id === "change_control" ? "changes" : id)} />
-                {(() => { const prog = registerTabs.find((t) => t.id === "programmes"); return prog ? (
-                  <MilestonesPanel tenantId={tenantId} projectId={projectId} timezone={props.timezone} canContribute={prog.access.canUpload} canManage={canManageProject} historicOnly={prog.access.historicOnly} />
-                ) : null; })()}
-                {ctx.access && can(ctx.access, "commercial.view") ? (
-                  <CommercialForecastCard tenantId={tenantId} projectId={projectId} canEdit={can(ctx.access, "commercial.edit")}
-                    changesVisible={changeAccess.visible} changesEditable={changeAccess.visible && !changeAccess.historicOnly} />
-                ) : null}
-                <ProjectDashboard {...props} />
-                <ProjectDetailsCard {...props} />
+                {dashboardSettings.error ? <p className="text-sm text-destructive">{friendlyError(dashboardSettings.error)}</p> : !dashboardSettings.data ? <p>Loading dashboard settings…</p> : dashboardSettings.data.config.widgets.map((widget) => {
+                  const config = dashboardSettings.data.config;
+                  if (widget === "health") return <HealthCard key={widget} tenantId={tenantId} projectId={projectId} onOpenRecord={openRecord} onOpenSection={(section) => { document.querySelector(`[aria-label="${section === "milestones" ? "Milestones" : "Commercial forecast"}"]`)?.scrollIntoView({ block: "start" }); }} />;
+                  if (widget === "live") return <LiveDashboard key={widget} tenantId={tenantId} projectId={projectId} timezone={props.timezone} modules={dashModules} settings={config} photosActive={photosOn} onOpenRecord={openRecord} onOpenModule={(id) => setTab(id === "change_control" ? "changes" : id)} />;
+                  if (widget === "milestones") { const prog = registerTabs.find((t) => t.id === "programmes" && !t.access.historicOnly); return prog ? <MilestonesPanel key={widget} tenantId={tenantId} projectId={projectId} timezone={props.timezone} canContribute={prog.access.canUpload} canManage={canManageProject} historicOnly={false} staleDays={config.freshness.milestones} /> : null; }
+                  if (widget === "commercial") return ctx.access && can(ctx.access, "commercial.view") ? <CommercialForecastCard key={widget} tenantId={tenantId} projectId={projectId} canEdit={can(ctx.access, "commercial.edit")} changesVisible={changeAccess.visible && !changeAccess.historicOnly} changesEditable={changeAccess.visible && !changeAccess.historicOnly} staleDays={config.freshness.commercial} timezone={props.timezone} /> : null;
+                  if (widget === "summary") return <ProjectDashboard key={widget} {...props} />;
+                  return <ProjectDetailsCard key={widget} {...props} />;
+                })}
               </TabsContent>
               {fileTabs.map((t) => (
                 <TabsContent key={t.id} value={t.id} className="mt-4">

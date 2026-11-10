@@ -986,6 +986,7 @@ export type Database = {
           commercial_weight: number
           created_at: string
           created_by: string | null
+          inherit_business_weights: boolean
           milestones_weight: number
           project_id: string
           qa_weight: number
@@ -999,6 +1000,7 @@ export type Database = {
           commercial_weight?: number
           created_at?: string
           created_by?: string | null
+          inherit_business_weights?: boolean
           milestones_weight?: number
           project_id: string
           qa_weight?: number
@@ -1012,6 +1014,7 @@ export type Database = {
           commercial_weight?: number
           created_at?: string
           created_by?: string | null
+          inherit_business_weights?: boolean
           milestones_weight?: number
           project_id?: string
           qa_weight?: number
@@ -1727,6 +1730,44 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "project_records"
             referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      tenant_dashboard_settings: {
+        Row: {
+          config: Json
+          created_at: string
+          created_by: string | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_dashboard_settings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
           },
         ]
       }

@@ -84,7 +84,7 @@ database policies are the source of truth.
 - First platform admin: an approved email in `platform_admin_bootstrap` calls
   `claim_platform_admin()` after signing in with a confirmed email; the entry is then consumed.
 - `tests/db/access_acceptance.sql` exercises isolation, roles, modules and guards inside one
-  transaction that always rolls back. Expected result: `RESULT passes=66 fails={}`.
+  transaction that always rolls back. Expected result: `RESULT passes=71 fails={}`.
 
 ## Planning rules (see `src/lib/domain/`)
 - Allocation dates are date-only values. Capacity comes from effective-dated working patterns.
@@ -180,3 +180,14 @@ Which cards and exports a person gets is decided by `overviewCards` / `available
 - Available positive-weight dimensions are normalised; missing never means zero or success. Coverage = available weight/applicable positive weight; disabled/restricted/zero-weight inputs are excluded. Missing/stale inputs make the score provisional. Green ≥80, amber ≥50, red <50. Unresolved failed QA or an unachieved milestone >14 days late caps at 49 regardless of weights. No available data means Not available.
 - Three priority actions are deterministic, ordered by adverse/missing/stale severity then label. Gateway GPT-6.1 Terra (user-selected permitted alternative) writes interpretation only from the first 40 authorised evidence sources; citation IDs are validated, supplied facts displayed separately, no automatic generation/replay or saving. AI failure leaves scoring intact. Evidence links open register items or the milestones/commercial section.
 - Checks: `health.test.ts` and rolled-back `tests/db/health_acceptance.sql`; all real projects remain untouched.
+
+## Business dashboard configuration (dashboard stage 6)
+- `tenant_dashboard_settings` holds validated ordered/visible widgets, display-only register status colours, default health weights and separate milestone/commercial freshness thresholds (integer 1–365 calendar days). No row means the original six widgets, 30/30/20/20 weights and 28-day freshness, so deployment does not write to existing businesses.
+- Read: active business member with Clients & Projects on; write: business Owner/Admin with that module on. No delete grant. Database validation, version stamps and append-only audit prevent invalid settings, stale edits and cross-business writes. Settings contain no project facts or commercial values; every dashboard read still uses project/module/RLS access.
+- Widgets render in configured order. Hiding a widget does not delete records or remove its inputs from health. Disabled modules and restricted commercial widgets remain unavailable even when configured visible.
+- Business weights are live defaults for projects without explicit overrides. Existing project weights remain explicit overrides. Project managers can save overrides or select “Use business weights”; the latter sets `inherit_business_weights` without deleting history. Business admins do not silently overwrite project choices.
+- Freshness is strictly older than the chosen threshold, or missing an update date; milestone flags, commercial warning and health stale deductions agree. Scoring formulas, 14-day milestone critical override and unresolved failed-QA override are unchanged.
+- Status colours label dashboard outstanding-action statuses only. They never change open/closed totals, QA pass/fail charts, deadlines, approvals or health outcomes. Colour labels and overdue warnings remain visible. Business/project module switches retain authority.
+- Changes apply on dashboard load/refetch; saving invalidates this business's cached reads. AI explanations always calculate from a fresh authorised snapshot including current settings.
+- Tests: `dashboard-settings.test.ts`, `tests/db/dashboard_settings_acceptance.sql`, and the extended full access acceptance transaction; fixtures are isolated and rolled back.
+- D6 verification: 179 domain checks, 19 settings permission/validation checks and 71 full access checks passed. Demo settings were saved/read back/restored through the UI; existing project overrides survived, freshness applied, desktop/phone rendering had no overflow or runtime errors. Real business/project data was not edited.
