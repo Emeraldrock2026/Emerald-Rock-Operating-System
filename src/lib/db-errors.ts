@@ -54,6 +54,7 @@ const FRIENDLY: Record<string, string> = {
   FILE_LOCKED: "This document has been accepted or approved, so its file can't be replaced. Add a new record instead.",
   ADMIN_ONLY_STATUS: "Only a project admin can close, reopen, accept, approve, award, cancel or supersede this.",
   STALE_RECORD: "Someone else changed this record. Refresh the page and try again.",
+  ADJUSTMENT_LOCKED: "Budget adjustments can't be changed or removed. Add a reversing adjustment instead.",
 };
 
 export function friendlyError(error: unknown): string {
