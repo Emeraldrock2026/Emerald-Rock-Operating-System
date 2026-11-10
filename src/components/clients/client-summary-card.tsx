@@ -1,0 +1,17 @@
+import { Link } from "@tanstack/react-router";
+import { Building2, Mail, Phone, ArrowUpRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/app/status-badge";
+import { profileObject, identityGaps } from "@/lib/domain/client-profile";
+import type { DirectoryClient, ClientContact } from "@/lib/client-profile-data";
+export function ClientSummaryCard({client,tenantId,group,contact,liveCount=0,linked=true}:{client:DirectoryClient;tenantId:string;group?:string;contact?:ClientContact;liveCount?:number;linked?:boolean}) {
+  const p=profileObject(client.profile); const name=contact?.name??client.contact_name; const email=contact?.email??client.contact_email;
+  return <article className="relative rounded-md border bg-card p-5">
+    <div className="mb-4 flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><Building2 className="size-8 shrink-0 text-primary" aria-hidden/><div className="min-w-0"><h2 className="break-words text-lg font-semibold">{linked?<Link to="/t/$tenantId/clients/$clientId" params={{tenantId,clientId:client.id}} className="after:absolute after:inset-0 after:z-0 focus-visible:outline focus-visible:outline-ring">{client.name}</Link>:client.name}</h2><p className="break-all font-mono text-xs text-muted-foreground">{client.client_reference??`CL-${client.id.replaceAll("-","").toUpperCase()}`}</p></div></div>{linked?<ArrowUpRight className="size-4 shrink-0 text-muted-foreground"/>:null}</div>
+    <p className="text-sm">{p.legal_name||"Legal entity pending"}</p><p className="text-sm text-muted-foreground">{[group,p.division].filter(Boolean).join(" · ")||"Independent entity"}</p>
+    <div className="my-3 flex flex-wrap gap-2"><StatusBadge tone={client.active?"ok":"off"}>{p.relationship_status??"prospect"}</StatusBadge><StatusBadge tone={client.verified_at?"ok":"warn"}>{client.verified_at?"Identity checked":identityGaps(p).length?"Identity incomplete":"Awaiting verification"}</StatusBadge></div>
+    <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm"><div><dt className="text-xs text-muted-foreground">Relationship owner</dt><dd className="break-words">{p.relationship_owner||"Not assigned"}</dd></div><div><dt className="text-xs text-muted-foreground">Live projects</dt><dd>{liveCount}</dd></div><div><dt className="text-xs text-muted-foreground">Regions</dt><dd>{p.regions||"Not entered"}</dd></div><div><dt className="text-xs text-muted-foreground">Sectors</dt><dd>{p.sectors||"Not entered"}</dd></div></dl>
+    <div className="relative z-10 mt-4 flex items-center justify-between gap-2 border-t pt-3"><span className="min-w-0 break-words text-sm">{name||"Main contact pending"}</span><div className="flex shrink-0">{email?<Button asChild variant="ghost" size="icon" title="Email contact"><a href={`mailto:${email}`} aria-label="Email contact"><Mail className="size-4"/></a></Button>:null}{contact?.telephone?<Button asChild variant="ghost" size="icon" title="Telephone contact"><a href={`tel:${contact.telephone}`} aria-label="Telephone contact"><Phone className="size-4"/></a></Button>:null}</div></div>
+    {p.next_action?<p className="mt-3 text-sm">{p.next_action}{p.next_action_due?<span className="ml-2 font-mono text-xs text-muted-foreground">{p.next_action_due.split("-").reverse().join("/")}</span>:null}</p>:null}
+  </article>;
+}
