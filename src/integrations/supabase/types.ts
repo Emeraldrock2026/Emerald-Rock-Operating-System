@@ -2528,6 +2528,10 @@ export type Database = {
         Args: { _project: string; _tenant: string }
         Returns: boolean
       }
+      can_link_appointment_contact: {
+        Args: { _appointment: string; _contact: string; _tenant: string }
+        Returns: boolean
+      }
       can_manage_project: {
         Args: { _project: string; _tenant: string }
         Returns: boolean
