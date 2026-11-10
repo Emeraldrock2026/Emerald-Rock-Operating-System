@@ -64,3 +64,34 @@ export function parseMoney(raw: string, label: string): number | null {
   if (Math.abs(n) > 999_999_999.99) throw new Error(`${label} is too large.`);
   return n;
 }
+
+/* ---------- Budget basis and adjustments (dashboard stage 4, part 2) ---------- */
+export type BudgetBasis = "expenditure" | "revenue" | "cost";
+export const BUDGET_BASES: readonly { id: BudgetBasis; label: string; hint: string }[] = [
+  { id: "revenue", label: "Revenue", hint: "Income expected from the client; a forecast above budget is favourable." },
+  { id: "expenditure", label: "Expenditure", hint: "Money to be spent; a forecast above budget is adverse." },
+  { id: "cost", label: "Cost", hint: "Cost to deliver; a forecast above budget is adverse." },
+];
+export const basisLabel = (b: BudgetBasis) => BUDGET_BASES.find((x) => x.id === b)?.label ?? b;
+
+/** Current budget = original budget + all adjustments. Null when no original budget is set. */
+export function currentBudget(original: number | null, adjustments: readonly { amount: number }[]): number | null {
+  if (original == null) return null;
+  return Math.round((original + adjustments.reduce((s, a) => s + a.amount, 0)) * 100) / 100;
+}
+
+/** Whether a variance is good or bad depends on the basis: more revenue is favourable, more spend or cost is adverse. */
+export function varianceDirection(basis: BudgetBasis, variance: number | null): "favourable" | "adverse" | "on_budget" | null {
+  if (variance == null) return null;
+  if (variance === 0) return "on_budget";
+  const above = variance > 0;
+  return basis === "revenue" ? (above ? "favourable" : "adverse") : above ? "adverse" : "favourable";
+}
+
+export interface BasisForecast extends CommercialForecast { basis: BudgetBasis; original: number | null; adjustmentsTotal: number; direction: ReturnType<typeof varianceDirection> }
+/** Compares the forecast with the current budget on the selected basis. */
+export function basisForecast(basis: BudgetBasis, original: number | null, adjustments: readonly { amount: number }[], forecast: number | null, changes: readonly PendingChange[]): BasisForecast {
+  const budget = currentBudget(original, adjustments);
+  const f = commercialForecast(budget, forecast, changes);
+  return { ...f, basis, original, adjustmentsTotal: Math.round(adjustments.reduce((s, a) => s + a.amount, 0) * 100) / 100, direction: varianceDirection(basis, f.variance) };
+}
