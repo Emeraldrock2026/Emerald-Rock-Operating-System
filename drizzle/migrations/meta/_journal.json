@@ -253,6 +253,13 @@
       "when": 1794302626362,
       "tag": "0035_client_field_options",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1794302856574,
+      "tag": "0036_client_profile_next_action_keys",
+      "breakpoints": true
     }
   ]
 }
