@@ -239,6 +239,13 @@
       "when": 1794302313498,
       "tag": "0033_client_display_references",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1794302403925,
+      "tag": "0034_client_display_reference_default",
+      "breakpoints": true
     }
   ]
 }
