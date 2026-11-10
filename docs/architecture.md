@@ -209,3 +209,7 @@ Which cards and exports a person gets is decided by `overviewCards` / `available
 - Appointment documents link an exact existing project file version, checked against that project's module availability. No files are duplicated. Stamped versions support stale-edit refusal and changes are audited through client/commercial categories.
 - The client directory is now a horizontally scrollable spreadsheet with linked client names; profile summaries remain at the top of individual profiles.
 - Guided approvals/readiness, configurable delegation, PO document handling and affected-appointment review remain later scope; execution status and term confirmation are not onboarding approval.
+
+## Appointment PO documents and readiness requirements
+- PO documents link an exact project file version from appointment_commercials (po_file_id/po_file_version), so only commercial users see them; guard_po_document() requires the file to belong to the appointment's project with its module active.
+- tenant_readiness_settings holds per-business boolean requirements (Owner/Admin write, active members read, audited); readinessRequirements() in src/lib/domain/readiness.ts applies defaults for missing keys.

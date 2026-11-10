@@ -18,6 +18,7 @@ import { can } from "@/lib/domain/permissions";
 import { friendlyError, StaleRecordError } from "@/lib/db-errors";
 import { projectsQuery } from "@/lib/projects-data";
 import { clientDirectoryQuery, clientGroupsQuery, clientContactsQuery, clientFieldOptionsQuery } from "@/lib/client-profile-data";
+import { ReadinessSettingsDialog } from "@/components/clients/readiness-settings";
 import { OPTION_FIELDS } from "@/lib/domain/client-fields";
 import { liveProjectCount, profileObject } from "@/lib/domain/client-profile";
 
@@ -53,6 +54,8 @@ function ClientsPage() {
   const [showInactive, setShowInactive] = useState(false);
   const [editing, setEditing] = useState<Client | "new" | null>(null);
   const [optionsOpen, setOptionsOpen] = useState(false);
+  const [readinessOpen, setReadinessOpen] = useState(false);
+  const isAdmin = ctx.access?.role === "owner_admin";
   const manage = ctx.access ? can(ctx.access, "clients.manage") : false;
   const fieldOptions = useQuery({ ...clientFieldOptionsQuery(tenantId), enabled: allowed && optionsOpen });
 
@@ -104,7 +107,8 @@ function ClientsPage() {
 
   return (
     <>
-      <PageHeader title="Clients" actions={<>{manage ? <Button variant="outline" onClick={() => setOptionsOpen(true)}>Field options</Button> : null}<Button onClick={() => setEditing("new")}>Add client</Button></>} />
+      <ReadinessSettingsDialog tenantId={tenantId} open={readinessOpen} onOpenChange={setReadinessOpen} />
+      <PageHeader title="Clients" actions={<>{manage ? <Button variant="outline" onClick={() => setOptionsOpen(true)}>Field options</Button> : null}{isAdmin ? <Button variant="outline" onClick={() => setReadinessOpen(true)}>Readiness requirements</Button> : null}<Button onClick={() => setEditing("new")}>Add client</Button></>} />
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Input aria-label="Search clients" placeholder="Search clients" value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
         {inactive > 0 ? <Button variant="link" className="px-0" onClick={() => setShowInactive((v) => !v)}>{showInactive ? "Hide inactive" : `Show ${inactive} inactive`}</Button> : null}

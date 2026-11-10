@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge } from "@/components/app/status-badge";
 import { profileObject } from "@/lib/domain/client-profile";
 import { stageDatesValid, type ServiceStage } from "@/lib/domain/appointments";
-import { appointmentConfirmed, invoicingRouteConfirmed, missingRequirements, poStatus, readyToCommence, readyToInvoice, readyToPrepareProposal, READINESS_LABEL, type AppointmentReadinessInput } from "@/lib/domain/readiness";
+import { readinessSettingsQuery } from "./readiness-settings";
+import { readinessRequirements, appointmentConfirmed, invoicingRouteConfirmed, missingRequirements, poStatus, readyToCommence, readyToInvoice, readyToPrepareProposal, READINESS_LABEL, type AppointmentReadinessInput } from "@/lib/domain/readiness";
 
 type AppointmentLike = {
   id: string;
@@ -23,12 +24,13 @@ export function ReadinessStrip({ tenantId, appointment, commercial }: { tenantId
     queryKey: ["tenant", tenantId, "appointment_commercials", appointment.id],
     enabled: commercial,
     queryFn: async () => {
-      const { data, error } = await supabase.from("appointment_commercials").select("terms, commencement_exception").eq("tenant_id", tenantId).eq("appointment_id", appointment.id).maybeSingle();
+      const { data, error } = await supabase.from("appointment_commercials").select("terms, commencement_exception, po_file_id").eq("tenant_id", tenantId).eq("appointment_id", appointment.id).maybeSingle();
       if (error) throw error;
       return data;
     },
   });
 
+  const settings = useQuery(readinessSettingsQuery(tenantId));
   const stages: ServiceStage[] = Array.isArray(appointment.stages)
     ? appointment.stages.map((s) => { const p = profileObject(s); return { name: p["name"] ?? "", scope: p["scope"] ?? "", starts_on: p["starts_on"] ?? "", ends_on: p["ends_on"] ?? "" }; })
     : [];
@@ -37,6 +39,8 @@ export function ReadinessStrip({ tenantId, appointment, commercial }: { tenantId
     executionStatus: appointment.execution_status,
     stages,
     terms: profileObject(terms.data?.terms),
+    poDocumentLinked: !!terms.data?.po_file_id,
+    requirements: readinessRequirements(settings.data?.config),
     commencementException: (terms.data?.commencement_exception && typeof terms.data.commencement_exception === "object"
       ? terms.data.commencement_exception as AppointmentReadinessInput["commencementException"]
       : null) ?? null,
