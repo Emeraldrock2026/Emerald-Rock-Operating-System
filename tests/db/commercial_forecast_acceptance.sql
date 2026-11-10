@@ -52,6 +52,7 @@ select pg_temp.try('rm_no_grant_write', format('update change_estimates set amou
 reset role;
 -- an update hitting no rows is not an error; record it as refused when nothing changed
 update r set v = case when (select amount from change_estimates where record_id = (select v from ids where k='ch')) = 4250 then 'refused' else 'CHANGED' end where k = 'rm_no_grant_write';
+select set_config('request.jwt.claims', '', true);
 update tenant_memberships set commercial_access = true where user_id = (select v from ids where k='rm');
 select pg_temp.as_user('rm'); set local role authenticated;
 insert into r select 'rm_grant_fees', count(*)::text from project_commercials where project_id = (select v from ids where k='p');
@@ -63,6 +64,7 @@ select pg_temp.as_user('vw'); set local role authenticated; select pg_temp.reads
 select pg_temp.as_user('out'); set local role authenticated; select pg_temp.reads('outsider'); reset role;
 
 -- Change control off for the project: estimates stay readable to commercial project admins, but cannot be changed
+select set_config('request.jwt.claims', '', true);
 delete from project_modules where project_id = (select v from ids where k='p') and module_id = 'change_control';
 select pg_temp.as_user('adm'); set local role authenticated;
 insert into r select 'cc_off_owner_est', count(*)::text from change_estimates where project_id = (select v from ids where k='p');
@@ -70,6 +72,7 @@ with u as (update change_estimates set amount = 1 where record_id = (select v fr
 reset role;
 
 -- Commercial switched off for the business: nobody sees money, not even the Owner/Admin
+select set_config('request.jwt.claims', '', true);
 update tenant_modules set enabled = false where tenant_id = (select v from ids where k='t') and module_id = 'commercial';
 select pg_temp.as_user('adm'); set local role authenticated; select pg_temp.reads('commercial_off_owner'); reset role;
 select set_config('request.jwt.claims', '', true);
