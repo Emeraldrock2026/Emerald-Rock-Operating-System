@@ -92,7 +92,7 @@ function ClientsPage() {
 
   return (
     <>
-      <PageHeader title="Clients" actions={<Button onClick={() => setEditing("new")}>Add client</Button>} />
+      <PageHeader title="Clients" actions={<>{manage ? <Button variant="outline" onClick={() => setOptionsOpen(true)}>Field options</Button> : null}<Button onClick={() => setEditing("new")}>Add client</Button></>} />
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Input aria-label="Search clients" placeholder="Search clients" value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
         {inactive > 0 ? <Button variant="link" className="px-0" onClick={() => setShowInactive((v) => !v)}>{showInactive ? "Hide inactive" : `Show ${inactive} inactive`}</Button> : null}
@@ -104,6 +104,30 @@ function ClientsPage() {
         <div className="min-w-0 max-w-full overflow-x-auto border"><Table aria-label="Client spreadsheet"><TableHeader><TableRow>{['Client','Legal entity / group','Reference','Relationship owner','Main contact','Relationship','Identity check','Live projects','Next action','Due','Status'].map(h=><TableHead key={h} className="whitespace-nowrap border-r">{h}</TableHead>)}</TableRow></TableHeader><TableBody>{rows.map(c=>{const p=profileObject(c.profile);const contact=contacts.data?.find(x=>x.client_id===c.id&&x.active&&x.roles.includes('relationship'));return <TableRow key={c.id}><TableCell className="min-w-48 border-r font-semibold"><Link to="/t/$tenantId/clients/$clientId" params={{tenantId,clientId:c.id}} className="underline-offset-4 hover:underline">{c.name}</Link></TableCell><TableCell className="min-w-48 border-r">{p['legal_name']||'Pending'}<span className="block text-xs text-muted-foreground">{groups.data?.find(g=>g.id===c.group_id)?.name??p['division']}</span></TableCell><TableCell className="whitespace-nowrap border-r font-mono text-xs">{c.display_reference??'Not assigned'}</TableCell><TableCell className="min-w-36 border-r">{p['relationship_owner']||'Pending'}</TableCell><TableCell className="min-w-44 border-r">{contact?.name??c.contact_name??'Pending'}{contact?.email||c.contact_email?<a className="block text-xs underline" href={`mailto:${contact?.email??c.contact_email}`}>{contact?.email??c.contact_email}</a>:null}</TableCell><TableCell className="border-r">{p['relationship_status']??'prospect'}</TableCell><TableCell className="whitespace-nowrap border-r">{c.verified_at?'Evidence recorded':'Unverified'}</TableCell><TableCell className="border-r text-right font-mono">{liveProjectCount((projects.data??[]).filter(x=>x.client_id===c.id))}</TableCell><TableCell className="min-w-44 border-r">{p['next_action']||'Not entered'}</TableCell><TableCell className="whitespace-nowrap border-r">{p['next_action_due']?p['next_action_due'].split('-').reverse().join('/'):'Not entered'}</TableCell><TableCell><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" aria-label={`Actions for ${c.name}`}><MoreHorizontal className="size-4"/></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem disabled={save.isPending} onSelect={()=>{if(window.confirm(c.active?`Mark ${c.name} inactive? Existing projects are kept.`:`Reactivate ${c.name}?`))save.mutate({id:c.id,version:c.version,patch:{active:!c.active}});}}>{c.active?'Mark inactive':'Reactivate'}</DropdownMenuItem></DropdownMenuContent></DropdownMenu></TableCell></TableRow>})}</TableBody></Table></div>
       ) : null}
 
+      <Dialog open={optionsOpen} onOpenChange={setOptionsOpen}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>Client field options</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">These lists feed the region, sector and client type pickers. Deactivating an option never removes values already stored on a client.</p>
+          {fieldOptions.error ? <p className="text-sm text-destructive">{friendlyError(fieldOptions.error)}</p> : null}
+          {OPTION_FIELDS.map(([field, label]) => (
+            <section key={field} className="mt-4">
+              <h3 className="mb-2 text-sm font-semibold">{label}</h3>
+              <ul className="space-y-1">
+                {(fieldOptions.data ?? []).filter((o) => o.field === field).map((o) => (
+                  <li key={o.id} className="flex items-center justify-between gap-2 text-sm">
+                    <span className={o.active ? "" : "text-muted-foreground line-through"}>{o.value}</span>
+                    <Button variant="link" size="sm" disabled={save.isPending} onClick={() => save.mutate({ option: { id: o.id, version: o.version, active: !o.active } })}>{o.active ? "Deactivate" : "Reactivate"}</Button>
+                  </li>
+                ))}
+              </ul>
+              <form className="mt-2 flex gap-2" onSubmit={(ev) => { ev.preventDefault(); const v = String(new FormData(ev.currentTarget).get("value") ?? "").trim(); if (v) save.mutate({ option: { field, value: v } }); ev.currentTarget.reset(); }}>
+                <Input name="value" required maxLength={120} placeholder={`Add ${label.toLowerCase()} option`} aria-label={`Add ${label} option`} />
+                <Button type="submit" variant="outline" disabled={save.isPending}>Add</Button>
+              </form>
+            </section>
+          ))}
+        </DialogContent>
+      </Dialog>
       <Dialog open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
           <DialogHeader><DialogTitle>{editing === "new" ? "Add client" : "Edit client"}</DialogTitle></DialogHeader>
