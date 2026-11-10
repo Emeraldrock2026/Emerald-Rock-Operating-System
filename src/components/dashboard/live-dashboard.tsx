@@ -7,12 +7,13 @@ import { Input } from "@/components/ui/input";
 import { friendlyError } from "@/lib/db-errors";
 import { formatDateGB, formatTimestamp, todayIn } from "@/lib/domain/dates";
 import { DashboardCharts } from "./dashboard-charts";
+import { mappedStatusTone, DEFAULT_DASHBOARD_SETTINGS, type DashboardSettings } from "@/lib/domain/dashboard-settings";
 import {
   consolidatedActions, moduleKpis, PERIOD_LABEL, periodRange, type DashboardRecord, type DashEvent, type PeriodKind, type Rag,
 } from "@/lib/domain/dashboard";
 
 export interface DashModule { id: string; label: string }
-interface Props { tenantId: string; projectId: string; timezone: string; modules: DashModule[]; photosActive: boolean; onOpenModule: (id: string) => void; onOpenRecord: (module: string, id: string) => void }
+interface Props { tenantId: string; projectId: string; timezone: string; modules: DashModule[]; photosActive: boolean; onOpenModule: (id: string) => void; onOpenRecord: (module: string, id: string) => void; settings?: DashboardSettings }
 
 const RAG_CLASS: Record<Rag, string> = {
   red: "border-destructive/40 bg-destructive/10 text-destructive",
@@ -60,7 +61,7 @@ function dashboardEventsQuery(tenantId: string, projectId: string, tz: string, p
   };
 }
 
-export function LiveDashboard({ tenantId, projectId, timezone, modules, photosActive, onOpenModule, onOpenRecord }: Props) {
+export function LiveDashboard({ tenantId, projectId, timezone, modules, photosActive, onOpenModule, onOpenRecord, settings = DEFAULT_DASHBOARD_SETTINGS }: Props) {
   const today = todayIn(timezone);
   const [kind, setKind] = useState<PeriodKind>("this_week");
   const [custom, setCustom] = useState({ from: today, to: today });
@@ -139,6 +140,7 @@ export function LiveDashboard({ tenantId, projectId, timezone, modules, photosAc
                     : <ListChecks className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />}
                   <span className="min-w-0 flex-1">
                     <span className="font-mono text-xs">{a.reference}</span> {a.title}
+                    <span className={`ml-2 inline-block rounded border px-1.5 text-xs ${(() => { const tone = mappedStatusTone(a.module_id, a.status, settings); return tone && tone !== "neutral" ? RAG_CLASS[tone] : "border-border text-muted-foreground"; })()}`}>{a.status.replaceAll("_", " ")}</span>
                     <span className="block text-xs text-muted-foreground">{label(a.module_id)}{a.due_date ? ` · due ${formatDateGB(a.due_date)}` : " · no due date"}
                       {a.state === "overdue" ? <span className="text-destructive"> · Overdue</span> : a.state === "due_soon" ? <span className="text-warning-foreground"> · Due soon</span> : null}</span>
                   </span>
