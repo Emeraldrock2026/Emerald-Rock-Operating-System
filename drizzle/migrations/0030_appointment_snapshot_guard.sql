@@ -1,0 +1,2 @@
+ALTER FUNCTION public.guard_appointment() SECURITY DEFINER;
+CREATE OR REPLACE FUNCTION public.appointment_entity_options(_tenant uuid,_project uuid) RETURNS TABLE(id uuid,name text) LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT c.id,c.name FROM public.clients c WHERE c.tenant_id=_tenant AND c.active AND EXISTS(SELECT 1 FROM public.projects p WHERE p.id=_project AND p.tenant_id=_tenant) AND public.can_manage_project(_tenant,_project) ORDER BY c.name,c.id $$;
