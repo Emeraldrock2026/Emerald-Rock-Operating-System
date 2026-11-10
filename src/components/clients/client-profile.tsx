@@ -7,7 +7,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/lib/use-tenant";
 import { can } from "@/lib/domain/permissions";
 import { friendlyError, StaleRecordError } from "@/lib/db-errors";
-import { clientDirectoryQuery, clientGroupsQuery, clientContactsQuery, type ClientContact } from "@/lib/client-profile-data";
+import { clientDirectoryQuery, clientGroupsQuery, clientContactsQuery, clientFieldOptionsQuery, type ClientContact } from "@/lib/client-profile-data";
+import { linkableMembersQuery } from "@/lib/people";
+import { joinList, nextActionDone, parseList, prospectReviewNeeded, unmappedValues } from "@/lib/domain/client-fields";
 import { projectsQuery } from "@/lib/projects-data";
 import { CLIENT_FIELDS, CONTACT_ROLES, profileObject, identityGaps, validCompanyNumber, liveProjectCount, duplicateContactIds } from "@/lib/domain/client-profile";
 import { StatusBadge } from "@/components/app/status-badge";
@@ -26,6 +28,7 @@ import { AppointmentTerms } from './appointment-terms';
 export function ClientProfile({clientId}:{clientId:string}) {
   const {tenantId,ctx}=useTenant(); const qc=useQueryClient();const allowed=!!ctx.access&&can(ctx.access,"clients.view");const admin=!!ctx.access&&can(ctx.access,"tenant.users.manage");
   const clients=useQuery({...clientDirectoryQuery(tenantId),enabled:allowed});const contacts=useQuery({...clientContactsQuery(tenantId,clientId),enabled:allowed});const groups=useQuery({...clientGroupsQuery(tenantId),enabled:allowed});const projects=useQuery({...projectsQuery(tenantId),enabled:allowed});
+  const fieldOptions=useQuery({...clientFieldOptionsQuery(tenantId),enabled:allowed});const members=useQuery({...linkableMembersQuery(tenantId),enabled:allowed});
   const client=clients.data?.find(c=>c.id===clientId);const p=profileObject(client?.profile);const [editing,setEditing]=useState(false);const [contact,setContact]=useState<ClientContact|"new"|null>(null);const [source,setSource]=useState("");const [groupName,setGroupName]=useState("");
   const changes=useQuery({queryKey:["tenant",tenantId,"client-changes",clientId],enabled:allowed,queryFn:()=>readAllPages((from,to)=>supabase.from("client_profile_changes").select("*").eq("tenant_id",tenantId).eq("client_id",clientId).order("submitted_at",{ascending:false}).order("id").range(from,to))});
   const audit=useQuery({queryKey:["tenant",tenantId,"client-audit",clientId],enabled:admin,queryFn:()=>readAllPages((from,to)=>supabase.from("audit_log").select("id,occurred_at,actor_email,action,record_table,old_values,new_values").eq("tenant_id",tenantId).eq("category","client").or(`record_id.eq.${clientId},new_values->>client_id.eq.${clientId}`).order("id",{ascending:false}).range(from,to))});
@@ -34,7 +37,7 @@ export function ClientProfile({clientId}:{clientId:string}) {
   if(!allowed)return <PageHeader title="Client profile" description="You don't have access to client profiles."/>;
   if(clients.isLoading)return <p>Loading client…</p>;if(clients.error)return <p className="text-destructive">{friendlyError(clients.error)}</p>;if(!client)return <PageHeader title="Client not found"/>;
   const linked=(projects.data??[]).filter(x=>x.client_id===clientId);const main=(contacts.data??[]).find(c=>c.active&&c.roles.includes("relationship"));
-  const save=(e:FormEvent<HTMLFormElement>)=>{e.preventDefault();const f=new FormData(e.currentTarget);const profile=Object.fromEntries([...CLIENT_FIELDS.map(([k])=>[k,String(f.get(k)??"").trim()]),["relationship_status",String(f.get("relationship_status")??"prospect")]]);const name=String(f.get("name")??"").trim();const group=String(f.get("group")??"")||null;
+  const save=(e:FormEvent<HTMLFormElement>)=>{e.preventDefault();const f=new FormData(e.currentTarget);const profile=Object.fromEntries([...CLIENT_FIELDS.map(([k])=>[k,(k==="regions"||k==="sectors")?joinList(f.getAll(k).map(String)):String(f.get(k)??"").trim()]),["relationship_status",String(f.get("relationship_status")??"prospect")],["next_action_owner",String(f.get("next_action_owner")??"").trim()],["next_action_done",f.get("next_action_done")==="on"?"done":""]]);const name=String(f.get("name")??"").trim();const group=String(f.get("group")??"")||null;
     if(!validCompanyNumber(profile["registration_number"]??"",profile["jurisdiction"]??"")){toast.error("Enter a valid company number for the selected jurisdiction.");return;}
     action.mutate(async()=>{if(client.verified_at)await check(supabase.rpc("submit_client_profile_change",{_client:clientId,_version:client.version,_name:name,_profile:profile,_group:group as string,_reason:String(f.get("reason")??"").trim()}));else{const {data,error}=await supabase.from("clients").update({name,profile,group_id:group}).eq("tenant_id",tenantId).eq("id",clientId).eq("version",client.version).select("id");if(error)throw error;if(!data?.length)throw new StaleRecordError();}});
   };
