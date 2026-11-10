@@ -1,3 +1,4 @@
+import { readAllPages } from "@/lib/read-all-pages";
 import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
@@ -26,10 +27,9 @@ interface Props { tenantId: string; projectId: string; module: FileModuleId; can
 const filesQuery = (tenantId: string, projectId: string, module: FileModuleId) => queryOptions({
   queryKey: ["tenant", tenantId, "project", projectId, "files", module],
   queryFn: async () => {
-    const { data, error } = await supabase.from("project_files")
+    const data = await readAllPages((from, to) => supabase.from("project_files")
       .select("id, title, caption, tags, folder_id, current_version, updated_at, version, project_file_versions(id, version_no, storage_path, file_name, mime_type, size_bytes, note, uploaded_at)")
-      .eq("project_id", projectId).eq("module_id", module).order("updated_at", { ascending: false });
-    if (error) throw error;
+      .eq("project_id", projectId).eq("module_id", module).order("updated_at", { ascending: false }).order("id").range(from, to));
     const rows = (data ?? []).map((f) => {
       const versions = [...(f.project_file_versions ?? [])].sort((a, b) => b.version_no - a.version_no);
       return { ...f, versions, current: versions[0] ?? null };

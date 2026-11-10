@@ -127,7 +127,7 @@ export function AppShell({ ctx, user, children }: { ctx: TenantContext; user: { 
           </Sheet>
           <TenantSwitcher ctx={ctx} userId={user.id} />
           {tenant.isDemo ? (
-            <span className="rounded border border-border px-1.5 py-0.5 text-xs text-muted-foreground">Demo business</span>
+            <span className="hidden shrink-0 rounded border border-border px-1.5 py-0.5 text-xs text-muted-foreground sm:inline">Demo business</span>
           ) : null}
           <div className="ml-auto min-w-0">
             <UserMenu ctx={ctx} email={user.email} userId={user.id} />
@@ -147,10 +147,10 @@ function TenantSwitcher({ ctx, userId }: { ctx: TenantContext; userId: string })
   const tenant = ctx.tenant!;
 
   const current = (
-    <span className="flex items-center gap-2 text-sm">
+    <span className="flex min-w-0 items-center gap-2 text-sm">
       <Building2 className="size-4 text-muted-foreground" aria-hidden />
       <span className="sr-only">Active business: </span>
-      <span className="font-semibold text-foreground">{tenant.displayName}</span>
+      <span className="truncate font-semibold text-foreground">{tenant.displayName}</span>
     </span>
   );
 
@@ -159,7 +159,7 @@ function TenantSwitcher({ ctx, userId }: { ctx: TenantContext; userId: string })
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="gap-2 px-2" aria-label={`Active business: ${tenant.displayName}. Switch business`}>
+        <Button variant="ghost" className="min-w-0 gap-2 px-2" aria-label={`Active business: ${tenant.displayName}. Switch business`}>
           {current}
           <ChevronsUpDown className="size-4 text-muted-foreground" aria-hidden />
         </Button>

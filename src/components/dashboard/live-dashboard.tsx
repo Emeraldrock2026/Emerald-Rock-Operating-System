@@ -1,3 +1,4 @@
+import { readAllPages } from "@/lib/read-all-pages";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { AlertTriangle, CalendarClock, ListChecks, RefreshCw } from "lucide-react";
@@ -27,10 +28,9 @@ function dashboardRecordsQuery(tenantId: string, projectId: string, tz: string) 
   return {
     queryKey: ["tenant", tenantId, "project", projectId, "dashboard-records"],
     queryFn: async (): Promise<DashboardRecord[]> => {
-      const { data, error } = await supabase.from("project_records")
+      const data = await readAllPages((from, to) => supabase.from("project_records")
         .select("id, reference, title, module_id, status, is_closed, due_date, created_at, updated_at, completed_on")
-        .eq("project_id", projectId).limit(2000);
-      if (error) throw error;
+        .eq("tenant_id", tenantId).eq("project_id", projectId).order("id").range(from, to));
       return (data ?? []).map((r) => ({
         id: r.id, reference: r.reference, title: r.title, module_id: r.module_id, status: r.status, is_closed: r.is_closed,
         due_date: r.due_date, created_on: todayIn(tz, new Date(r.created_at)),
@@ -47,13 +47,11 @@ function dashboardEventsQuery(tenantId: string, projectId: string, tz: string, p
     queryFn: async (): Promise<{ photos: DashEvent[] | null; reports: DashEvent[] | null }> => {
       let ph: DashEvent[] | null = null, rp: DashEvent[] | null = null;
       if (photos) {
-        const { data, error } = await supabase.from("project_files").select("id, title, created_at").eq("project_id", projectId).eq("module_id", "photos").limit(5000);
-        if (error) throw error;
+        const data = await readAllPages((from, to) => supabase.from("project_files").select("id, title, created_at").eq("tenant_id", tenantId).eq("project_id", projectId).eq("module_id", "photos").order("id").range(from, to));
         ph = (data ?? []).map((f) => ({ id: f.id, on: todayIn(tz, new Date(f.created_at)), module_id: "photos", target_id: f.id, label: f.title }));
       }
       if (reportModules.length) {
-        const { data, error } = await supabase.from("report_issues").select("id, record_id, module_id, issue_no, issued_at").eq("project_id", projectId).in("module_id", reportModules).limit(5000);
-        if (error) throw error;
+        const data = await readAllPages((from, to) => supabase.from("report_issues").select("id, record_id, module_id, issue_no, issued_at").eq("tenant_id", tenantId).eq("project_id", projectId).in("module_id", reportModules).order("id").range(from, to));
         rp = (data ?? []).map((r) => ({ id: r.id, on: todayIn(tz, new Date(r.issued_at)), module_id: r.module_id, target_id: r.record_id, label: `Issue ${r.issue_no}` }));
       }
       return { photos: ph, reports: rp };
@@ -99,6 +97,7 @@ export function LiveDashboard({ tenantId, projectId, timezone, modules, photosAc
         </div>
       </div>
 
+      {ev.error ? <p className="text-sm text-destructive">{friendlyError(ev.error)}</p> : null}
       {q.error ? <p className="text-sm text-destructive">{friendlyError(q.error)}</p> : null}
       {modules.length === 0 ? (
         <p className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">No registers or reports are switched on for this project, so there are no figures to show.</p>

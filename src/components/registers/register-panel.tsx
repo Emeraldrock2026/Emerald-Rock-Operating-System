@@ -1,3 +1,4 @@
+import { readAllPages } from "@/lib/read-all-pages";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -29,9 +30,8 @@ export function RegisterPanel(p: Props) {
   const q = useQuery({
     queryKey: key,
     queryFn: async () => {
-      const { data, error } = await supabase.from("project_records").select("id, reference, title, description, status, is_closed, due_date, completed_on, fields, version")
-        .eq("project_id", p.projectId).eq("module_id", p.module).order("reference", { ascending: false });
-      if (error) throw error;
+      const data = await readAllPages((from, to) => supabase.from("project_records").select("id, reference, title, description, status, is_closed, due_date, completed_on, fields, version")
+        .eq("project_id", p.projectId).eq("module_id", p.module).order("reference", { ascending: false }).order("id").range(from, to));
       return (data ?? []) as Rec[];
     },
   });
@@ -46,7 +46,8 @@ export function RegisterPanel(p: Props) {
     onError: (e) => toast.error(friendlyError(e)),
   });
   useEffect(() => {
-    if (p.focus && q.data?.some((r) => r.id === p.focus!.id)) { setShow("all"); setOpenId(p.focus.id); }
+    const focused = p.focus;
+    if (focused && q.data?.some((r) => r.id === focused.id)) { setShow("all"); setOpenId(focused.id); }
   }, [p.focus, q.data]);
   const rows = (q.data ?? []).filter((r) => show === "all" || !r.is_closed);
   const open = q.data?.find((r) => r.id === openId) ?? null;
