@@ -90,8 +90,7 @@ function ClientsPage() {
     onSettled: () => qc.invalidateQueries({ queryKey: ["tenant", tenantId] }),
   });
 
-  if (!allowed) return <ReadinessSettingsDialog tenantId={tenantId} open={readinessOpen} onOpenChange={setReadinessOpen} />
-      <PageHeader title="Clients" description="You don't have access to clients." />;
+  if (!allowed) return <PageHeader title="Clients" description="You don't have access to clients." />;
 
   const q = search.trim().toLowerCase();
   const rows = (clients.data ?? []).filter((c) => (showInactive || c.active) && (!q || c.name.toLowerCase().includes(q) || (c.contact_name ?? "").toLowerCase().includes(q)));
@@ -108,6 +107,7 @@ function ClientsPage() {
 
   return (
     <>
+      <ReadinessSettingsDialog tenantId={tenantId} open={readinessOpen} onOpenChange={setReadinessOpen} />
       <PageHeader title="Clients" actions={<>{manage ? <Button variant="outline" onClick={() => setOptionsOpen(true)}>Field options</Button> : null}{isAdmin ? <Button variant="outline" onClick={() => setReadinessOpen(true)}>Readiness requirements</Button> : null}<Button onClick={() => setEditing("new")}>Add client</Button></>} />
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Input aria-label="Search clients" placeholder="Search clients" value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
