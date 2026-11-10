@@ -35,7 +35,7 @@ export function HealthCard({ tenantId, projectId, onOpenRecord, onOpenSection }:
   const refresh = () => { explain.reset(); void q.refetch(); };
   return <section className="border-t py-5" aria-label="Project health">
     <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-base font-semibold">Project health</h2><div className="flex gap-2">
-      {result?.canManage && !draft ? <Button size="sm" variant="outline" onClick={() => setDraft(result.weights)}>Adjust weights</Button> : null}
+      {result?.canManage && !draft ? <Button size="sm" variant="outline" disabled={explain.isPending} onClick={() => setDraft(result.weights)}>Adjust weights</Button> : null}
       <Button size="icon" variant="ghost" aria-label="Refresh health score" disabled={q.isFetching || explain.isPending} onClick={refresh}><RefreshCw className="h-4 w-4" /></Button>
     </div></div>
     {q.error ? <p className="mt-2 text-sm text-destructive">{friendlyError(q.error)}</p> : q.isLoading ? <p className="text-sm text-muted-foreground">Loading health score…</p> : h ? <>

@@ -213,7 +213,7 @@ function ProjectPage() {
           return (
             <>
               <TabsContent value="dashboard" className="mt-4 space-y-4">
-                <HealthCard tenantId={tenantId} projectId={projectId} onOpenRecord={openRecord} onOpenSection={(section) => { document.querySelector(`[aria-label="${section === "milestones" ? "Project milestones" : "Commercial forecast"}"]`)?.scrollIntoView({ block: "start", behavior: "smooth" }); }} />
+                <HealthCard tenantId={tenantId} projectId={projectId} onOpenRecord={openRecord} onOpenSection={(section) => { document.querySelector(`[aria-label="${section === "milestones" ? "Milestones" : "Commercial forecast"}"]`)?.scrollIntoView({ block: "start" }); }} />
                 <LiveDashboard tenantId={tenantId} projectId={projectId} timezone={props.timezone} modules={dashModules}
                   photosActive={photosOn} onOpenRecord={openRecord}
                   onOpenModule={(id) => setTab(id === "change_control" ? "changes" : id)} />
