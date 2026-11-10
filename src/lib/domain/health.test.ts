@@ -1,0 +1,19 @@
+import { describe, expect, it } from "vitest";
+import { DEFAULT_WEIGHTS, projectHealth, validateNarrative, weightsSchema, type HealthInput } from "./health";
+import { basisForecast } from "./commercial";
+const base: HealthInput = { today: "2026-11-10", modules: ["rfis"], records: [], milestones: null, commercial: null, weights: DEFAULT_WEIGHTS, projectId: "p", projectReference: "DEMO-0001" };
+const record = { id: "r", reference: "DEMO-RFI-0001", title: "Test", module_id: "rfis", status: "open", is_closed: false, due_date: "2026-11-09", created_on: "2026-11-01", closed_on: null };
+describe("health rules v1", () => {
+  it("never turns missing data into zero or success", () => { const h = projectHealth(base); expect(h.score).toBeNull(); expect(h.coverage).toBe(0); });
+  it("scores 50 when half the dated actions are overdue", () => expect(projectHealth({ ...base, records: [record, { ...record, id: "r2", due_date: "2026-11-11" }] }).score).toBe(50));
+  it("excludes switched-off modules and their citations", () => { const h = projectHealth({ ...base, modules: [], records: [record] }); expect(h.score).toBeNull(); expect(h.evidence).toHaveLength(0); });
+  it("flags undated records without assuming success", () => { const h = projectHealth({ ...base, records: [{ ...record, due_date: null }] }); expect(h.score).toBeNull(); expect(h.dimensions[0]?.missing).toContain("1 open actions have no due date"); });
+  it("uses custom weights and renormalises available dimensions", () => { const h = projectHealth({ ...base, modules: ["rfis", "qa"], records: [record, { ...record, id: "qa", module_id: "qa", status: "passed", is_closed: true }], weights: { actions: 10, qa: 90, milestones: 0, commercial: 0 } }); expect(h.score).toBe(90); });
+  it("caps health at 49 for an unresolved failed QA result", () => { const h = projectHealth({ ...base, modules: ["qa"], records: [{ ...record, module_id: "qa", status: "failed" }] }); expect(h.critical).toBe(true); expect(h.score).toBeLessThanOrEqual(49); });
+  it("caps health at 49 for unachieved milestones over 14 days late", () => { const h = projectHealth({ ...base, milestones: [{ id: "m", name: "Test", baseline_date: "2026-11-01", forecast_date: "2026-11-16", actual_date: null, forecast_updated_on: "2026-11-10" }] }); expect(h.score).toBe(46); expect(h.critical).toBe(true); });
+  it("flags stale milestone forecasts after 28 days and deducts 25", () => { const h = projectHealth({ ...base, milestones: [{ id: "m", name: "Test", baseline_date: "2026-12-01", forecast_date: "2026-12-01", actual_date: null, forecast_updated_on: "2026-10-12" }] }); expect(h.score).toBe(75); expect(h.provisional).toBe(true); });
+  it("uses revenue versus cost basis consistently", () => { const c = (basis: "revenue" | "cost") => ({ ...basisForecast(basis, 100, [{ amount: 20 }], 132, []), updatedOn: "2026-11-10" }); expect(projectHealth({ ...base, commercial: c("revenue") }).score).toBe(100); expect(projectHealth({ ...base, commercial: c("cost") }).score).toBe(50); });
+  it("rejects all-zero and non-integer weights", () => { expect(weightsSchema.safeParse({ actions: 0, milestones: 0, qa: 0, commercial: 0 }).success).toBe(false); expect(weightsSchema.safeParse({ ...DEFAULT_WEIGHTS, qa: 0.5 }).success).toBe(false); });
+  it("rejects fabricated AI citations", () => expect(validateNarrative({ points: [{ evidenceId: "secret", interpretation: "Claim" }] }, [])).toBeNull());
+  it("returns at most three deterministic priority actions", () => expect(projectHealth({ ...base, records: Array.from({ length: 5 }, (_, n) => ({ ...record, id: String(n) })) }).priorities).toHaveLength(3));
+});

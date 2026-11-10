@@ -84,7 +84,7 @@ database policies are the source of truth.
 - First platform admin: an approved email in `platform_admin_bootstrap` calls
   `claim_platform_admin()` after signing in with a confirmed email; the entry is then consumed.
 - `tests/db/access_acceptance.sql` exercises isolation, roles, modules and guards inside one
-  transaction that always rolls back. Expected result: `RESULT passes=59 fails={}`.
+  transaction that always rolls back. Expected result: `RESULT passes=66 fails={}`.
 
 ## Planning rules (see `src/lib/domain/`)
 - Allocation dates are date-only values. Capacity comes from effective-dated working patterns.
@@ -172,3 +172,11 @@ Which cards and exports a person gets is decided by `overviewCards` / `available
 - `project_commercials.budget_basis` (revenue | expenditure | cost) and `original_budget` (backfilled from agreed fee). Same commercial-access policies as the fee.
 - `budget_adjustments`: append-only (guard trigger raises ADJUSTMENT_LOCKED on update/delete), reason required, non-zero amount, audited under 'commercial'. Read/insert need commercial access and project view. Verified by `tests/db/budget_basis_acceptance.sql`.
 - Variance compares forecast with original + adjustments; on revenue a higher forecast is favourable, on expenditure/cost it is adverse.
+
+## Health score (dashboard stage 5)
+- `project_health_settings`: per-project relative integer weights 0–100 (defaults actions 30, milestones 30, QA 20, commercial 20). At least one positive. Read: project viewer with Clients & Projects on. Insert/update: project manager with module on. Composite project FK, version stamps and append-only audit events; no delete grant.
+- `getProjectHealth` authenticates every request, checks project/business access and active modules, reads all pages under user RLS and calculates `projectHealth` in `src/lib/domain/health.ts`. Commercial inputs are never read or returned without `has_commercial_access`. No shared health score cache/table: users with different access can see different explicitly scoped scores.
+- Rule version 1: dated open actions = share not overdue ×100; milestones = average clamp(100 − positive variance in calendar days ×100/28 −25 if stale); QA = passed/(passed+failed) ×100; commercial = clamp(100 − adverse variance/current adjusted budget ×500 −25 if stale). Actual milestone date takes precedence. Positive budget is required; revenue shortfall and expenditure/cost overrun are adverse. Forecast update older than 28 days or absent is stale. Pending estimated changes remain separate.
+- Available positive-weight dimensions are normalised; missing never means zero or success. Coverage = available weight/applicable positive weight; disabled/restricted/zero-weight inputs are excluded. Missing/stale inputs make the score provisional. Green ≥80, amber ≥50, red <50. Unresolved failed QA or an unachieved milestone >14 days late caps at 49 regardless of weights. No available data means Not available.
+- Three priority actions are deterministic, ordered by adverse/missing/stale severity then label. Gateway GPT-6.1 Terra (user-selected permitted alternative) writes interpretation only from the first 40 authorised evidence sources; citation IDs are validated, supplied facts displayed separately, no automatic generation/replay or saving. AI failure leaves scoring intact. Evidence links open register items or the milestones/commercial section.
+- Checks: `health.test.ts` and rolled-back `tests/db/health_acceptance.sql`; all real projects remain untouched.
