@@ -1,0 +1,6 @@
+import { informationComplete } from './client-profile';
+export const TERM_FIELDS = [['payment_terms','Payment terms'],['po_number','PO number'],['po_status','PO status'],['invoice_route','Invoice email / portal'],['invoice_recipients','Invoice recipients'],['supporting_documents','Supporting documents'],['cut_off','Submission cut-off'],['submission_instructions','Submission instructions'],['timesheet_process','Timesheet approval process'],['appointment_basis','Default appointment basis'],['framework_reference','Rate card / framework reference']] as const;
+export type ServiceStage = {name:string;scope:string;starts_on:string;ends_on:string};
+export function stageDatesValid(stages: ServiceStage[]) { return stages.every(s=>informationComplete(s.name)&&(!s.starts_on||!s.ends_on||s.ends_on>=s.starts_on)); }
+export function initialiseTerms(defaults:Record<string,string>) { return {...defaults}; }
+export function appointmentAccess(projectView:boolean,projectManage:boolean,commercial:boolean) { return {view:projectView,edit:projectView&&projectManage,commercialView:projectView&&commercial,commercialEdit:projectView&&projectManage&&commercial}; }
