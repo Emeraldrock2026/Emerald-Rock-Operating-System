@@ -183,17 +183,23 @@ function ProjectPage() {
           </div>
         </section>
       ) : (
-        <dl className="grid gap-x-8 gap-y-4 rounded-lg border bg-card p-5 text-sm sm:grid-cols-2">
-          <Item label="Reference" value={<span className="font-mono">{p.reference}</span>} />
-          <Item label="Client" value={p.client_name ?? "No client (internal)"} />
-          <Item label="Start date" value={formatDateGB(p.start_date)} />
-          <Item label="Planned finish date" value={formatDateGB(p.planned_finish_date)} />
-          {manage ? <Item label="Project manager" value={pm ?? "Not set"} /> : null}
-          <div className="sm:col-span-2">
-            <dt className="text-muted-foreground">Scope</dt>
-            <dd className="mt-1 whitespace-pre-wrap text-foreground">{p.scope || "—"}</dd>
-          </div>
-        </dl>
+        <section aria-label="Project overview" className="divide-y rounded-lg border bg-card">
+          <dl className="grid gap-x-8 gap-y-4 p-5 text-sm sm:grid-cols-2 lg:grid-cols-4">
+            <Item label="Reference" value={<span className="font-mono">{p.reference}</span>} />
+            <Item label="Client" value={p.client_name ?? "No client (internal)"} />
+            <Item label="Start date" value={formatDateGB(p.start_date)} />
+            <Item label="Planned finish date" value={formatDateGB(p.planned_finish_date)} />
+            {manage ? <Item label="Project manager" value={pm ?? "Not set"} /> : null}
+            <div className="sm:col-span-2 lg:col-span-4">
+              <dt className="text-muted-foreground">Scope</dt>
+              <dd className="mt-1 whitespace-pre-wrap text-foreground">{p.scope || "—"}</dd>
+            </div>
+          </dl>
+          <div className="p-5"><ProjectDetailsCard bare tenantId={tenantId} projectId={projectId} timezone={ctx.tenant!.timezone} businessModules={ctx.access?.enabledModules ?? new Set()} canManage={canManageProject} isManager={manage} /></div>
+          {ctx.access && can(ctx.access, "commercial.view") ? (
+            <div className="p-5"><ProjectCommercials bare tenantId={tenantId} projectId={projectId} canEdit={can(ctx.access, "commercial.edit")} /></div>
+          ) : null}
+        </section>
       )}
 
       <Tabs value={tab} onValueChange={setTab} className="mt-6">
@@ -226,7 +232,7 @@ function ProjectPage() {
                   if (widget === "milestones") { const prog = registerTabs.find((t) => t.id === "programmes" && !t.access.historicOnly); return prog ? <MilestonesPanel key={widget} tenantId={tenantId} projectId={projectId} timezone={props.timezone} canContribute={prog.access.canUpload} canManage={canManageProject} historicOnly={false} staleDays={config.freshness.milestones} /> : null; }
                   if (widget === "commercial") return ctx.access && can(ctx.access, "commercial.view") ? <CommercialForecastCard key={widget} tenantId={tenantId} projectId={projectId} canEdit={can(ctx.access, "commercial.edit")} changesVisible={changeAccess.visible && !changeAccess.historicOnly} changesEditable={changeAccess.visible && !changeAccess.historicOnly} staleDays={config.freshness.commercial} timezone={props.timezone} /> : null;
                   if (widget === "summary") return <ProjectDashboard key={widget} {...props} />;
-                  return <ProjectDetailsCard key={widget} {...props} />;
+                  return null; // project details now sit in the overview at the top of the page
                 })}
               </TabsContent>
               {fileTabs.map((t) => (
@@ -269,9 +275,6 @@ function ProjectPage() {
       </Tabs>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
-        {ctx.access && can(ctx.access, "commercial.view") ? (
-          <ProjectCommercials tenantId={tenantId} projectId={projectId} canEdit={can(ctx.access, "commercial.edit")} />
-        ) : null}
         {ctx.access && can(ctx.access, "allocations.view_all") ? (
           <Placeholder title="Planned work" text="Book and change work for this project in the Planner." />
         ) : null}
