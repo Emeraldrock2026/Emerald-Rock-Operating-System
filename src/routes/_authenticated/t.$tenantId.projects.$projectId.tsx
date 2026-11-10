@@ -32,6 +32,7 @@ import { HealthCard } from "@/components/dashboard/health-card";
 import { LiveDashboard } from "@/components/dashboard/live-dashboard";
 import { dashboardSettingsQuery } from "@/lib/dashboard-settings-data";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppointmentsPanel } from '@/components/clients/appointments-panel';
 
 export const Route = createFileRoute("/_authenticated/t/$tenantId/projects/$projectId")({
   head: () => ({
@@ -109,6 +110,7 @@ function ProjectPage() {
   })).filter((t) => t.access.visible);
   const tabItems = [
     { value: "dashboard", label: "Dashboard" },
+    { value: "appointments", label: "Appointments" },
     ...fileTabs.map((t) => ({ value: t.id as string, label: t.label })),
     ...(drawingsAccess.visible ? [{ value: "drawings", label: "Drawings" }] : []),
     ...reportTabs.map((t) => ({ value: t.id as string, label: t.label })),
@@ -203,6 +205,7 @@ function ProjectPage() {
         </div>
         <TabsList className="hidden h-auto flex-wrap sm:inline-flex">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          <TabsTrigger value="appointments">Appointments</TabsTrigger>
           {fileTabs.map((t) => <TabsTrigger key={t.id} value={t.id}>{t.label}</TabsTrigger>)}
           {drawingsAccess.visible ? <TabsTrigger value="drawings">Drawings</TabsTrigger> : null}
           {reportTabs.map((t) => <TabsTrigger key={t.id} value={t.id}>{t.label}</TabsTrigger>)}
@@ -210,6 +213,7 @@ function ProjectPage() {
           {changeAccess.visible ? <TabsTrigger value="changes">Change register</TabsTrigger> : null}
           <TabsTrigger value="setup">Team and setup</TabsTrigger>
         </TabsList>
+        <TabsContent value="appointments"><AppointmentsPanel tenantId={tenantId} projectId={projectId} canManage={canManageProject} commercial={!!ctx.access&&can(ctx.access,'commercial.view')}/></TabsContent>
         {(() => {
           const props = { tenantId, projectId, timezone: ctx.tenant!.timezone, businessModules: ctx.access?.enabledModules ?? new Set(), canManage: canManageProject, isManager: manage };
           return (
