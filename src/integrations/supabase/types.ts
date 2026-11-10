@@ -538,6 +538,7 @@ export type Database = {
           contact_name: string | null
           created_at: string
           created_by: string | null
+          display_reference: string
           group_id: string | null
           id: string
           name: string
@@ -557,6 +558,7 @@ export type Database = {
           contact_name?: string | null
           created_at?: string
           created_by?: string | null
+          display_reference: string
           group_id?: string | null
           id?: string
           name: string
@@ -576,6 +578,7 @@ export type Database = {
           contact_name?: string | null
           created_at?: string
           created_by?: string | null
+          display_reference?: string
           group_id?: string | null
           id?: string
           name?: string

@@ -232,6 +232,13 @@
       "when": 1794301019921,
       "tag": "0032_appointment_contact_project_manager_access",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1794302313498,
+      "tag": "0033_client_display_references",
+      "breakpoints": true
     }
   ]
 }
