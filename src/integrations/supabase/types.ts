@@ -980,6 +980,63 @@ export type Database = {
           },
         ]
       }
+      project_health_settings: {
+        Row: {
+          actions_weight: number
+          commercial_weight: number
+          created_at: string
+          created_by: string | null
+          milestones_weight: number
+          project_id: string
+          qa_weight: number
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          actions_weight?: number
+          commercial_weight?: number
+          created_at?: string
+          created_by?: string | null
+          milestones_weight?: number
+          project_id: string
+          qa_weight?: number
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          actions_weight?: number
+          commercial_weight?: number
+          created_at?: string
+          created_by?: string | null
+          milestones_weight?: number
+          project_id?: string
+          qa_weight?: number
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_health_settings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_health_settings_tenant_id_project_id_fkey"
+            columns: ["tenant_id", "project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       project_key_dates: {
         Row: {
           achieved_on: string | null
