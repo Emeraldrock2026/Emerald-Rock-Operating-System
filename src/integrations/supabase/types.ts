@@ -85,6 +85,7 @@ export type Database = {
           agreed_fee: number | null
           appointment_id: string
           charging_basis: string
+          commencement_exception: Json | null
           created_at: string
           created_by: string | null
           defaults_confirmed: boolean
@@ -99,6 +100,7 @@ export type Database = {
           agreed_fee?: number | null
           appointment_id: string
           charging_basis?: string
+          commencement_exception?: Json | null
           created_at?: string
           created_by?: string | null
           defaults_confirmed?: boolean
@@ -113,6 +115,7 @@ export type Database = {
           agreed_fee?: number | null
           appointment_id?: string
           charging_basis?: string
+          commencement_exception?: Json | null
           created_at?: string
           created_by?: string | null
           defaults_confirmed?: boolean
