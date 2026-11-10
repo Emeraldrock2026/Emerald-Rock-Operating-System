@@ -56,4 +56,4 @@ use the editor.
 - Business dashboard configuration is validated in domain/dashboard-settings.ts and by a database guard; project overrides take precedence, while display mappings never alter operational rules or permissions.
 
 - Dashboard inputs and linked record lists use readAllPages with unique ordering, so API page limits never silently truncate counts or exact-record navigation.
-- Client identity extends existing clients; shared contacts and optional groups link by tenant-composite keys, and verified profile changes go through reviewed proposals rather than rewriting approved values. Commercial defaults and appointment snapshots must stay in separately protected records, never client profile JSON.
+- Client identity, groups, contacts and appointments use tenant-composite links. Verified identity changes require reviewed proposals; appointment identity snapshots never auto-sync. Defaults and appointment terms stay separately commercial-protected, never in profile JSON.
