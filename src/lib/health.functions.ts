@@ -68,7 +68,8 @@ export const getProjectHealth = createServerFn({ method: "POST" })
         if ((e.data?.length ?? 0) < 500) break;
       }
       const byId = new Map(estimates.map((e) => [e.record_id, e.amount]));
-      commercial = { ...basisForecast(row.data?.budget_basis ?? "revenue", row.data?.original_budget ?? null, adjustments, row.data?.forecast_final_account ?? null,
+      const basis = z.enum(["revenue", "expenditure", "cost"]).parse(row.data?.budget_basis ?? "revenue");
+      commercial = { ...basisForecast(basis, row.data?.original_budget ?? null, adjustments, row.data?.forecast_final_account ?? null,
         records.filter((r) => r.module_id === "change_control").map((r) => ({ ...r, estimate: byId.get(r.id) ?? null }))), updatedOn: row.data?.forecast_updated_on ?? null };
     }
     const s = settings.data;
