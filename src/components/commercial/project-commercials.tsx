@@ -15,7 +15,7 @@ const hrs = (n: number | null) => (n == null ? "Not set" : `${n.toLocaleString("
 const when = (iso: string) =>
   new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", dateStyle: "short", timeStyle: "short" }).format(new Date(iso));
 
-export function ProjectCommercials({ tenantId, projectId, canEdit }: { tenantId: string; projectId: string; canEdit: boolean }) {
+export function ProjectCommercials({ tenantId, projectId, canEdit, bare = false }: { tenantId: string; projectId: string; canEdit: boolean; bare?: boolean }) {
   const qc = useQueryClient();
   const key = ["tenant", tenantId, "commercial", projectId];
   const row = useQuery({
@@ -66,7 +66,7 @@ export function ProjectCommercials({ tenantId, projectId, canEdit }: { tenantId:
   const rate = impliedRate(cur);
 
   return (
-    <section className="rounded-lg border bg-card p-5 md:col-span-2" aria-labelledby="commercial-h">
+    <section className={bare ? "" : "rounded-lg border bg-card p-5 md:col-span-2"} aria-labelledby="commercial-h">
       <div className="flex items-center justify-between gap-2">
         <h2 id="commercial-h" className="text-sm font-semibold">Fee and budget hours</h2>
         {canEdit && !editing && !row.isLoading ? <Button size="sm" variant="outline" onClick={start}>{row.data ? "Edit" : "Add fee and budget"}</Button> : null}

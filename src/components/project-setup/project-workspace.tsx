@@ -24,9 +24,9 @@ import {
 
 interface Props { tenantId: string; projectId: string; timezone: string; businessModules: ReadonlySet<ModuleId>; canManage: boolean; isManager: boolean }
 
-function Card({ title, children, action }: { title: string; children: ReactNode; action?: ReactNode }) {
+function Card({ title, children, action, bare = false }: { title: string; children: ReactNode; action?: ReactNode; bare?: boolean }) {
   return (
-    <section className="rounded-lg border bg-card p-5" aria-label={title}>
+    <section className={bare ? "" : "rounded-lg border bg-card p-5"} aria-label={title}>
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="text-sm font-semibold text-foreground">{title}</h2>
         {action}
@@ -90,7 +90,7 @@ function describeActivity(table: string, action: string) {
 }
 
 /* ---------------- Details ---------------- */
-export function ProjectDetailsCard({ tenantId, projectId, canManage }: Props) {
+export function ProjectDetailsCard({ tenantId, projectId, canManage, bare = false }: Props & { bare?: boolean }) {
   const q = useQuery(projectDetailQuery(tenantId, projectId));
   const invalidate = useInvalidate(tenantId, projectId);
   const qc = useQueryClient();
@@ -114,7 +114,7 @@ export function ProjectDetailsCard({ tenantId, projectId, canManage }: Props) {
     save.mutate({ description: get("description"), site_address: get("site_address"), contract_form: get("contract_form"), contract_reference: get("contract_reference"), contract_notes: get("contract_notes") });
   };
   return (
-    <Card title="Description, address and contract" action={canManage && !editing ? <Button size="sm" variant="outline" onClick={() => setEditing(true)}>Edit</Button> : null}>
+    <Card bare={bare} title="Description, address and contract" action={canManage && !editing ? <Button size="sm" variant="outline" onClick={() => setEditing(true)}>Edit</Button> : null}>
       {editing ? (
         <form onSubmit={submit} className="grid gap-3">
           <div><Label htmlFor="pd-desc">Description</Label><Textarea id="pd-desc" name="description" defaultValue={p.description} maxLength={5000} /></div>
