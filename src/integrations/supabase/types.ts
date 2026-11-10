@@ -130,6 +130,47 @@ export type Database = {
           },
         ]
       }
+      budget_adjustments: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          effective_on: string
+          id: string
+          project_id: string
+          reason: string
+          tenant_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          effective_on: string
+          id?: string
+          project_id: string
+          reason: string
+          tenant_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          effective_on?: string
+          id?: string
+          project_id?: string
+          reason?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_adjustments_project_id_tenant_id_fkey"
+            columns: ["project_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id", "tenant_id"]
+          },
+        ]
+      }
       change_estimates: {
         Row: {
           amount: number
@@ -706,12 +747,14 @@ export type Database = {
       project_commercials: {
         Row: {
           agreed_fee: number | null
+          budget_basis: string
           budget_hours: number | null
           created_at: string
           created_by: string | null
           forecast_final_account: number | null
           forecast_note: string
           forecast_updated_on: string | null
+          original_budget: number | null
           project_id: string
           tenant_id: string
           updated_at: string
@@ -720,12 +763,14 @@ export type Database = {
         }
         Insert: {
           agreed_fee?: number | null
+          budget_basis?: string
           budget_hours?: number | null
           created_at?: string
           created_by?: string | null
           forecast_final_account?: number | null
           forecast_note?: string
           forecast_updated_on?: string | null
+          original_budget?: number | null
           project_id: string
           tenant_id: string
           updated_at?: string
@@ -734,12 +779,14 @@ export type Database = {
         }
         Update: {
           agreed_fee?: number | null
+          budget_basis?: string
           budget_hours?: number | null
           created_at?: string
           created_by?: string | null
           forecast_final_account?: number | null
           forecast_note?: string
           forecast_updated_on?: string | null
+          original_budget?: number | null
           project_id?: string
           tenant_id?: string
           updated_at?: string
