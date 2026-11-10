@@ -1,10 +1,12 @@
 -- Commercial forecast checks (dashboard stage 4). Run through the backend SQL tool; everything rolls back.
 -- Uses the Harbour Planning test project HPD-0001 and its draft change. Dan is Owner/Admin.
+-- Works whether or not the demo project already has figures: forecast and estimate are upserted (a new forecast value forces a fresh stamp).
 -- Expected: owner_forecast=1, stamped=today, stamp_spoof=ignored, owner_estimate=ok, not_a_change=refused NOT_A_CHANGE,
 --   rm_no_grant_fees=0, rm_no_grant_est=0, rm_no_grant_write=refused, rm_grant_fees=1, rm_grant_est=1,
 --   member_fees=0, member_est=0, viewer_fees=0, viewer_est=0, outsider_fees=0, outsider_est=0,
 --   cc_off_owner_est=1, cc_off_write=refused, commercial_off_owner_fees=0, commercial_off_owner_est=0
 begin;
+select set_config('request.jwt.claims', '', true);
 create temp table r(k text, v text) on commit drop;
 create temp table ids(k text, v uuid) on commit drop;
 grant all on r, ids to authenticated;
@@ -35,12 +37,14 @@ begin
 end $$;
 
 select pg_temp.as_user('adm'); set local role authenticated;
-with u as (insert into project_commercials (project_id, tenant_id, agreed_fee, forecast_final_account) values ((select v from ids where k='p'), (select v from ids where k='t'), 100000, 112500) returning 1)
+with u as (insert into project_commercials (project_id, tenant_id, agreed_fee, forecast_final_account) values ((select v from ids where k='p'), (select v from ids where k='t'), 100000, 112600)
+  on conflict (project_id) do update set agreed_fee = excluded.agreed_fee, forecast_final_account = excluded.forecast_final_account returning 1)
   insert into r select 'owner_forecast', count(*)::text from u;
 insert into r select 'stamped', case when forecast_updated_on = tenant_today((select v from ids where k='t')) then 'today' else coalesce(forecast_updated_on::text, 'null') end from project_commercials where project_id = (select v from ids where k='p');
 update project_commercials set forecast_updated_on = '2020-01-01' where project_id = (select v from ids where k='p');
 insert into r select 'stamp_spoof', case when forecast_updated_on = tenant_today((select v from ids where k='t')) then 'ignored' else 'ACCEPTED' end from project_commercials where project_id = (select v from ids where k='p');
-insert into change_estimates (record_id, tenant_id, project_id, amount) values ((select v from ids where k='ch'), (select v from ids where k='t'), (select v from ids where k='p'), 4250);
+insert into change_estimates (record_id, tenant_id, project_id, amount) values ((select v from ids where k='ch'), (select v from ids where k='t'), (select v from ids where k='p'), 4250)
+  on conflict (record_id) do update set amount = excluded.amount;
 insert into r values ('owner_estimate', 'ok');
 select pg_temp.try('not_a_change', format('insert into change_estimates (record_id, tenant_id, project_id, amount) values (%L, %L, %L, 1)', (select v from ids where k='rfi'), (select v from ids where k='t'), (select v from ids where k='p')));
 reset role;
