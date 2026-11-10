@@ -21,6 +21,7 @@ import { Route as AuthenticatedTTenantIdIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedTTenantIdExportsRouteImport } from './routes/_authenticated/t.$tenantId.exports'
 import { Route as AuthenticatedTTenantIdPlannerRouteImport } from './routes/_authenticated/t.$tenantId.planner'
 import { Route as AuthenticatedTTenantIdClientsIndexRouteImport } from './routes/_authenticated/t.$tenantId.clients.index'
+import { Route as AuthenticatedTTenantIdClientsClientIdRouteImport } from './routes/_authenticated/t.$tenantId.clients.$clientId'
 import { Route as AuthenticatedTTenantIdPeopleIndexRouteImport } from './routes/_authenticated/t.$tenantId.people.index'
 import { Route as AuthenticatedTTenantIdPeopleEmployeeIdRouteImport } from './routes/_authenticated/t.$tenantId.people.$employeeId'
 import { Route as AuthenticatedTTenantIdProjectsIndexRouteImport } from './routes/_authenticated/t.$tenantId.projects.index'
@@ -96,6 +97,12 @@ const AuthenticatedTTenantIdClientsIndexRoute =
     path: '/clients/',
     getParentRoute: () => AuthenticatedTTenantIdRoute,
   } as any)
+const AuthenticatedTTenantIdClientsClientIdRoute =
+  AuthenticatedTTenantIdClientsClientIdRouteImport.update({
+    id: '/clients/$clientId',
+    path: '/clients/$clientId',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
 const AuthenticatedTTenantIdPeopleIndexRoute =
   AuthenticatedTTenantIdPeopleIndexRouteImport.update({
     id: '/people/',
@@ -162,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/t/$tenantId/exports': typeof AuthenticatedTTenantIdExportsRoute
   '/t/$tenantId/planner': typeof AuthenticatedTTenantIdPlannerRoute
   '/t/$tenantId/': typeof AuthenticatedTTenantIdIndexRoute
+  '/t/$tenantId/clients/$clientId': typeof AuthenticatedTTenantIdClientsClientIdRoute
   '/t/$tenantId/people/$employeeId': typeof AuthenticatedTTenantIdPeopleEmployeeIdRoute
   '/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   '/t/$tenantId/settings/appearance': typeof AuthenticatedTTenantIdSettingsAppearanceRoute
@@ -183,6 +191,7 @@ export interface FileRoutesByTo {
   '/t/$tenantId/exports': typeof AuthenticatedTTenantIdExportsRoute
   '/t/$tenantId/planner': typeof AuthenticatedTTenantIdPlannerRoute
   '/t/$tenantId': typeof AuthenticatedTTenantIdIndexRoute
+  '/t/$tenantId/clients/$clientId': typeof AuthenticatedTTenantIdClientsClientIdRoute
   '/t/$tenantId/people/$employeeId': typeof AuthenticatedTTenantIdPeopleEmployeeIdRoute
   '/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   '/t/$tenantId/settings/appearance': typeof AuthenticatedTTenantIdSettingsAppearanceRoute
@@ -207,6 +216,7 @@ export interface FileRoutesById {
   '/_authenticated/t/$tenantId/exports': typeof AuthenticatedTTenantIdExportsRoute
   '/_authenticated/t/$tenantId/planner': typeof AuthenticatedTTenantIdPlannerRoute
   '/_authenticated/t/$tenantId/': typeof AuthenticatedTTenantIdIndexRoute
+  '/_authenticated/t/$tenantId/clients/$clientId': typeof AuthenticatedTTenantIdClientsClientIdRoute
   '/_authenticated/t/$tenantId/people/$employeeId': typeof AuthenticatedTTenantIdPeopleEmployeeIdRoute
   '/_authenticated/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   '/_authenticated/t/$tenantId/settings/appearance': typeof AuthenticatedTTenantIdSettingsAppearanceRoute
@@ -231,6 +241,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/exports'
     | '/t/$tenantId/planner'
     | '/t/$tenantId/'
+    | '/t/$tenantId/clients/$clientId'
     | '/t/$tenantId/people/$employeeId'
     | '/t/$tenantId/projects/$projectId'
     | '/t/$tenantId/settings/appearance'
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/exports'
     | '/t/$tenantId/planner'
     | '/t/$tenantId'
+    | '/t/$tenantId/clients/$clientId'
     | '/t/$tenantId/people/$employeeId'
     | '/t/$tenantId/projects/$projectId'
     | '/t/$tenantId/settings/appearance'
@@ -275,6 +287,7 @@ export interface FileRouteTypes {
     | '/_authenticated/t/$tenantId/exports'
     | '/_authenticated/t/$tenantId/planner'
     | '/_authenticated/t/$tenantId/'
+    | '/_authenticated/t/$tenantId/clients/$clientId'
     | '/_authenticated/t/$tenantId/people/$employeeId'
     | '/_authenticated/t/$tenantId/projects/$projectId'
     | '/_authenticated/t/$tenantId/settings/appearance'
@@ -380,6 +393,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdClientsIndexRouteImport
       parentRoute: typeof AuthenticatedTTenantIdRoute
     }
+    '/_authenticated/t/$tenantId/clients/$clientId': {
+      id: '/_authenticated/t/$tenantId/clients/$clientId'
+      path: '/clients/$clientId'
+      fullPath: '/t/$tenantId/clients/$clientId'
+      preLoaderRoute: typeof AuthenticatedTTenantIdClientsClientIdRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
     '/_authenticated/t/$tenantId/people/': {
       id: '/_authenticated/t/$tenantId/people/'
       path: '/people'
@@ -450,6 +470,7 @@ interface AuthenticatedTTenantIdRouteChildren {
   AuthenticatedTTenantIdExportsRoute: typeof AuthenticatedTTenantIdExportsRoute
   AuthenticatedTTenantIdPlannerRoute: typeof AuthenticatedTTenantIdPlannerRoute
   AuthenticatedTTenantIdIndexRoute: typeof AuthenticatedTTenantIdIndexRoute
+  AuthenticatedTTenantIdClientsClientIdRoute: typeof AuthenticatedTTenantIdClientsClientIdRoute
   AuthenticatedTTenantIdPeopleEmployeeIdRoute: typeof AuthenticatedTTenantIdPeopleEmployeeIdRoute
   AuthenticatedTTenantIdProjectsProjectIdRoute: typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   AuthenticatedTTenantIdSettingsAppearanceRoute: typeof AuthenticatedTTenantIdSettingsAppearanceRoute
@@ -467,6 +488,8 @@ const AuthenticatedTTenantIdRouteChildren: AuthenticatedTTenantIdRouteChildren =
     AuthenticatedTTenantIdExportsRoute: AuthenticatedTTenantIdExportsRoute,
     AuthenticatedTTenantIdPlannerRoute: AuthenticatedTTenantIdPlannerRoute,
     AuthenticatedTTenantIdIndexRoute: AuthenticatedTTenantIdIndexRoute,
+    AuthenticatedTTenantIdClientsClientIdRoute:
+      AuthenticatedTTenantIdClientsClientIdRoute,
     AuthenticatedTTenantIdPeopleEmployeeIdRoute:
       AuthenticatedTTenantIdPeopleEmployeeIdRoute,
     AuthenticatedTTenantIdProjectsProjectIdRoute:
