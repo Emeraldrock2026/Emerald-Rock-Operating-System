@@ -90,6 +90,8 @@ export type Database = {
           created_by: string | null
           defaults_confirmed: boolean
           defaults_version: number | null
+          po_file_id: string | null
+          po_file_version: number | null
           tenant_id: string
           terms: Json
           updated_at: string
@@ -105,6 +107,8 @@ export type Database = {
           created_by?: string | null
           defaults_confirmed?: boolean
           defaults_version?: number | null
+          po_file_id?: string | null
+          po_file_version?: number | null
           tenant_id: string
           terms?: Json
           updated_at?: string
@@ -120,6 +124,8 @@ export type Database = {
           created_by?: string | null
           defaults_confirmed?: boolean
           defaults_version?: number | null
+          po_file_id?: string | null
+          po_file_version?: number | null
           tenant_id?: string
           terms?: Json
           updated_at?: string
@@ -127,6 +133,13 @@ export type Database = {
           version?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "appointment_commercials_po_file_fk"
+            columns: ["tenant_id", "po_file_id"]
+            isOneToOne: false
+            referencedRelation: "project_files"
+            referencedColumns: ["tenant_id", "id"]
+          },
           {
             foreignKeyName: "appointment_commercials_tenant_id_appointment_id_fkey"
             columns: ["tenant_id", "appointment_id"]
@@ -2360,6 +2373,44 @@ export type Database = {
             foreignKeyName: "tenant_modules_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_readiness_settings: {
+        Row: {
+          config: Json
+          created_at: string
+          created_by: string | null
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_readiness_settings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
