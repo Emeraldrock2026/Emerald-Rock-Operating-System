@@ -36,7 +36,7 @@ export function duplicateContactIds(contacts: readonly { id: string; name: strin
   const flagged = new Set<string>();
   for (let i = 0; i < contacts.length; i++) {
     for (let j = i + 1; j < contacts.length; j++) {
-      const a = contacts[i], b = contacts[j];
+      const a = contacts[i]!, b = contacts[j]!;
       const sameEmail = Boolean(a.email && b.email && a.email.toLowerCase() === b.email.toLowerCase());
       const sameName = a.name.trim().toLowerCase() === b.name.trim().toLowerCase();
       if (sameEmail || sameName) { flagged.add(a.id); flagged.add(b.id); }
