@@ -163,3 +163,7 @@ Which cards and exports a person gets is decided by `overviewCards` / `available
 - `project_milestones` (baseline, forecast, actual, database-stamped forecast_updated_on) follows the Programmes project module: viewers read while it is on, project admins also read historic; project admins add, contributors update forecast/actual.
 - Baselines change only via `set_milestone_baseline()` (project admin, module on, version check, reason for any re-baseline). Every baseline is written to append-only `milestone_baselines`; direct baseline updates are refused (BASELINE_LOCKED).
 - Checked by `tests/db/milestones_acceptance.sql`.
+
+## Commercial forecast (dashboard stage 4)
+- `project_commercials` also holds forecast_final_account, forecast_note and database-stamped forecast_updated_on (same commercial-only policies).
+- `change_estimates` (one per change register item) is readable only with commercial access on projects the person can view; writes need change control on for the project. Checked by `tests/db/commercial_forecast_acceptance.sql`.
