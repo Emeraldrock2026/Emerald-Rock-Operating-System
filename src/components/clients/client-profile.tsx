@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Pencil, Check, Mail, Phone, ArrowLeft } from "lucide-react";
+import { Plus, Pencil, Check, Mail, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/lib/use-tenant";
 import { can } from "@/lib/domain/permissions";
@@ -10,7 +10,7 @@ import { friendlyError, StaleRecordError } from "@/lib/db-errors";
 import { clientDirectoryQuery, clientGroupsQuery, clientContactsQuery, type ClientContact } from "@/lib/client-profile-data";
 import { projectsQuery } from "@/lib/projects-data";
 import { CLIENT_FIELDS, CONTACT_ROLES, profileObject, identityGaps, validCompanyNumber, liveProjectCount } from "@/lib/domain/client-profile";
-import { ClientSummaryCard } from "./client-summary-card";
+import { StatusBadge } from "@/components/app/status-badge";
 import { PageHeader } from "@/components/app/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,11 +39,10 @@ export function ClientProfile({clientId}:{clientId:string}) {
     action.mutate(async()=>{if(client.verified_at)await check(supabase.rpc("submit_client_profile_change",{_client:clientId,_version:client.version,_name:name,_profile:profile,_group:group as string,_reason:String(f.get("reason")??"").trim()}));else{const {data,error}=await supabase.from("clients").update({name,profile,group_id:group}).eq("tenant_id",tenantId).eq("id",clientId).eq("version",client.version).select("id");if(error)throw error;if(!data?.length)throw new StaleRecordError();}});
   };
   const saveContact=(e:FormEvent<HTMLFormElement>)=>{e.preventDefault();const f=new FormData(e.currentTarget);const str=(k:string)=>String(f.get(k)??"").trim();const patch={name:str("name"),position:str("position"),email:str("email")||null,telephone:str("telephone"),division:str("division"),roles:f.getAll("roles").map(String),active:f.get("active")==="on"};action.mutate(async()=>{if(contact==="new")await check(supabase.from("client_contacts").insert({...patch,tenant_id:tenantId,client_id:clientId}));else if(contact){const {data,error}=await supabase.from("client_contacts").update(patch).eq("tenant_id",tenantId).eq("id",contact.id).eq("version",contact.version).select("id");if(error)throw error;if(!data?.length)throw new StaleRecordError();}});};
+  const gaps=identityGaps(p);
   return <>
-    <Button asChild variant="link" className="mb-3 px-0"><Link to="/t/$tenantId/clients" params={{tenantId}}><ArrowLeft className="size-4"/>Clients</Link></Button>
-    <PageHeader title={client.name} actions={<Button onClick={()=>setEditing(true)}><Pencil className="size-4"/>Edit profile</Button>}/>
-    <ClientSummaryCard client={client} tenantId={tenantId} contact={main} group={groups.data?.find(g=>g.id===client.group_id)?.name} liveCount={liveProjectCount(linked)} linked={false}/>
-    <Tabs defaultValue="overview" className="mt-6"><TabsList className="h-auto flex-wrap justify-start"><TabsTrigger value="overview">Overview</TabsTrigger><TabsTrigger value="company">Company details</TabsTrigger><TabsTrigger value="contacts">Contacts</TabsTrigger><TabsTrigger value="appointments">Appointments</TabsTrigger>{ctx.access&&can(ctx.access,'commercial.view')?<TabsTrigger value="defaults">Commercial defaults</TabsTrigger>:null}<TabsTrigger value="changes">Changes & history</TabsTrigger></TabsList>
+    <PageHeader breadcrumb={<Link to="/t/$tenantId/clients" params={{tenantId}} className="underline-offset-4 hover:underline">Clients</Link>} title={client.name} status={<><StatusBadge tone={client.active?"ok":"off"}>{p["relationship_status"]??"prospect"}</StatusBadge><StatusBadge tone={client.verified_at?"ok":"paused"}>{client.verified_at?"Identity checked":"Identity unverified"}</StatusBadge></>} description={[client.display_reference,p["legal_name"],groups.data?.find(g=>g.id===client.group_id)?.name].filter(Boolean).join(" · ")} actions={<Button onClick={()=>setEditing(true)}><Pencil className="size-4"/>Edit profile</Button>}/>
+    <Tabs defaultValue="overview"><TabsList className="h-auto flex-wrap justify-start"><TabsTrigger value="overview">Overview</TabsTrigger><TabsTrigger value="company">Company</TabsTrigger><TabsTrigger value="contacts">Contacts</TabsTrigger><TabsTrigger value="appointments">Appointments</TabsTrigger>{ctx.access&&can(ctx.access,'commercial.view')?<TabsTrigger value="defaults">Commercial defaults</TabsTrigger>:null}<TabsTrigger value="changes">Activity & history</TabsTrigger></TabsList>
       <TabsContent value="appointments"><AppointmentsPanel tenantId={tenantId} clientId={clientId} commercial={!!ctx.access&&can(ctx.access,'commercial.view')}/></TabsContent>
       {ctx.access&&can(ctx.access,'commercial.view')?<TabsContent value="defaults"><AppointmentTerms tenantId={tenantId} clientId={clientId} editable={can(ctx.access,'commercial.edit')}/></TabsContent>:null}
       <TabsContent value="overview" className="space-y-6"><section><h2 className="mb-3 text-lg font-semibold">Identity progress</h2><p>{identityGaps(p).length?`${4-identityGaps(p).length} of 4 identity fields complete`:"Identity fields complete"} · {client.verified_at?"Checked with recorded evidence":"Verification outstanding"}</p>{identityGaps(p).map(g=><p key={g} className="text-sm text-muted-foreground">Pending: {g}</p>)}<p className="mt-2 text-sm text-muted-foreground">Onboarding approval: Not assessed</p></section><section><h2 className="mb-3 text-lg font-semibold">Linked projects</h2>{projects.error?<p className="text-destructive">{friendlyError(projects.error)}</p>:linked.length?linked.map(x=><Link key={x.id} to="/t/$tenantId/projects/$projectId" params={{tenantId,projectId:x.id}} className="flex flex-wrap gap-3 border-b py-3"><span className="font-mono text-sm">{x.reference}</span><span>{x.name}</span><span className="ml-auto text-sm text-muted-foreground">{x.status}</span></Link>):<p className="text-sm text-muted-foreground">No linked projects.</p>}</section><dl className="flex flex-wrap gap-8"><div><dt className="text-sm text-muted-foreground">Open opportunities</dt><dd>Not available</dd></div><div><dt className="text-sm text-muted-foreground">Payment RAG</dt><dd>Not available</dd></div></dl></TabsContent>
