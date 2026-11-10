@@ -381,5 +381,11 @@ begin
   execute 'reset role';perform set_config('request.jwt.claims','',true);
   select count(*) into n from audit_log where tenant_id=tA and category='client' and record_id=cA::text;if n>0 then passes:=passes+1;else fails:=fails||'client audit missing';end if;
 
+  -- Appointment boundary regression (full-suite isolated fixtures).
+  insert into project_appointments(tenant_id,project_id,contracting_client_id,invoicing_client_id,title) values(tA,pA,cA,cA,'Access acceptance appointment');
+  perform set_config('request.jwt.claims',json_build_object('sub',uAdmB,'role','authenticated')::text,true);
+  execute 'set local role authenticated';
+  select count(*) into n from project_appointments where tenant_id=tA;if n=0 then passes:=passes+1;else fails:=fails||'cross tenant appointments';end if;
+  execute 'reset role';perform set_config('request.jwt.claims','',true);
   raise exception 'RESULT passes=% fails=%', passes, fails;
 end $$;

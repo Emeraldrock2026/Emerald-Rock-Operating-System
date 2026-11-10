@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
@@ -16,8 +16,7 @@ import { can } from "@/lib/domain/permissions";
 import { friendlyError, StaleRecordError } from "@/lib/db-errors";
 import { projectsQuery } from "@/lib/projects-data";
 import { clientDirectoryQuery, clientGroupsQuery, clientContactsQuery } from "@/lib/client-profile-data";
-import { ClientSummaryCard } from "@/components/clients/client-summary-card";
-import { liveProjectCount } from "@/lib/domain/client-profile";
+import { liveProjectCount, profileObject } from "@/lib/domain/client-profile";
 
 export const Route = createFileRoute("/_authenticated/t/$tenantId/clients/")({
   head: () => ({
@@ -96,7 +95,7 @@ function ClientsPage() {
       {clients.isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : null}
       {clients.data && rows.length === 0 ? <p className="rounded-md border border-dashed p-6 text-sm text-muted-foreground">No clients to show.</p> : null}
       {rows.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{rows.map(c=><div key={c.id}><ClientSummaryCard client={c} tenantId={tenantId} group={groups.data?.find(g=>g.id===c.group_id)?.name} contact={contacts.data?.find(x=>x.client_id===c.id&&x.active&&x.roles.includes("relationship"))} liveCount={liveProjectCount((projects.data??[]).filter(p=>p.client_id===c.id))}/><Button variant="link" className="px-0" disabled={save.isPending} onClick={()=>window.confirm(c.active?`Mark ${c.name} inactive? Existing projects are kept.`:`Reactivate ${c.name}?`)&&save.mutate({id:c.id,version:c.version,patch:{active:!c.active}})}>{c.active?"Mark inactive":"Reactivate"}</Button></div>)}</div>
+        <div className="min-w-0 max-w-full overflow-x-auto border"><Table aria-label="Client spreadsheet"><TableHeader><TableRow>{['Client','Legal entity / group','Reference','Relationship owner','Main contact','Relationship','Identity check','Live projects','Next action','Due','Status'].map(h=><TableHead key={h} className="whitespace-nowrap border-r">{h}</TableHead>)}</TableRow></TableHeader><TableBody>{rows.map(c=>{const p=profileObject(c.profile);const contact=contacts.data?.find(x=>x.client_id===c.id&&x.active&&x.roles.includes('relationship'));return <TableRow key={c.id}><TableCell className="min-w-48 border-r font-semibold"><Link to="/t/$tenantId/clients/$clientId" params={{tenantId,clientId:c.id}} className="underline-offset-4 hover:underline">{c.name}</Link></TableCell><TableCell className="min-w-48 border-r">{p['legal_name']||'Pending'}<span className="block text-xs text-muted-foreground">{groups.data?.find(g=>g.id===c.group_id)?.name??p['division']}</span></TableCell><TableCell className="max-w-44 break-all border-r font-mono text-xs">{c.client_reference??'Not assigned'}</TableCell><TableCell className="min-w-36 border-r">{p['relationship_owner']||'Pending'}</TableCell><TableCell className="min-w-44 border-r">{contact?.name??c.contact_name??'Pending'}{contact?.email||c.contact_email?<a className="block text-xs underline" href={`mailto:${contact?.email??c.contact_email}`}>{contact?.email??c.contact_email}</a>:null}</TableCell><TableCell className="border-r">{p['relationship_status']??'prospect'}</TableCell><TableCell className="whitespace-nowrap border-r">{c.verified_at?'Evidence recorded':'Unverified'}</TableCell><TableCell className="border-r text-right font-mono">{liveProjectCount((projects.data??[]).filter(x=>x.client_id===c.id))}</TableCell><TableCell className="min-w-44 border-r">{p['next_action']||'Not entered'}</TableCell><TableCell className="whitespace-nowrap border-r">{p['next_action_due']?p['next_action_due'].split('-').reverse().join('/'):'Not entered'}</TableCell><TableCell><Button variant="link" size="sm" disabled={save.isPending} onClick={()=>window.confirm(c.active?`Mark ${c.name} inactive? Existing projects are kept.`:`Reactivate ${c.name}?`)&&save.mutate({id:c.id,version:c.version,patch:{active:!c.active}})}>{c.active?'Mark inactive':'Reactivate'}</Button></TableCell></TableRow>})}</TableBody></Table></div>
       ) : null}
 
       <Dialog open={editing !== null} onOpenChange={(o) => !o && setEditing(null)}>

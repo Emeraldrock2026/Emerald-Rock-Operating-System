@@ -80,6 +80,104 @@ export type Database = {
           },
         ]
       }
+      appointment_commercials: {
+        Row: {
+          agreed_fee: number | null
+          appointment_id: string
+          charging_basis: string
+          created_at: string
+          created_by: string | null
+          defaults_confirmed: boolean
+          defaults_version: number | null
+          tenant_id: string
+          terms: Json
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          agreed_fee?: number | null
+          appointment_id: string
+          charging_basis?: string
+          created_at?: string
+          created_by?: string | null
+          defaults_confirmed?: boolean
+          defaults_version?: number | null
+          tenant_id: string
+          terms?: Json
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          agreed_fee?: number | null
+          appointment_id?: string
+          charging_basis?: string
+          created_at?: string
+          created_by?: string | null
+          defaults_confirmed?: boolean
+          defaults_version?: number | null
+          tenant_id?: string
+          terms?: Json
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_commercials_tenant_id_appointment_id_fkey"
+            columns: ["tenant_id", "appointment_id"]
+            isOneToOne: false
+            referencedRelation: "project_appointments"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      appointment_contacts: {
+        Row: {
+          appointment_id: string
+          contact_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          role: string
+          tenant_id: string
+        }
+        Insert: {
+          appointment_id: string
+          contact_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          role: string
+          tenant_id: string
+        }
+        Update: {
+          appointment_id?: string
+          contact_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          role?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_contacts_tenant_id_appointment_id_fkey"
+            columns: ["tenant_id", "appointment_id"]
+            isOneToOne: false
+            referencedRelation: "project_appointments"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "appointment_contacts_tenant_id_contact_id_fkey"
+            columns: ["tenant_id", "contact_id"]
+            isOneToOne: false
+            referencedRelation: "client_contacts"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
       audit_log: {
         Row: {
           action: string
@@ -221,6 +319,47 @@ export type Database = {
             columns: ["tenant_id", "record_id"]
             isOneToOne: false
             referencedRelation: "project_records"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
+      }
+      client_commercial_defaults: {
+        Row: {
+          client_id: string
+          created_at: string
+          created_by: string | null
+          tenant_id: string
+          terms: Json
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          created_by?: string | null
+          tenant_id: string
+          terms?: Json
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          created_by?: string | null
+          tenant_id?: string
+          terms?: Json
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_commercial_defaults_tenant_id_client_id_fkey"
+            columns: ["tenant_id", "client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["tenant_id", "id"]
           },
         ]
@@ -934,6 +1073,113 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      project_appointments: {
+        Row: {
+          appointment_basis: string
+          construction_contract: string
+          contracting_client_id: string
+          created_at: string
+          created_by: string | null
+          document_file_id: string | null
+          document_version: number | null
+          ends_on: string | null
+          execution_status: string
+          id: string
+          identity_snapshot: Json
+          invoicing_client_id: string
+          planning_software: string
+          project_id: string
+          scope: string
+          stages: Json
+          starts_on: string | null
+          status: string
+          tenant_id: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          appointment_basis?: string
+          construction_contract?: string
+          contracting_client_id: string
+          created_at?: string
+          created_by?: string | null
+          document_file_id?: string | null
+          document_version?: number | null
+          ends_on?: string | null
+          execution_status?: string
+          id?: string
+          identity_snapshot?: Json
+          invoicing_client_id: string
+          planning_software?: string
+          project_id: string
+          scope?: string
+          stages?: Json
+          starts_on?: string | null
+          status?: string
+          tenant_id: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          appointment_basis?: string
+          construction_contract?: string
+          contracting_client_id?: string
+          created_at?: string
+          created_by?: string | null
+          document_file_id?: string | null
+          document_version?: number | null
+          ends_on?: string | null
+          execution_status?: string
+          id?: string
+          identity_snapshot?: Json
+          invoicing_client_id?: string
+          planning_software?: string
+          project_id?: string
+          scope?: string
+          stages?: Json
+          starts_on?: string | null
+          status?: string
+          tenant_id?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_appointments_tenant_id_contracting_client_id_fkey"
+            columns: ["tenant_id", "contracting_client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "project_appointments_tenant_id_document_file_id_fkey"
+            columns: ["tenant_id", "document_file_id"]
+            isOneToOne: false
+            referencedRelation: "project_files"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "project_appointments_tenant_id_invoicing_client_id_fkey"
+            columns: ["tenant_id", "invoicing_client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["tenant_id", "id"]
+          },
+          {
+            foreignKeyName: "project_appointments_tenant_id_project_id_fkey"
+            columns: ["tenant_id", "project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["tenant_id", "id"]
+          },
+        ]
       }
       project_commercials: {
         Row: {
@@ -2248,6 +2494,30 @@ export type Database = {
         Args: { _project: string; _template: string }
         Returns: string[]
       }
+      appointment_contact_details: {
+        Args: { _appointment: string }
+        Returns: {
+          contact_id: string
+          email: string
+          name: string
+          role: string
+          telephone: string
+        }[]
+      }
+      appointment_contact_options: {
+        Args: { _appointment: string }
+        Returns: {
+          id: string
+          name: string
+        }[]
+      }
+      appointment_entity_options: {
+        Args: { _project: string; _tenant: string }
+        Returns: {
+          id: string
+          name: string
+        }[]
+      }
       auth_user_id_by_email: { Args: { _email: string }; Returns: string }
       branding_folder_tenant: { Args: { _name: string }; Returns: string }
       can_compare_drawing: {
@@ -2256,6 +2526,10 @@ export type Database = {
       }
       can_contribute_project: {
         Args: { _project: string; _tenant: string }
+        Returns: boolean
+      }
+      can_link_appointment_contact: {
+        Args: { _appointment: string; _contact: string; _tenant: string }
         Returns: boolean
       }
       can_manage_project: {

@@ -42,7 +42,7 @@ Replace placeholder dashboard content with live metrics, charts, key-date compar
 
 ## Client onboarding and profiles (brief: 10/11/2026)
 - [x] C1 Client profiles foundation: existing CRM client cards, company identity/group, reusable multi-role contacts, relationship/next action, unverified submissions, owner-reviewed verified profile changes and audit. Signed-in demo flow/mobile passed; 184 domain tests and 14 rolled-back profile access/guard checks passed. Existing role boundaries retained; logos, configurable delegation, client documents, payment/opportunity data and default/appointment impact review remain later scope.
-- [ ] C2 Appointments: multiple engagements per project, confirmed client defaults, staged services and project-specific contact links; separate commercial fields.
+- [x] C2 Appointments: multiple engagements, explicit entities, staged services, contact links, frozen identity and confirmed commercial defaults; client spreadsheet. Signed-in isolated owner/RM/viewer/unassigned and phone checks passed; 191 regressions and 22 rolled-back appointment checks. Temporary access removed and demo suspended; real fingerprints unchanged. Coverage limits and deferred PO-document/sensitive-review work: docs/client-appointments-acceptance.md.
 - [ ] C3 Guided onboarding: configurable required fields, pending information, separate proposal/commencement/invoice readiness, authorised exceptions and approvals.
 - [ ] C4 Extended CRM: opportunities, payment RAG, client documents/activity, delegated field permissions, affected-appointment review, protected exports/search/AI.
 - [ ] C5 Optional external submissions: secure expiring invitations and internal review queue; sending deferred.

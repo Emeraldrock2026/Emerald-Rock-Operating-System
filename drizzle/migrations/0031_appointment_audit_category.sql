@@ -1,0 +1,2 @@
+CREATE OR REPLACE TRIGGER appointments_audit AFTER INSERT OR UPDATE ON public.project_appointments FOR EACH ROW EXECUTE FUNCTION public.write_audit('client');
+CREATE OR REPLACE TRIGGER appointment_contacts_audit AFTER INSERT OR DELETE ON public.appointment_contacts FOR EACH ROW EXECUTE FUNCTION public.write_audit('client');
