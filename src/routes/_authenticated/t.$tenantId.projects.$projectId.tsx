@@ -28,6 +28,7 @@ import { ProjectFilesPanel } from "@/components/project-files/project-files-pane
 import { fileModuleAccess, type FileModuleId } from "@/lib/domain/project-files";
 import { CommercialForecastCard } from "@/components/dashboard/commercial-forecast-card";
 import { MilestonesPanel } from "@/components/dashboard/milestones-panel";
+import { HealthCard } from "@/components/dashboard/health-card";
 import { LiveDashboard } from "@/components/dashboard/live-dashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -212,6 +213,7 @@ function ProjectPage() {
           return (
             <>
               <TabsContent value="dashboard" className="mt-4 space-y-4">
+                <HealthCard tenantId={tenantId} projectId={projectId} onOpenRecord={openRecord} onOpenSection={(section) => { document.querySelector(`[aria-label="${section === "milestones" ? "Project milestones" : "Commercial forecast"}"]`)?.scrollIntoView({ block: "start", behavior: "smooth" }); }} />
                 <LiveDashboard tenantId={tenantId} projectId={projectId} timezone={props.timezone} modules={dashModules}
                   photosActive={photosOn} onOpenRecord={openRecord}
                   onOpenModule={(id) => setTab(id === "change_control" ? "changes" : id)} />
