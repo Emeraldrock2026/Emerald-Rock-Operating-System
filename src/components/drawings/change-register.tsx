@@ -1,3 +1,4 @@
+import { readAllPages } from "@/lib/read-all-pages";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -17,10 +18,9 @@ export function ChangeRegister({ tenantId, projectId, timezone, canEdit, histori
   const q = useQuery({
     queryKey: ["tenant", tenantId, "project", projectId, "changes"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("project_records")
+      const data = await readAllPages((from, to) => supabase.from("project_records")
         .select("id, reference, title, description, status, updated_at, version, comparison_findings!comparison_findings_tenant_id_change_record_id_fkey(id, category, location, summary, amended_summary, decision)")
-        .eq("project_id", projectId).eq("module_id", "change_control").order("reference", { ascending: false });
-      if (error) throw error;
+        .eq("project_id", projectId).eq("module_id", "change_control").order("reference", { ascending: false }).order("id").range(from, to));
       return data ?? [];
     },
   });

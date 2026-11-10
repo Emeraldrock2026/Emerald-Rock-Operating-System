@@ -1,3 +1,4 @@
+import { readAllPages } from "@/lib/read-all-pages";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -27,20 +28,17 @@ export function CommercialForecastCard(p: Props) {
       const { data: row, error } = await supabase.from("project_commercials")
         .select("budget_basis, original_budget, agreed_fee, budget_hours, forecast_final_account, forecast_updated_on, forecast_note, version").eq("project_id", p.projectId).maybeSingle();
       if (error) throw error;
-      const adj = await supabase.from("budget_adjustments").select("id, amount, reason, effective_on, created_at").eq("project_id", p.projectId).order("created_at");
-      if (adj.error) throw adj.error;
+      const adj = await readAllPages((from, to) => supabase.from("budget_adjustments").select("id, amount, reason, effective_on, created_at").eq("project_id", p.projectId).order("created_at").order("id").range(from, to));
       let changes: Change[] = [];
       if (p.changesVisible) {
         const [recs, ests] = await Promise.all([
-          supabase.from("project_records").select("id, reference, title, status, is_closed").eq("project_id", p.projectId).eq("module_id", "change_control").order("reference"),
-          supabase.from("change_estimates").select("record_id, amount, version").eq("project_id", p.projectId),
+          readAllPages((from, to) => supabase.from("project_records").select("id, reference, title, status, is_closed").eq("project_id", p.projectId).eq("module_id", "change_control").order("reference").range(from, to)),
+          readAllPages((from, to) => supabase.from("change_estimates").select("record_id, amount, version").eq("project_id", p.projectId).order("record_id").range(from, to)),
         ]);
-        if (recs.error) throw recs.error;
-        if (ests.error) throw ests.error;
-        const byId = new Map((ests.data ?? []).map((e) => [e.record_id, e]));
-        changes = (recs.data ?? []).map((r) => ({ ...r, estimate: byId.get(r.id)?.amount ?? null, estimateVersion: byId.get(r.id)?.version ?? null }));
+        const byId = new Map(ests.map((e) => [e.record_id, e]));
+        changes = recs.map((r) => ({ ...r, estimate: byId.get(r.id)?.amount ?? null, estimateVersion: byId.get(r.id)?.version ?? null }));
       }
-      return { row: row as Row | null, changes, adjustments: (adj.data ?? []) as Adj[] };
+      return { row: row as Row | null, changes, adjustments: adj as Adj[] };
     },
   });
   const [editing, setEditing] = useState(false);

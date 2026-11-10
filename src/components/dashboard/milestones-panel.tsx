@@ -1,3 +1,4 @@
+import { readAllPages } from "@/lib/read-all-pages";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -24,10 +25,9 @@ export function MilestonesPanel(p: Props) {
   const q = useQuery({
     queryKey: key,
     queryFn: async () => {
-      const { data, error } = await supabase.from("project_milestones")
+      const data = await readAllPages((from, to) => supabase.from("project_milestones")
         .select("id, name, baseline_date, forecast_date, actual_date, forecast_updated_on, notes, version, milestone_baselines(id, baseline_no, baseline_date, previous_date, reason, set_at)")
-        .eq("project_id", p.projectId).order("sort_order").order("baseline_date", { nullsFirst: false });
-      if (error) throw error;
+        .eq("project_id", p.projectId).order("sort_order").order("baseline_date", { nullsFirst: false }).order("id").range(from, to));
       return (data ?? []) as unknown as Row[];
     },
   });

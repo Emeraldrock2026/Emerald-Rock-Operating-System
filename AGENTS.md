@@ -54,3 +54,5 @@ use the editor.
 - Budget basis (revenue/expenditure/cost) and original budget sit on project_commercials; budget_adjustments is append-only (guard trigger refuses update/delete) and audited, and current budget = original + adjustments via basisForecast in src/lib/domain/commercial.ts, so every comparison uses the same basis rules.
 - Health scoring lives in domain/health.ts; the authenticated health function reads every page as the user, excludes inactive modules and restricted commercial inputs, and validates AI citations against that fresh snapshot so the model cannot supply scores or private facts.
 - Business dashboard configuration is validated in domain/dashboard-settings.ts and by a database guard; project overrides take precedence, while display mappings never alter operational rules or permissions.
+
+- Dashboard inputs and linked record lists use readAllPages with unique ordering, so API page limits never silently truncate counts or exact-record navigation.
