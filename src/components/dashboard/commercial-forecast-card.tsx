@@ -115,7 +115,7 @@ export function CommercialForecastCard(p: Props) {
               <dd className={`text-lg font-semibold tabular-nums ${varTone}`}>{f.variance == null ? "Not available" : `${f.variance > 0 ? "+" : ""}${formatGBP(f.variance)}`}</dd>
               <dd className="text-xs text-muted-foreground">{f.variance == null ? (f.forecast == null ? "Needs a forecast" : "Needs an agreed fee") : `${f.variancePct != null ? `${f.variancePct > 0 ? "+" : ""}${f.variancePct}% · ` : ""}${f.variance > 0 ? "Above budget" : f.variance < 0 ? "Below budget" : "On budget"}`}</dd></div>
             <div className="rounded-md border p-3"><dt className="text-xs text-muted-foreground">Pending change exposure</dt>
-              <dd className="text-lg font-semibold tabular-nums">{p.changesVisible ? formatGBP(f.pendingExposure) : "Not available"}</dd>
+              <dd className="text-lg font-semibold tabular-nums">{!p.changesVisible ? "Not available" : f.pendingCount > 0 && f.unestimated === f.pendingCount ? "Not estimated" : formatGBP(f.pendingExposure)}</dd>
               <dd className="text-xs text-muted-foreground">{!p.changesVisible ? "Change control is off for this project" : `${f.pendingCount} pending change${f.pendingCount === 1 ? "" : "s"}${f.unestimated ? ` · ${f.unestimated} not estimated` : ""}`}</dd></div>
           </dl>
           {p.changesVisible && f.forecastWithPending != null ? <p className="mt-2 text-xs text-muted-foreground">Forecast plus estimated pending changes: {formatGBP(f.forecastWithPending)}{f.unestimated ? ` (excludes ${f.unestimated} change${f.unestimated === 1 ? "" : "s"} without an estimate)` : ""}.</p> : null}
