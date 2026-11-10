@@ -37,9 +37,9 @@ export function ReadinessStrip({ tenantId, appointment, commercial }: { tenantId
     executionStatus: appointment.execution_status,
     stages,
     terms: profileObject(terms.data?.terms),
-    commencementException: terms.data?.commencement_exception && typeof terms.data.commencement_exception === "object"
+    commencementException: (terms.data?.commencement_exception && typeof terms.data.commencement_exception === "object"
       ? terms.data.commencement_exception as AppointmentReadinessInput["commencementException"]
-      : null,
+      : null) ?? null,
   };
   const appt = appointmentConfirmed(appointment.execution_status);
 
