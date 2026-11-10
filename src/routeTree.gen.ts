@@ -27,6 +27,7 @@ import { Route as AuthenticatedTTenantIdProjectsIndexRouteImport } from './route
 import { Route as AuthenticatedTTenantIdProjectsProjectIdRouteImport } from './routes/_authenticated/t.$tenantId.projects.$projectId'
 import { Route as AuthenticatedTTenantIdSettingsAppearanceRouteImport } from './routes/_authenticated/t.$tenantId.settings.appearance'
 import { Route as AuthenticatedTTenantIdSettingsBrandingRouteImport } from './routes/_authenticated/t.$tenantId.settings.branding'
+import { Route as AuthenticatedTTenantIdSettingsDashboardRouteImport } from './routes/_authenticated/t.$tenantId.settings.dashboard'
 import { Route as AuthenticatedTTenantIdSettingsTemplatesRouteImport } from './routes/_authenticated/t.$tenantId.settings.templates'
 import { Route as AuthenticatedTTenantIdSettingsUsersRouteImport } from './routes/_authenticated/t.$tenantId.settings.users'
 
@@ -131,6 +132,12 @@ const AuthenticatedTTenantIdSettingsBrandingRoute =
     path: '/settings/branding',
     getParentRoute: () => AuthenticatedTTenantIdRoute,
   } as any)
+const AuthenticatedTTenantIdSettingsDashboardRoute =
+  AuthenticatedTTenantIdSettingsDashboardRouteImport.update({
+    id: '/settings/dashboard',
+    path: '/settings/dashboard',
+    getParentRoute: () => AuthenticatedTTenantIdRoute,
+  } as any)
 const AuthenticatedTTenantIdSettingsTemplatesRoute =
   AuthenticatedTTenantIdSettingsTemplatesRouteImport.update({
     id: '/settings/templates',
@@ -159,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   '/t/$tenantId/settings/appearance': typeof AuthenticatedTTenantIdSettingsAppearanceRoute
   '/t/$tenantId/settings/branding': typeof AuthenticatedTTenantIdSettingsBrandingRoute
+  '/t/$tenantId/settings/dashboard': typeof AuthenticatedTTenantIdSettingsDashboardRoute
   '/t/$tenantId/settings/templates': typeof AuthenticatedTTenantIdSettingsTemplatesRoute
   '/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
   '/t/$tenantId/clients/': typeof AuthenticatedTTenantIdClientsIndexRoute
@@ -179,6 +187,7 @@ export interface FileRoutesByTo {
   '/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   '/t/$tenantId/settings/appearance': typeof AuthenticatedTTenantIdSettingsAppearanceRoute
   '/t/$tenantId/settings/branding': typeof AuthenticatedTTenantIdSettingsBrandingRoute
+  '/t/$tenantId/settings/dashboard': typeof AuthenticatedTTenantIdSettingsDashboardRoute
   '/t/$tenantId/settings/templates': typeof AuthenticatedTTenantIdSettingsTemplatesRoute
   '/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
   '/t/$tenantId/clients': typeof AuthenticatedTTenantIdClientsIndexRoute
@@ -202,6 +211,7 @@ export interface FileRoutesById {
   '/_authenticated/t/$tenantId/projects/$projectId': typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   '/_authenticated/t/$tenantId/settings/appearance': typeof AuthenticatedTTenantIdSettingsAppearanceRoute
   '/_authenticated/t/$tenantId/settings/branding': typeof AuthenticatedTTenantIdSettingsBrandingRoute
+  '/_authenticated/t/$tenantId/settings/dashboard': typeof AuthenticatedTTenantIdSettingsDashboardRoute
   '/_authenticated/t/$tenantId/settings/templates': typeof AuthenticatedTTenantIdSettingsTemplatesRoute
   '/_authenticated/t/$tenantId/settings/users': typeof AuthenticatedTTenantIdSettingsUsersRoute
   '/_authenticated/t/$tenantId/clients/': typeof AuthenticatedTTenantIdClientsIndexRoute
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/projects/$projectId'
     | '/t/$tenantId/settings/appearance'
     | '/t/$tenantId/settings/branding'
+    | '/t/$tenantId/settings/dashboard'
     | '/t/$tenantId/settings/templates'
     | '/t/$tenantId/settings/users'
     | '/t/$tenantId/clients/'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/t/$tenantId/projects/$projectId'
     | '/t/$tenantId/settings/appearance'
     | '/t/$tenantId/settings/branding'
+    | '/t/$tenantId/settings/dashboard'
     | '/t/$tenantId/settings/templates'
     | '/t/$tenantId/settings/users'
     | '/t/$tenantId/clients'
@@ -267,6 +279,7 @@ export interface FileRouteTypes {
     | '/_authenticated/t/$tenantId/projects/$projectId'
     | '/_authenticated/t/$tenantId/settings/appearance'
     | '/_authenticated/t/$tenantId/settings/branding'
+    | '/_authenticated/t/$tenantId/settings/dashboard'
     | '/_authenticated/t/$tenantId/settings/templates'
     | '/_authenticated/t/$tenantId/settings/users'
     | '/_authenticated/t/$tenantId/clients/'
@@ -409,6 +422,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTTenantIdSettingsBrandingRouteImport
       parentRoute: typeof AuthenticatedTTenantIdRoute
     }
+    '/_authenticated/t/$tenantId/settings/dashboard': {
+      id: '/_authenticated/t/$tenantId/settings/dashboard'
+      path: '/settings/dashboard'
+      fullPath: '/t/$tenantId/settings/dashboard'
+      preLoaderRoute: typeof AuthenticatedTTenantIdSettingsDashboardRouteImport
+      parentRoute: typeof AuthenticatedTTenantIdRoute
+    }
     '/_authenticated/t/$tenantId/settings/templates': {
       id: '/_authenticated/t/$tenantId/settings/templates'
       path: '/settings/templates'
@@ -434,6 +454,7 @@ interface AuthenticatedTTenantIdRouteChildren {
   AuthenticatedTTenantIdProjectsProjectIdRoute: typeof AuthenticatedTTenantIdProjectsProjectIdRoute
   AuthenticatedTTenantIdSettingsAppearanceRoute: typeof AuthenticatedTTenantIdSettingsAppearanceRoute
   AuthenticatedTTenantIdSettingsBrandingRoute: typeof AuthenticatedTTenantIdSettingsBrandingRoute
+  AuthenticatedTTenantIdSettingsDashboardRoute: typeof AuthenticatedTTenantIdSettingsDashboardRoute
   AuthenticatedTTenantIdSettingsTemplatesRoute: typeof AuthenticatedTTenantIdSettingsTemplatesRoute
   AuthenticatedTTenantIdSettingsUsersRoute: typeof AuthenticatedTTenantIdSettingsUsersRoute
   AuthenticatedTTenantIdClientsIndexRoute: typeof AuthenticatedTTenantIdClientsIndexRoute
@@ -454,6 +475,8 @@ const AuthenticatedTTenantIdRouteChildren: AuthenticatedTTenantIdRouteChildren =
       AuthenticatedTTenantIdSettingsAppearanceRoute,
     AuthenticatedTTenantIdSettingsBrandingRoute:
       AuthenticatedTTenantIdSettingsBrandingRoute,
+    AuthenticatedTTenantIdSettingsDashboardRoute:
+      AuthenticatedTTenantIdSettingsDashboardRoute,
     AuthenticatedTTenantIdSettingsTemplatesRoute:
       AuthenticatedTTenantIdSettingsTemplatesRoute,
     AuthenticatedTTenantIdSettingsUsersRoute:

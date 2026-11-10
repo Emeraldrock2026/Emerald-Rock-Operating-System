@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { DEFAULT_WEIGHTS, projectHealth, validateNarrative } from "./domain/health";
+import { projectHealth, validateNarrative } from "./domain/health";
+import { dashboardSettingsSchema, DEFAULT_DASHBOARD_SETTINGS, resolveHealthWeights } from "./domain/dashboard-settings";
 import { basisForecast } from "./domain/commercial";
 import { todayIn } from "./domain/dates";
 
@@ -17,15 +18,16 @@ export const getProjectHealth = createServerFn({ method: "POST" })
       sb.from("tenants").select("timezone").eq("id", data.tenantId).single(),
     ]);
     if (access.error || !access.data || project.error || !project.data || tenant.error || !tenant.data) throw new Error("This project is unavailable or you cannot view it.");
-    const [core, mods, settings, commercialAccess, manage] = await Promise.all([
+    const [core, mods, settings, commercialAccess, manage, businessSettings] = await Promise.all([
       sb.rpc("module_enabled", { _tenant: data.tenantId, _module: "clients_projects" }),
       sb.from("project_modules").select("module_id").eq("tenant_id", data.tenantId).eq("project_id", data.projectId),
-      sb.from("project_health_settings").select("actions_weight,milestones_weight,qa_weight,commercial_weight,version").eq("tenant_id", data.tenantId).eq("project_id", data.projectId).maybeSingle(),
+      sb.from("project_health_settings").select("actions_weight,milestones_weight,qa_weight,commercial_weight,version,inherit_business_weights").eq("tenant_id", data.tenantId).eq("project_id", data.projectId).maybeSingle(),
       sb.rpc("has_commercial_access", { _tenant: data.tenantId }),
       sb.rpc("can_manage_project", { _tenant: data.tenantId, _project: data.projectId }),
+      sb.from("tenant_dashboard_settings").select("config").eq("tenant_id", data.tenantId).maybeSingle(),
     ]);
     if (core.error || !core.data) throw new Error("Clients & Projects is switched off.");
-    if (mods.error || settings.error || commercialAccess.error || manage.error) throw new Error("Unable to check project access.");
+    if (mods.error || settings.error || commercialAccess.error || manage.error || businessSettings.error) throw new Error("Unable to check project access.");
     const active = await Promise.all((mods.data ?? []).map(async (m) => {
       const r = await sb.rpc("project_module_active", { _tenant: data.tenantId, _project: data.projectId, _module: m.module_id });
       if (r.error) throw r.error;
@@ -73,10 +75,11 @@ export const getProjectHealth = createServerFn({ method: "POST" })
         records.filter((r) => r.module_id === "change_control").map((r) => ({ ...r, estimate: byId.get(r.id) ?? null }))), updatedOn: row.data?.forecast_updated_on ?? null };
     }
     const s = settings.data;
-    const weights = s ? { actions: s.actions_weight, milestones: s.milestones_weight, qa: s.qa_weight, commercial: s.commercial_weight } : DEFAULT_WEIGHTS;
+    const config = businessSettings.data ? dashboardSettingsSchema.parse(businessSettings.data.config) : DEFAULT_DASHBOARD_SETTINGS;
+    const weights = resolveHealthWeights(config, s ? { actions: s.actions_weight, milestones: s.milestones_weight, qa: s.qa_weight, commercial: s.commercial_weight } : null, s?.inherit_business_weights);
     const today = todayIn(tenant.data.timezone);
-    const health = projectHealth({ today, modules, records: records.map((r) => ({ ...r, created_on: todayIn(tenant.data.timezone, new Date(r.created_at)), closed_on: r.completed_on })), milestones: modules.includes("programmes") ? milestones : null, commercial, weights, projectId: data.projectId, projectReference: project.data.reference });
-    const result = { health, weights, settingsVersion: s?.version ?? null, canManage: !!manage.data };
+    const health = projectHealth({ today, modules, records: records.map((r) => ({ ...r, created_on: todayIn(tenant.data.timezone, new Date(r.created_at)), closed_on: r.completed_on })), milestones: modules.includes("programmes") ? milestones : null, commercial, weights, freshness: config.freshness, projectId: data.projectId, projectReference: project.data.reference });
+    const result = { health, weights, freshness: config.freshness, weightsSource: s && !s.inherit_business_weights ? "project" : "business", settingsVersion: s?.version ?? null, canManage: !!manage.data };
     if (!data.explain || health.score == null || !health.evidence.length) return { ...result, narrative: null, explanationError: data.explain ? "Not enough underlying records for an explanation." : null };
     const { generateResponse, GatewayError } = await import("@lovable.dev/ai-gateway");
     // No client-provided figures or text; all facts come from freshly authorised reads.

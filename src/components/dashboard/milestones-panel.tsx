@@ -11,7 +11,7 @@ import { friendlyError, StaleRecordError } from "@/lib/db-errors";
 import { formatDateGB, formatTimestamp, todayIn, type DateOnly } from "@/lib/domain/dates";
 import { milestoneSummary, milestoneView, STALE_FORECAST_DAYS, STATE_LABEL, varianceLabel, type Milestone } from "@/lib/domain/milestones";
 
-interface Props { tenantId: string; projectId: string; timezone: string; canContribute: boolean; canManage: boolean; historicOnly: boolean }
+interface Props { tenantId: string; projectId: string; timezone: string; canContribute: boolean; canManage: boolean; historicOnly: boolean; staleDays?: number }
 type Row = Milestone & { version: number; notes: string; milestone_baselines: { id: string; baseline_no: number; baseline_date: string; previous_date: string | null; reason: string; set_at: string }[] };
 
 const RAG = { red: "border-destructive/40 bg-destructive/10 text-destructive", amber: "border-warning/50 bg-warning-surface text-warning-foreground", green: "border-success/40 bg-success-surface text-success", none: "border-border text-muted-foreground" };
@@ -48,7 +48,8 @@ export function MilestonesPanel(p: Props) {
     onSettled: invalidate,
   });
   const rows = q.data ?? [];
-  const sum = milestoneSummary(rows, today);
+  const staleDays = p.staleDays ?? STALE_FORECAST_DAYS;
+  const sum = milestoneSummary(rows, today, staleDays);
 
   return (
     <section className="rounded-lg border bg-card p-4" aria-label="Milestones">
@@ -65,7 +66,7 @@ export function MilestonesPanel(p: Props) {
       {q.isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : !rows.length ? <p className="text-sm text-muted-foreground">No milestones yet.</p> : (
         <ul className="divide-y">
           {rows.map((r) => {
-            const v = milestoneView(r, today);
+            const v = milestoneView(r, today, staleDays);
             const n = r.milestone_baselines.length;
             return (
               <li key={r.id} className="grid gap-2 py-3 md:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))_minmax(0,1.2fr)] md:items-center">
@@ -73,7 +74,7 @@ export function MilestonesPanel(p: Props) {
                   <p className="text-sm font-medium">{r.name}</p>
                   <div className="mt-1 flex flex-wrap gap-1">
                     <span className={`rounded border px-1.5 py-0.5 text-[11px] font-medium ${RAG[v.rag]}`}>{STATE_LABEL[v.state]}</span>
-                    {v.flags.includes("stale_forecast") ? <span className="rounded border border-warning/50 bg-warning-surface px-1.5 py-0.5 text-[11px] text-warning-foreground">Stale forecast · not updated in {STALE_FORECAST_DAYS} days</span> : null}
+                    {v.flags.includes("stale_forecast") ? <span className="rounded border border-warning/50 bg-warning-surface px-1.5 py-0.5 text-[11px] text-warning-foreground">Stale forecast · over {staleDays} days or update date missing</span> : null}
                     {v.flags.includes("forecast_passed") ? <span className="rounded border border-destructive/40 bg-destructive/10 px-1.5 py-0.5 text-[11px] text-destructive">Forecast date passed, no actual</span> : null}
                   </div>
                 </div>

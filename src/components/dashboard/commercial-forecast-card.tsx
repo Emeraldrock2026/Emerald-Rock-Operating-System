@@ -9,8 +9,9 @@ import { friendlyError, StaleRecordError } from "@/lib/db-errors";
 import { formatDateGB, type DateOnly } from "@/lib/domain/dates";
 import { BUDGET_BASES, basisForecast, basisLabel, forecastText, formatGBP, parseMoney, type BudgetBasis } from "@/lib/domain/commercial";
 import { todayIn } from "@/lib/domain/dates";
+import { daysBetween } from "@/lib/domain/dashboard";
 
-interface Props { tenantId: string; projectId: string; canEdit: boolean; changesVisible: boolean; changesEditable: boolean }
+interface Props { tenantId: string; projectId: string; canEdit: boolean; changesVisible: boolean; changesEditable: boolean; staleDays?: number; timezone?: string }
 type Adj = { id: string; amount: number; reason: string; effective_on: string; created_at: string };
 type Row = { budget_basis: BudgetBasis; original_budget: number | null; agreed_fee: number | null; budget_hours: number | null; forecast_final_account: number | null; forecast_updated_on: string | null; forecast_note: string; version: number };
 type Change = { id: string; reference: string; title: string; status: string; is_closed: boolean; estimate: number | null; estimateVersion: number | null };
@@ -107,6 +108,8 @@ export function CommercialForecastCard(p: Props) {
   const f = basisForecast(row?.budget_basis ?? "revenue", row?.original_budget ?? null, adjustments, row?.forecast_final_account ?? null, q.data?.changes ?? []);
   const pending = (q.data?.changes ?? []).filter((c) => !c.is_closed && c.status !== "withdrawn");
   const varTone = f.direction === "adverse" ? "text-destructive" : f.direction === "favourable" ? "text-success" : "text-muted-foreground";
+  const staleDays = p.staleDays ?? 28;
+  const stale = row?.forecast_final_account != null && (!row.forecast_updated_on || daysBetween(row.forecast_updated_on, todayIn(p.timezone ?? "Europe/London")) > staleDays);
 
   return (
     <section className="rounded-lg border bg-card p-4" aria-label="Commercial forecast">
@@ -123,6 +126,7 @@ export function CommercialForecastCard(p: Props) {
       </div>
       {q.error ? <p className="mt-2 text-sm text-destructive">{friendlyError(q.error)}</p> : q.isLoading ? <p className="mt-2 text-sm text-muted-foreground">Loading…</p> : (
         <>
+          {stale ? <p className="mt-2 text-sm text-warning-foreground">Stale forecast — over {staleDays} calendar days or update date missing.</p> : null}
           {editing ? (
             <form className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-[auto_1fr_1fr_2fr_auto] lg:items-end" onSubmit={(e) => { e.preventDefault(); saveForecast.mutate(); }}>
               <div className="grid gap-1.5"><Label htmlFor="basis">Budget basis</Label>
