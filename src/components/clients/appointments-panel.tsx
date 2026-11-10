@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog,DialogContent,DialogHeader,DialogTitle } from '@/components/ui/dialog';
 import { AppointmentTerms } from './appointment-terms';
+import { ReadinessStrip } from './readiness-strip';
 
 export function AppointmentsPanel({tenantId,projectId,clientId,canManage=false,commercial=false}:{tenantId:string;projectId?:string;clientId?:string;canManage?:boolean;commercial?:boolean}){
  const access=appointmentAccess(true,canManage,commercial);
