@@ -84,7 +84,7 @@ database policies are the source of truth.
 - First platform admin: an approved email in `platform_admin_bootstrap` calls
   `claim_platform_admin()` after signing in with a confirmed email; the entry is then consumed.
 - `tests/db/access_acceptance.sql` exercises isolation, roles, modules and guards inside one
-  transaction that always rolls back. Expected result: `RESULT passes=66 fails={}`.
+  transaction that always rolls back. Expected result: `RESULT passes=71 fails={}`.
 
 ## Planning rules (see `src/lib/domain/`)
 - Allocation dates are date-only values. Capacity comes from effective-dated working patterns.
@@ -190,3 +190,4 @@ Which cards and exports a person gets is decided by `overviewCards` / `available
 - Status colours label dashboard outstanding-action statuses only. They never change open/closed totals, QA pass/fail charts, deadlines, approvals or health outcomes. Colour labels and overdue warnings remain visible. Business/project module switches retain authority.
 - Changes apply on dashboard load/refetch; saving invalidates this business's cached reads. AI explanations always calculate from a fresh authorised snapshot including current settings.
 - Tests: `dashboard-settings.test.ts`, `tests/db/dashboard_settings_acceptance.sql`, and the extended full access acceptance transaction; fixtures are isolated and rolled back.
+- D6 verification: 179 domain checks, 19 settings permission/validation checks and 71 full access checks passed. Demo settings were saved/read back/restored through the UI; existing project overrides survived, freshness applied, desktop/phone rendering had no overflow or runtime errors. Real business/project data was not edited.

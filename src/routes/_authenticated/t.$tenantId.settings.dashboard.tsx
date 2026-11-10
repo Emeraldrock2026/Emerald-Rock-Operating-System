@@ -54,7 +54,7 @@ function SettingsForm({ initial, version }: { initial: DashboardSettings; versio
   }, onSuccess: async () => { toast.success("Dashboard settings saved."); await qc.invalidateQueries({ queryKey: ["tenant", tenantId] }); }, onError: (e) => setError(e instanceof Error ? e.message : friendlyError(e)) });
   const mappings = [
     ...REGISTER_MODULES.map((m) => ({ id: m, label: REGISTERS[m].label, statuses: REGISTERS[m].statuses })),
-    { id: "change_control", label: "Change register", statuses: ["draft", "under_review", "accepted", "rejected", "withdrawn"] },
+    { id: "change_control", label: "Change register", statuses: ["draft", "withdrawn"] },
     ...["progress_reports", "delay_reports"].map((m) => ({ id: m, label: m === "progress_reports" ? "Progress reports" : "Delay reports", statuses: ["draft", "issued", "closed"] })),
   ].filter((m) => [...(ctx.access?.enabledModules ?? [])].some((id) => id === m.id));
   return <form className="max-w-4xl space-y-6" onSubmit={(e) => { e.preventDefault(); setError(null); save.mutate(); }}>
